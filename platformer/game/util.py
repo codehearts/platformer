@@ -5,15 +5,18 @@ class Box(object):
     def __init__(self, x, y, width, height):
         self.x = x
         self.y = y
+        self.x2 = x + width
+        self.y2 = y + width
         self.width = width
         self.height = height
+        self.half_width = width / 2.0
+        self.half_height = height / 2.0
 
 class HitBox(Box):
-    def __init__(self, name, rel_x, rel_y, width, height):
-        super(HitBox, self).__init__(rel_x, rel_y, width, height)
-        self.name = name
-        self.rel_x = rel_x
-        self.rel_y = rel_y
+    def __init__(self, x, y, rel_x, rel_y, width, height):
+        super(HitBox, self).__init__(x, y, width, height)
+        self.rel_x = int(rel_x)
+        self.rel_y = int(rel_y)
 
 
 

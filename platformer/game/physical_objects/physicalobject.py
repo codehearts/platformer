@@ -8,29 +8,15 @@ class PhysicalObject(pyglet.sprite.Sprite):
     def __init__(self, stage, mass=1, *args, **kwargs):
         super(PhysicalObject, self).__init__(*args, **kwargs)
         
-        self.x = int(self.x)
-        self.y = int(self.y)
-        
-        self.x2 = self.x + self.width
-        self.y2 = self.y + self.height
-        self.half_width = int(self.width/2)
-        self.half_height = int(self.height/2)
-        
-        self.tile_width = self.width / general_settings.TILE_SIZE_FLOAT
-        self.tile_height = self.height / general_settings.TILE_SIZE_FLOAT
-        
-        self.tile_x = self.x / general_settings.TILE_SIZE
-        self.tile_y = self.y / general_settings.TILE_SIZE
-        self.sub_tile_x = self.x % general_settings.TILE_SIZE / general_settings.TILE_SIZE_FLOAT
-        self.sub_tile_y = self.y % general_settings.TILE_SIZE / general_settings.TILE_SIZE_FLOAT
+        self.hitbox = util.HitBox(self.x, self.y, 0, 0, self.width, self.height*2)
         
         # @TODO It may be faster to keep a bytearray of this to check for collisions against
         self.stage = stage
         self.max_stage_x = len(self.stage[0])
         self.max_stage_y = len(self.stage)
         
-        self.x_tile_span = self.get_x_tile_span()
-        self.y_tile_span = self.get_y_tile_span()
+        # Update our positioning based on our hitbox
+        self.update_positioning()
         
         self.target_speed = 0
         
@@ -43,16 +29,39 @@ class PhysicalObject(pyglet.sprite.Sprite):
         
         self.facing_right = True
         self.in_air = True
-        self.is_jumping = False    
+        self.is_jumping = False
     
     
     
     def move_to(self, new_x, new_y):
         # Handle horizontal component first in case of slopes
-        if new_x != self.x:
+        if new_x != self.hitbox.x:
             self.move_to_x(new_x)
         
         self.move_to_y(new_y)
+    
+    
+    
+    # Updates the sprite's positioning relative to the hitbox
+    def update_positioning(self):
+        self.x = int(self.hitbox.x - self.hitbox.rel_x)
+        self.y = int(self.hitbox.y - self.hitbox.rel_y)
+        
+        self.x2 = self.hitbox.x + self.hitbox.width
+        self.y2 = self.hitbox.y + self.hitbox.height
+        self.half_width = int(self.hitbox.width / 2)
+        self.half_height = int(self.hitbox.height / 2)
+        
+        self.tile_width = self.hitbox.width / general_settings.TILE_SIZE_FLOAT
+        self.tile_height = self.hitbox.height / general_settings.TILE_SIZE_FLOAT
+        
+        self.tile_x = self.hitbox.x / general_settings.TILE_SIZE
+        self.tile_y = self.hitbox.y / general_settings.TILE_SIZE
+        self.sub_tile_x = self.hitbox.x % general_settings.TILE_SIZE / general_settings.TILE_SIZE_FLOAT
+        self.sub_tile_y = self.hitbox.y % general_settings.TILE_SIZE / general_settings.TILE_SIZE_FLOAT
+        
+        self.x_tile_span = self.get_x_tile_span()
+        self.y_tile_span = self.get_y_tile_span()
     
     
     
@@ -60,12 +69,12 @@ class PhysicalObject(pyglet.sprite.Sprite):
     def get_axis_range(self, axis, new_position):
         # Initiate our values based on the axis we're checking
         if axis == 'x':
-            current_position = self.x
+            current_position = self.hitbox.x
             current_tile = self.tile_x
             axis_dimension = self.tile_width
             axis_tile_boundary = self.max_stage_x - 1
         else: # Y axis
-            current_position = self.y
+            current_position = self.hitbox.y
             current_tile = self.tile_y
             axis_dimension = self.tile_height
             axis_tile_boundary = self.max_stage_y - 1
@@ -112,10 +121,10 @@ class PhysicalObject(pyglet.sprite.Sprite):
                     
                     if collision_tile.is_slope():
                         # Allow the object to overlap slopes from their sloped side, but not their taller side
-                        if (not collision_tile.is_collidable()) or (collision_tile.is_right_slope() and collision_tile.x2 > self.x) or (collision_tile.is_left_slope() and self.x2 > collision_tile.x):
+                        if (not collision_tile.is_collidable()) or (collision_tile.is_right_slope() and collision_tile.x2 > self.hitbox.x) or (collision_tile.is_left_slope() and self.x2 > collision_tile.x):
                             continue
                     
-                    if new_x < self.x: # Moving left
+                    if new_x < self.hitbox.x: # Moving left
                         # If we're on a slope, ignore adjacent tiles to prevent getting stuck when ascending a leftward ramp
                         possible_slope = self.stage[y][x+1]
                         if possible_slope and possible_slope.is_left_slope():
@@ -129,7 +138,7 @@ class PhysicalObject(pyglet.sprite.Sprite):
                         if possible_slope and possible_slope.is_right_slope():
                             continue
                         
-                        new_x = collision_tile.x - self.width
+                        new_x = collision_tile.x - self.hitbox.width
                         self.on_right_collision(collision_tile)
                     
                     tile_found = True
@@ -137,13 +146,13 @@ class PhysicalObject(pyglet.sprite.Sprite):
         
         new_x = int(new_x)
         
-        if new_x != self.x:
-            self.facing_right = new_x > self.x
+        self.facing_right = new_x > self.hitbox.x
         
-        self.x = new_x
-        self.x2 = self.x + self.width
-        self.tile_x = self.x / general_settings.TILE_SIZE
-        self.sub_tile_x = self.x % general_settings.TILE_SIZE / general_settings.TILE_SIZE_FLOAT
+        self.hitbox.x = new_x
+        self.x = self.hitbox.x - self.hitbox.rel_x
+        self.x2 = self.hitbox.x + self.hitbox.width
+        self.tile_x = self.hitbox.x / general_settings.TILE_SIZE
+        self.sub_tile_x = self.hitbox.x % general_settings.TILE_SIZE / general_settings.TILE_SIZE_FLOAT
         self.x_tile_span = self.get_x_tile_span()
     
     #@profilehooks.profile
@@ -160,18 +169,19 @@ class PhysicalObject(pyglet.sprite.Sprite):
                 if collision_tile:
                     
                     if collision_tile.is_slope():
-                        if new_y < self.y or collision_tile.is_upper_slope(): # Moving down
+                        if new_y < self.hitbox.y or collision_tile.is_upper_slope(): # Moving down
                             new_y = self.resolve_slope_collision(new_y, collision_tile, x, y)
                         elif self.y2 - collision_tile.y < 5:
+                            # @TODO This check is no good and allows you to move through slopes from below diagonally
                             # Collide with the bottoms of slope tiles
                             # A threshold of 5 pixels ensures that we don't collide with other tiles on a multi-tile slope when jumping
-                            new_y = collision_tile.y - self.height
+                            new_y = collision_tile.y - self.hitbox.height
                             self.on_top_collision(collision_tile) 
                         
                         tile_found = True
                         break
                     
-                    if new_y < self.y: # Moving down
+                    if new_y < self.hitbox.y: # Moving down
                         # If there's a leftward slope tile to our right, we should be on that slope instead of this tile
                         possible_slope = self.stage[y][x+1]
                         if possible_slope and possible_slope.is_left_slope():
@@ -183,7 +193,7 @@ class PhysicalObject(pyglet.sprite.Sprite):
                         new_y = collision_tile.y2
                         self.on_bottom_collision(collision_tile)
                     else: # Moving up
-                        new_y = collision_tile.y - self.height
+                        new_y = collision_tile.y - self.hitbox.height
                         self.on_top_collision(collision_tile)
                     
                     tile_found = True
@@ -193,17 +203,18 @@ class PhysicalObject(pyglet.sprite.Sprite):
         if not (tile_found or self.in_air):
             self.in_air = True
         
-        self.y = int(new_y)
-        self.y2 = self.y + self.height
-        self.tile_y = self.y / general_settings.TILE_SIZE
-        self.sub_tile_y = self.y % general_settings.TILE_SIZE / general_settings.TILE_SIZE_FLOAT
+        self.hitbox.y = int(new_y)
+        self.y = self.hitbox.y - self.hitbox.rel_y
+        self.y2 = self.hitbox.y + self.hitbox.height
+        self.tile_y = self.hitbox.y / general_settings.TILE_SIZE
+        self.sub_tile_y = self.hitbox.y % general_settings.TILE_SIZE / general_settings.TILE_SIZE_FLOAT
         self.y_tile_span = self.get_y_tile_span()
     
     
     # @TODO Test ceiling slopes, I think they might be glitchy
     def resolve_slope_collision(self, new_y, slope_tile, x, y):
         # Position on the tile, from the center of this object (0 is left, 1 is right)
-        position_on_tile = (self.x + self.half_width - slope_tile.x) / general_settings.TILE_SIZE_FLOAT
+        position_on_tile = (self.hitbox.x + self.half_width - slope_tile.x) / general_settings.TILE_SIZE_FLOAT
         
         change_tiles = False
         
@@ -229,7 +240,7 @@ class PhysicalObject(pyglet.sprite.Sprite):
                         angle_change = slope_tile.is_left_slope() != possible_slope.is_left_slope()
                         
                         # If we're currently on a collidable rightward slope and our x-position overlaps it, ignore the tile to our right
-                        usable_slope = not (slope_tile.is_collidable() and slope_tile.is_right_slope() and slope_tile.x2 >= self.x)
+                        usable_slope = not (slope_tile.is_collidable() and slope_tile.is_right_slope() and slope_tile.x2 >= self.hitbox.x)
                         # If there's a collidable leftward slope to our right and our x-position doesn't overlap it, ignore it
                         usable_slope = usable_slope and not (possible_slope.is_collidable() and possible_slope.is_left_slope() and self.x2 <= possible_slope.x)
                         
@@ -253,7 +264,7 @@ class PhysicalObject(pyglet.sprite.Sprite):
         
         if change_tiles:
             slope_tile = possible_slope
-            position_on_tile = (self.x + self.half_width - slope_tile.x) / general_settings.TILE_SIZE_FLOAT
+            position_on_tile = (self.hitbox.x + self.half_width - slope_tile.x) / general_settings.TILE_SIZE_FLOAT
         
         if position_on_tile < 0:
             slope_y = slope_tile.get_slope_left_y()
@@ -263,11 +274,11 @@ class PhysicalObject(pyglet.sprite.Sprite):
             slope_y = int(math.ceil((1-position_on_tile)*slope_tile.get_slope_left_y() + position_on_tile*slope_tile.get_slope_right_y()))
         
         # If we've moved down onto another tile and we're not already in the air...
-        if self.y >= slope_tile.y2 and not self.in_air:
+        if self.hitbox.y >= slope_tile.y2 and not self.in_air:
             # Calculate a threshold based on how high our horizontal velocity could possible send us off a slope when descending it
             # If we're higher than this value, we're in the air
             # Assume 1/2 of the frame rate to be safe
-            height_threshold = self.y - math.ceil(abs(self.velocity_x) / (slope_tile.get_slope_parts()*(pyglet.clock.get_fps()/2)))
+            height_threshold = self.hitbox.y - math.ceil(abs(self.velocity_x) / (slope_tile.get_slope_parts()*(pyglet.clock.get_fps()/2)))
             
             if height_threshold > slope_y:
                 self.in_air = True
@@ -277,7 +288,7 @@ class PhysicalObject(pyglet.sprite.Sprite):
             new_y = slope_y
             self.on_bottom_collision()
         elif slope_tile.is_upper_slope() and new_y >= slope_y:
-            new_y = slope_y - self.height
+            new_y = slope_y - self.hitbox.height
             self.on_top_collision()
         
         return new_y
@@ -330,28 +341,28 @@ class PhysicalObject(pyglet.sprite.Sprite):
     
     
     def get_coordinates(self):
-        return (self.x, self.y)
+        return (self.hitbox.x, self.hitbox.y)
     
     def get_x(self):
-        return self.x
+        return self.hitbox.x
     
     def get_y(self):
-        return self.y
+        return self.hitbox.y
     
     def get_dimensions(self):
-        return (int(self.width), int(self.height))
+        return (int(self.hitbox.width), int(self.hitbox.height))
     
     def get_width(self):
-        return int(self.width)
+        return int(self.hitbox.width)
+    
+    def get_height(self):
+        return int(self.hitbox.height)
     
     def get_half_width(self):
         return int(self.half_width)
     
     def get_half_height(self):
         return int(self.half_height)
-    
-    def get_height(self):
-        return int(self.height)
     
     def get_velocity(self):
         return (self.velocity_x, self.velocity_y)
@@ -362,15 +373,17 @@ class PhysicalObject(pyglet.sprite.Sprite):
     
     
     def reset_to(self, x, y):
-        self.x = int(x)
-        self.y = int(y)
-        self.x2 = self.x + self.width
-        self.y2 = self.y + self.height
+        self.hitbox.x = int(x)
+        self.x = self.hitbox.x - self.hitbox.rel_x
+        self.y = self.hitbox.y - self.hitbox.rel_y
         
-        self.tile_x = self.x / general_settings.TILE_SIZE
-        self.tile_y = self.y / general_settings.TILE_SIZE
-        self.sub_tile_x = self.x % general_settings.TILE_SIZE / general_settings.TILE_SIZE_FLOAT
-        self.sub_tile_y = self.y % general_settings.TILE_SIZE / general_settings.TILE_SIZE_FLOAT
+        self.x2 = self.hitbox.x + self.hitbox.width
+        self.y2 = self.hitbox.y + self.hitbox.height
+        
+        self.tile_x = self.hitbox.x / general_settings.TILE_SIZE
+        self.tile_y = self.hitbox.y / general_settings.TILE_SIZE
+        self.sub_tile_x = self.hitbox.x % general_settings.TILE_SIZE / general_settings.TILE_SIZE_FLOAT
+        self.sub_tile_y = self.hitbox.y % general_settings.TILE_SIZE / general_settings.TILE_SIZE_FLOAT
         
         self.x_tile_span = self.get_x_tile_span()
         self.y_tile_span = self.get_y_tile_span()
@@ -428,4 +441,4 @@ class PhysicalObject(pyglet.sprite.Sprite):
         
         self.velocity_y += self.acceleration_y * dt
         
-        self.move_to(self.x + self.velocity_x * dt, self.y + self.velocity_y * dt)
+        self.move_to(self.hitbox.x + self.velocity_x * dt, self.hitbox.y + self.velocity_y * dt)

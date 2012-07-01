@@ -1,6 +1,7 @@
 import pyglet
 from pyglet.window import key
 from ..settings import general_settings
+from .. import util
 import physicalobject
 
 class Player(physicalobject.PhysicalObject):
@@ -10,13 +11,18 @@ class Player(physicalobject.PhysicalObject):
         
         self.enabled = True
         
+        self.hitbox.rel_x = general_settings.TILE_SIZE / 2
+        self.hitbox.width = general_settings.TILE_SIZE
+        self.hitbox.height = general_settings.TILE_SIZE * 2
+        super(Player, self).update_positioning()
+        
         self.dash_time = 0.5
         self.time_dashed = 0
         self.replenish_dash = False
         self.replenish_wait = 1
         
         self.max_walk_speed = 2 * general_settings.FPS # Max x velocity when walking
-        self.max_dash_speed = 4 * self.max_walk_speed # Max x velocity when dashing
+        self.max_dash_speed = 3 * self.max_walk_speed # Max x velocity when dashing
         self.max_speed = self.max_walk_speed
         
         self.walk_acceleration = 0.75
