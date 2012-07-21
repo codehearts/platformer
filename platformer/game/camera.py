@@ -5,7 +5,7 @@ from settings import general_settings
 class Camera(object):
     
     def __init__(self, target, window, stage):
-        self.target = target
+        self.target = target.hitbox
         self.window = window
         
         self.x = 0
