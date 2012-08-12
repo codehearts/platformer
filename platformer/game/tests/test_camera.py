@@ -10,7 +10,7 @@ class TestCamera(unittest.TestCase):
 		flat_map = [[0]*100]*19 + [[1]*100]
 		flat_level = load.Stage(demo_settings.TILE_DATA, flat_map)
 		character = load.single_character('test_object_6', 0, 1, flat_level.get_tiles()) # test_object_6 is a SimpleAI object
-		game_window = pyglet.window.Window(800, 600)
+		game_window = pyglet.window.Window(800, 600, visible=False)
 		
 		# Load the camera and focus on our test object
 		cam = camera.Camera(character, game_window, flat_level.get_tiles())
@@ -55,7 +55,7 @@ class TestCamera(unittest.TestCase):
 		flat_map = [[0]*100]*19 + [[1]*100]
 		flat_level = load.Stage(demo_settings.TILE_DATA, flat_map)
 		character = load.single_character('test_object_6', 0, 1, flat_level.get_tiles()) # test_object_6 is a SimpleAI object
-		game_window = pyglet.window.Window(800, 600)
+		game_window = pyglet.window.Window(800, 600, visible=False)
 		tile_size = general_settings.TILE_SIZE_FLOAT
 		
 		# Load the camera and focus on our test object
