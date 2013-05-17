@@ -22,16 +22,12 @@ class Reloader(object):
 		if self.key_handler[key.R] and not self.is_reloading:
 			# Lock the reloader
 			self.is_reloading = True
-			print 'reloading'
 			reload(load)
 
 			self.stage_data.reload(0)
 
-			old = self.level.get_tiles()
-			print id(self.level.get_tiles())
+			# Reload the level and stage tiles
 			self.level.reload(self.stage_data.get_tile_data(), self.stage_data.get_map())
-			print id(self.level.get_tiles())
-			print old == self.level.get_tiles()
 			self.level_tiles[:] = self.level.get_tiles()
 
 			#characters = load.Characters(stage_data.get_character_data(), level_tiles)
