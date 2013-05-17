@@ -6,7 +6,7 @@ from ..settings import player_settings
 
 class Player():
 
-    def __init__(self, player_data, key_handler, stage):
+    def __init__(self, player_data, stage, key_handler=None):
         self.batch = pyglet.graphics.Batch()
 
         # Gather player data and settings to initiate with
@@ -18,10 +18,11 @@ class Player():
             'img': player_sprite.standing,
             'x': coordinates[0],
             'y': coordinates[1],
+			'key_handler': key_handler,
         }
 
         # Initiate the player
-        self.character = player.Player(key_handler, **player_data)
+        self.character = player.Player(**player_data)
 
     # Update the player
     def update(self, dt):

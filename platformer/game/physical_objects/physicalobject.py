@@ -5,7 +5,7 @@ from ..settings import general_settings
 
 class PhysicalObject(pyglet.sprite.Sprite):
 
-	def __init__(self, stage, mass=1, *args, **kwargs):
+	def __init__(self, stage, mass=1, key_handler=None, *args, **kwargs):
 		super(PhysicalObject, self).__init__(*args, **kwargs)
 
 		self.hitbox = util.HitBox(self.x, self.y, 0, 0, self.width, self.height)
@@ -30,6 +30,8 @@ class PhysicalObject(pyglet.sprite.Sprite):
 		self.facing_right = True
 		self.in_air = True
 		self.is_jumping = False
+
+		self.key_handler = key_handler
 
 
 

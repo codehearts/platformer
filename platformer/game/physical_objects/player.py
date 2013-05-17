@@ -1,12 +1,11 @@
 import pyglet
 from pyglet.window import key
 from ..settings import general_settings
-from .. import util
 import physicalobject
 
 class Player(physicalobject.PhysicalObject):
 
-	def __init__(self, key_handler, *args, **kwargs):
+	def __init__(self, *args, **kwargs):
 		super(Player, self).__init__(*args, **kwargs)
 
 		self.enabled = True
@@ -27,8 +26,6 @@ class Player(physicalobject.PhysicalObject):
 		self.walk_acceleration = 0.75
 		self.dash_acceleration = 0.1
 		self.acceleration_x = self.walk_acceleration
-
-		self.key_handler = key_handler
 
 	def disable(self):
 		self.enabled = False

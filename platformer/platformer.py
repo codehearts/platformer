@@ -17,7 +17,7 @@ level_tiles = level.get_tiles()
 
 #characters = load.Characters(stage_data.get_character_data(), level_tiles)
 
-player = load.Player(stage_data.get_player_data(), key_handler, level_tiles)
+player = load.Player(stage_data.get_player_data(), level_tiles, key_handler)
 game_window.push_handlers(player.character.key_handler)
 
 cam = camera.Camera(player.character, game_window, level_tiles)
