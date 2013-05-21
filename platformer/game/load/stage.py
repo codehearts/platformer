@@ -1,16 +1,21 @@
 import pyglet
 from game import tile, util
+from stagedata import StageData
 from ..settings import tile_settings
+
+# TODO Clean up stage.data methods to feel more intuitive
 
 class Stage():
 
-	def __init__(self, tile_data, stage_map):
-		self.batch = pyglet.graphics.Batch()
-		self.tile_data = tile_data
-		self.tiles = []
-		self.tile_map = []
+	def __init__(self, stage_name):
+		self.data = StageData(stage_name)
 
-		self.load_tiles(stage_map)
+		self.batch = pyglet.graphics.Batch()
+		self.tile_data = self.data.tile_data
+		self.tiles = [] # Map of all tile objects
+		self.tile_map = [] # Map of all numeric tile values
+
+		self.load_tiles(self.data.stage_map)
 
 	# Load the tile map into an array of tiles indexed with an anchor point at the bottom left
 	def load_tiles(self, stage_map):
@@ -45,11 +50,12 @@ class Stage():
 					self.tile_map[adjusted_y][x] = tile_value
 					self.tiles[adjusted_y][x] = tile.Tile(img=tileset[row, col], x=coordinates[0], y=coordinates[1], tile_type=tile_type, batch=self.batch)
 
-	# Returns an array of all tiles in the stage
+	# Returns a 2d array of all tile objects on the stage
 	def get_tiles(self):
 		return self.tiles
 
-	# Returns an array of all tile map values in the stage
+	# Returns a 2d array of the numeric tile values of each tile on the stage
+	# TODO Why does this array exist?
 	def get_tile_map(self):
 		return self.tile_map
 
@@ -57,6 +63,9 @@ class Stage():
 	def draw(self):
 		self.batch.draw()
 
-	def reload(self, tile_data, stage_map):
-		self.tile_data = tile_data
-		self.load_tiles(stage_map)
+	# TODO Ideally we shouldn't need this class to know how to reload itself, the reloader alone should handle that
+	def reload(self, stage_name):
+		self.data.reload(stage_name)
+
+		self.tile_data = self.data.tile_data
+		self.load_tiles(self.data.stage_map)

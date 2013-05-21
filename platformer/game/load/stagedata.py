@@ -1,16 +1,18 @@
 import json
+from pyglet.resource import file as open_resource_file
 from ..settings import demo_settings
 
+# Loads data for the specified stage
+# This can include player positioning, stage events, etc.
 class StageData():
 
-	def __init__(self, level = 0):
-		# TODO fix this path
-		stage_file = open('/home/nate/Dropbox/platformer/platformer/game/stages/demo.json')
+	def __init__(self, stage_name):
+		stage_file = open_resource_file('stages/'+stage_name+'.json')
 
-		# @TODO We're pretending this data came from a JSON file
+		# TODO Move this data to the JSON file
 		self.tile_data = demo_settings.TILE_DATA
 
-		self.map = json.load(stage_file)
+		self.stage_map = json.load(stage_file)
 
 		stage_file.close()
 
@@ -32,7 +34,7 @@ class StageData():
 
 	# Returns an array map of the stage
 	def get_map(self):
-		return self.map
+		return self.stage_map
 
 	# Returns an array of stage events for this level
 	def get_stage_events(self):
@@ -46,13 +48,13 @@ class StageData():
 	def get_character_data(self):
 		return self.character_data
 
-	def reload(self, level=0):
-		# TODO fix this path
-		stage_file = open('/home/nate/Dropbox/platformer/platformer/game/stages/demo.json')
+	# TODO Ideally we shouldn't need this class to bother with reloading itself
+	def reload(self, stage_name):
+		stage_file = open_resource_file('stages/'+stage_name+'.json')
 
 		# @TODO We're pretending this data came from a JSON file
 		self.tile_data = demo_settings.TILE_DATA
 
-		self.map[:] = json.load(stage_file)
+		self.stage_map[:] = json.load(stage_file)
 
 		stage_file.close()
