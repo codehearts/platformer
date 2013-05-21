@@ -25,11 +25,11 @@ class Reloader(object):
 			self.is_reloading = True
 			reload(load)
 
-			#self.stage_data.reload('demo')
+			level_data = load.LevelData('demo')
 
 			# Reload the level and stage tiles
 			# TODO Instead of reloading this way, a new object should be created, its properties copied, and then the reference to the "new" object destroyed
-			self.stage.reload('demo')
+			self.stage.reload(level_data)
 			#self.level_tiles[:] = self.level.get_tiles()
 
 			#characters = load.Characters(stage_data.get_character_data(), level_tiles)

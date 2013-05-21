@@ -12,22 +12,23 @@ key_handler = key.KeyStateHandler()
 
 # TODO The stage to load shouldn't be passed like this, there should be some sort of saved data handler that passes this
 # TODO Stage data should be loaded by the stage loader
-#stage_data = load.StageData('demo')
+level_data = load.LevelData('demo')
 
-stage = load.Stage('demo')
+stage = load.Stage(level_data)
 
 #characters = load.Characters(stage_data.get_character_data(), stage.get_tiles())
 
 # TODO Should probably just pass the reference to the stage here
-player = load.Player(stage.data.get_player_data(), stage.get_tiles(), key_handler)
+player = load.Player(level_data.get_player_data(), stage.get_tiles(), key_handler)
 game_window.push_handlers(player.character.key_handler)
 
 cam = camera.Camera(player.character, game_window, stage.get_tiles())
 cam.focus()
 
-background = backgrounds.Backgrounds(stage.data.get_tile_data(), cam)
+# TODO I should not have to pass level_data just so this can pass the level title to an Overlay object
+background = backgrounds.Backgrounds(level_data, cam)
 
-stage_events = stageevents.StageEvents(player.character, cam, stage.data.get_stage_events())
+stage_events = stageevents.StageEvents(player.character, cam, level_data.get_stage_events())
 
 module_reloader = reloader.Reloader(stage, player, game_window, cam, background, stage_events, key_handler)
 

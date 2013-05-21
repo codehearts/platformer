@@ -1,29 +1,33 @@
 import pyglet
 from game import tile, util
-from stagedata import StageData
 from ..settings import tile_settings
 
 # TODO Clean up stage.data methods to feel more intuitive
 
 class Stage():
 
-	def __init__(self, stage_name):
-		self.data = StageData(stage_name)
-
+	def __init__(self, level_data):
 		self.batch = pyglet.graphics.Batch()
-		self.tile_data = self.data.tile_data
 		self.tiles = [] # Map of all tile objects
 		self.tile_map = [] # Map of all numeric tile values
 
-		self.load_tiles(self.data.stage_map)
+		# Create the stage map from the given level data
+		self.create_stage_map(level_data)
 
-	# Load the tile map into an array of tiles indexed with an anchor point at the bottom left
-	def load_tiles(self, stage_map):
+	# Create the stage map as a 2d array of tile objects indexed with an anchor point at the bottom left
+	# The level data is expected to have a stage_map property that is a 2d array of numeric tile values
+	def create_stage_map(self, level_data):
+		stage_map = level_data.get_stage_map() # Store the stage map locally
+		stage_size = level_data.get_stage_size() # Store the dimensions of the stage locally
+
 		self.tiles[:] = [[None] * len(stage_map[0]) for i in xrange(len(stage_map))] # Initiate an empty stage
 		self.tile_map[:] = [[0] * len(stage_map[0]) for i in xrange(len(stage_map))] # Initiate an empty stage
 
-		tile_image = pyglet.resource.image(self.tile_data['file'])
-		tileset = pyglet.image.TextureGrid(pyglet.image.ImageGrid(tile_image, self.tile_data['size'][0], self.tile_data['size'][1]))
+		# Load the tile sprite and create a texture grid from it
+		tile_image = pyglet.resource.image(level_data.get_tile_sprite_file())
+		tileset = pyglet.image.TextureGrid(pyglet.image.ImageGrid(tile_image, stage_size[0], stage_size[1]))
+
+		# Get the number of columns and rows in the stage map
 		cols = len(stage_map) # Account for anchor points being on the bottom left
 		rows = len(stage_map[0])
 
@@ -37,13 +41,13 @@ class Stage():
 					coordinates = util.tile_to_coordinate(x, adjusted_y)
 
 					# Index of the tile piece we want
-					row = ((tile_value-1) / self.tile_data['size'][1])
-					col = tile_value - row * self.tile_data['size'][1] - 1
-					row = self.tile_data['size'][0] - row - 1 # Adjust for index 0 being at the bottom left
+					row = ((tile_value-1) / stage_size[1])
+					col = tile_value - row * stage_size[1] - 1
+					row = stage_size[0] - row - 1 # Adjust for index 0 being at the bottom left
 
 					# Determine whether this is a special tile
 					tile_type = tile_settings.NORMAL
-					for tile_key, special_values in self.tile_data['key'].iteritems():
+					for tile_key, special_values in level_data.get_tile_type_assignments().iteritems():
 						if tile_value in special_values:
 							tile_type = tile_key
 
@@ -64,8 +68,5 @@ class Stage():
 		self.batch.draw()
 
 	# TODO Ideally we shouldn't need this class to know how to reload itself, the reloader alone should handle that
-	def reload(self, stage_name):
-		self.data.reload(stage_name)
-
-		self.tile_data = self.data.tile_data
-		self.load_tiles(self.data.stage_map)
+	def reload(self, level_data):
+		self.create_stage_map(level_data)
