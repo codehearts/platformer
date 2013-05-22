@@ -40,7 +40,7 @@ class Reloader(object):
 			#cam = camera.Camera(player.character, game_window, level_tiles)
 			#cam.focus()
 
-			self.background.__dict__.update(backgrounds.Backgrounds(self.stage.data.get_tile_data(), self.cam).__dict__)
+			self.background.__dict__.update(backgrounds.Backgrounds(level_data, self.cam).__dict__)
 
 			#self.stage_events.__dict__.update(stageevents.StageEvents(self.player.character, self.cam, self.stage_data.get_stage_events()).__dict__)
 
