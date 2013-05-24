@@ -12,7 +12,7 @@ key_handler = key.KeyStateHandler()
 
 # TODO The stage to load shouldn't be passed like this, there should be some sort of saved data handler that passes this
 # TODO Stage data should be loaded by the stage loader
-level_data = load.LevelData('demo')
+level_data = load.LevelData('demo') # TODO Could this be a Level class which contains Stage and LevelEvents objects?
 
 stage = load.Stage(level_data)
 
@@ -23,10 +23,10 @@ player = load.Player(level_data.get_player_data(), stage.get_tiles(), key_handle
 game_window.push_handlers(player.character.key_handler)
 
 cam = camera.Camera(player.character, game_window, stage.get_tiles())
-cam.focus()
+cam.focus() # TODO Should this be called on init?
 
 # TODO I should not have to pass level_data just so this can pass the level title to an Overlay object
-background = backgrounds.Backgrounds(level_data, cam)
+background = backgrounds.Layers(level_data, cam)
 
 stage_events = stageevents.StageEvents(player.character, cam, level_data.get_stage_events())
 
