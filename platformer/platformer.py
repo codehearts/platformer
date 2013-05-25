@@ -1,6 +1,6 @@
 import pyglet
 from pyglet.window import key
-from game import load, camera, backgrounds, stageevents, reloader
+from game import load, camera, stageevents, reloader, overlay, layers
 from game.settings import general_settings
 
 # Graphical output window
@@ -25,8 +25,16 @@ game_window.push_handlers(player.character.key_handler)
 cam = camera.Camera(player.character, game_window, stage.get_tiles())
 cam.focus() # TODO Should this be called on init?
 
+# TODO This should be handled dynamically by the level loader. I'm creating these manually until I implement that ability
+background = layers.FixedLayer(pyglet.resource.image(level_data.get_background_image_file()), cam)
+overlay = overlay.Overlay(level_data.get_level_title(), cam)
 # TODO I should not have to pass level_data just so this can pass the level title to an Overlay object
-background = backgrounds.Layers(level_data, cam)
+layering = layers.LayerManager([{
+		'layer': background,
+	}], [{
+		'layer': overlay,
+		'use_batch': False,
+	}])
 
 stage_events = stageevents.StageEvents(player.character, cam, level_data.get_stage_events())
 
@@ -36,11 +44,11 @@ module_reloader = reloader.Reloader(stage, player, game_window, cam, background,
 def on_draw():
 	game_window.clear()
 
-	background.draw_background()
+	layering.draw_background()
 	stage.draw()
 	#characters.draw()
 	player.draw()
-	background.draw_foreground()
+	layering.draw_foreground()
 
 def update(dt):
 	player.update(dt)
@@ -48,7 +56,7 @@ def update(dt):
 	stage_events.update()
 
 	cam.update(dt)
-	background.update(dt)
+	layering.update(dt)
 
 	module_reloader.update()
 

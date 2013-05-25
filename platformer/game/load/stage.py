@@ -4,7 +4,7 @@ from ..settings import tile_settings
 
 # TODO Clean up stage.data methods to feel more intuitive
 
-class Stage():
+class Stage(object):
 
 	def __init__(self, level_data):
 		self.batch = pyglet.graphics.Batch()
