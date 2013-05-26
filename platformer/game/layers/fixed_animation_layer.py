@@ -1,10 +1,8 @@
-import basic_layer
+import animation_layer
 
-# Layer which remains fixed relative to the viewport
-class FixedLayer(basic_layer.BasicLayer):
-	"""A layer of graphical content which remains fixed relative to the viewport."""
+class FixedAnimationLayer(animation_layer.AnimationLayer):
+	"""A layer of animated graphical content which remains fixed relative to the viewport."""
 
-	# Accepts optional offset_x and offset_y kwargs, both default to 0
 	def __init__(self, *args, **kwargs):
 		"""
 		Kwargs:
@@ -16,8 +14,7 @@ class FixedLayer(basic_layer.BasicLayer):
 		self.offset_x = kwargs.pop('offset_x', 0)
 		self.offset_y = kwargs.pop('offset_y', 0)
 
-		super(FixedLayer, self).__init__(*args, **kwargs)
+		super(FixedAnimationLayer, self).__init__(*args, **kwargs)
 
-	def update(self, dt):
-		self.graphic.x = self.viewport.x + self.offset_x
-		self.graphic.y = self.viewport.y + self.offset_y
+	def draw(self):
+		self.graphic.draw(self.viewport.x + self.offset_x, self.viewport.y + self.offset_y)

@@ -52,6 +52,7 @@ class Stage(object):
 						if tile_value in special_values:
 							tile_type = tile_key
 
+					# TODO A smart thing to do would be to reuse tile image objects whenever possible
 					self.tile_map[adjusted_y][x] = tile_value
 					self.tiles[adjusted_y][x] = tile.Tile(img=tileset[row, col], x=coordinates[0], y=coordinates[1], tile_type=tile_type, batch=self.batch)
 

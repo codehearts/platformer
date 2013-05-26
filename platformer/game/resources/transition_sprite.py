@@ -1,7 +1,9 @@
-import pyglet, animation
-from ..settings import general_settings
+#import pyglet, animation
+import pyglet
+#from ..settings import general_settings
 
 # Transition spritesheet
+# TODO This sort of thing should be defined dynamically
 
 image = pyglet.resource.image('transition.png')
 sheet = pyglet.image.ImageGrid(image, 1, 31)
