@@ -21,8 +21,8 @@ class Transition(object):
 	def is_done(self):
 		return self.heading.is_done and self.transition_animation.is_done
 
-	def set_batch(self, new_batch):
-		self.heading.set_batch(new_batch)
+	def set_batch(self, batch):
+		self.heading.set_batch(batch)
 
 # TODO Move this to its own file
 class Heading(object):
@@ -51,9 +51,14 @@ class Heading(object):
 		self.heading.x = x
 		self.heading.y = y
 
-	def set_batch(self, new_batch):
+	def set_batch(self, batch):
 		self.heading.begin_update()
-		self.heading.batch = new_batch
+		self.heading.batch = batch
+		self.heading.end_update()
+
+	def set_group(self, group):
+		self.heading.begin_update()
+		self.heading.group = group
 		self.heading.end_update()
 
 # TODO Move this to its own file
@@ -61,6 +66,7 @@ class TiledAnimation(object):
 
 	# delay - amount of time to wait on the first frame before animating
 	# TODO duration should support (and default to) infinite duration (and also support looping)
+	# TODO Could this Texture object actually be made into a SpriteGroup with support for batches and groups?
 	def __init__(self, sprite, width, height, delay=0, duration=None, ease_power=2):
 		self.sprite = sprite
 		self.width = width

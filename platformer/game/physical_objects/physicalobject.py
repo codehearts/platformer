@@ -5,6 +5,7 @@ from ..settings import general_settings
 
 class PhysicalObject(pyglet.sprite.Sprite):
 
+	# TODO Shouldn't these new kwargs be handled by calling pop on kwargs before calling super?
 	def __init__(self, stage, mass=1, key_handler=None, *args, **kwargs):
 		super(PhysicalObject, self).__init__(*args, **kwargs)
 

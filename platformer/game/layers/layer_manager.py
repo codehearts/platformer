@@ -1,32 +1,27 @@
-from pyglet.graphics import Batch
+from pyglet.graphics import Batch, OrderedGroup
 
 # TODO Write tests for this
+# TODO Aim to be able to draw everything with a single batch (the current bottleneck for this is my Animation objects, which don't support groups or batches)
 class LayerManager(object):
-	"""Manager for maintaining and drawing multiple background and foreground layers in a specified order.
+	"""Manager for maintaining and drawing multiple layers in a specified order.
 
 	Attributes:
-		layers (list): A list of all layers currently being managed.
+		layers (list): A list of all layers currently being managed, with lower indices being further towards the background.
 	"""
 
-	# TODO This could possibly accept a single list, and I could just pass the stage like any other layer
-	def __init__(self, bg_layers, fg_layers):
+	def __init__(self, layers):
 		"""Creates a new manager for the given layers.
 
 		Args:
-			bg_layers: A list of the layers to be rendered in the background, with lower indices in the list being drawn further towards the background.
-			fg_layers: A list of the layers to be rendered in the foreground, with lower indices in the list being drawn further towards the background.
+			layers: A list of the layers to maintain, with lower indices being further towards the background.
 		"""
 		# TODO If a layer is ever deleted, batches should be coerced if possible
-		self._bg_drawing_queue = []
-		self._fg_drawing_queue = []
-		self.layers = []
+		self._drawing_queue = []
+		self._depth = 0 # Number of distinct OrderedGroups in the batch
+		self.layers = layers
 
 		# Add all layers to the drawing queue
-		map(lambda layer: self.append_to_drawing_queue(layer, self._bg_drawing_queue), bg_layers)
-		map(lambda layer: self.append_to_drawing_queue(layer, self._fg_drawing_queue), fg_layers)
-
-		# Keep track of all layers
-		self.layers = bg_layers + fg_layers
+		map(self.append_to_drawing_queue, layers)
 
 	def update(self, dt):
 		"""Updates all managed layers.
@@ -36,15 +31,10 @@ class LayerManager(object):
 		"""
 		map(lambda layer: layer.update(dt), self.layers)
 
-	def draw_background(self):
-		"""Draws all background layers."""
-		map(lambda layer: layer.draw(), self._bg_drawing_queue)
+	def draw(self):
+		map(lambda layer: layer.draw(), self._drawing_queue)
 
-	def draw_foreground(self):
-		"""Draws all foreground layers."""
-		map(lambda layer: layer.draw(), self._fg_drawing_queue)
-
-	def append_to_drawing_queue(self, layer, queue):
+	def append_to_drawing_queue(self, layer):
 		"""Adds the layer to the drawing queue.
 
 		If the layer supports batches, it will be added to a batch
@@ -53,15 +43,19 @@ class LayerManager(object):
 
 		Args:
 			layer: The layer to append to the queue.
-			queue: The queue to append the layer to.
 		"""
 		# If this layer supports batches, add it to the current batch in the drawing queue
 		if layer.supports_batches():
 			# If the current item in the drawing queue is not a batch, create a batch and add it to the queue
-			if not queue or not isinstance(queue[-1], Batch):
-				queue.append(Batch())
+			if not self._drawing_queue or not isinstance(self._drawing_queue[-1], Batch):
+				self._drawing_queue.append(Batch())
 
-			layer.set_batch(queue[-1])
+			# Order the rendering of this layer to our current depth
+			# TODO This assumes anything that supports batches supports groups (which is a sane assumption, but you never know)
+			layer.set_group(OrderedGroup(self._depth))
+			self._depth += 1 # Render the next layer at the next depth
+
+			layer.set_batch(self._drawing_queue[-1])
 		# If this layer doesn't support batches, it will be asked to draw itself
 		else:
-			queue.append(layer)
+			self._drawing_queue.append(layer)

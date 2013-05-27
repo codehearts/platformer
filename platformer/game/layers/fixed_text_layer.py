@@ -14,5 +14,12 @@ class FixedTextLayer(fixed_layer.FixedLayer):
 	def supports_batches(self):
 		return True
 
-	def set_batch(self, new_batch):
-		self.graphic.set_batch(new_batch)
+	# All text modules support groups
+	def supports_groups(self):
+		return True
+
+	def set_batch(self, batch):
+		self.graphic.set_batch(batch)
+
+	def set_group(self, group):
+		self.graphic.set_group(group)

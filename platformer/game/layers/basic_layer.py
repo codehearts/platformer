@@ -36,11 +36,28 @@ class BasicLayer(object):
 		"""
 		return hasattr(self.graphic, 'batch')
 
-	def set_batch(self, new_batch):
+	def supports_groups(self):
+		"""Returns whether this layer's graphical content supports groups by checking if it has a ``group`` attribute.
+
+		Returns:
+			True if this layer's graphical content has a ``batch`` attribute, False otherwise.
+		"""
+		return hasattr(self.graphic, 'group')
+
+	def set_batch(self, batch):
 		"""Adds this layer's graphical content to the given batch.
 
 		Args:
-			new_batch (:class:`pyglet.batch.Batch`): The batch to add this layer's graphical contents to.
+			batch (:class:`pyglet.batch.Batch`): The batch to add this layer's graphical content to.
 		"""
 		if self.supports_batches():
-			self.graphic.batch = new_batch
+			self.graphic.batch = batch
+
+	def set_group(self, group):
+		"""Adds this layer's graphical content to the given group.
+
+		Args:
+			group (:class:`pyglet.graphics.Group`): The group to add this layer's graphical content to.
+		"""
+		if self.supports_batches():
+			self.graphic.group = group
