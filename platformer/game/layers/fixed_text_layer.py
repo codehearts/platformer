@@ -17,3 +17,13 @@ class FixedTextLayer(fixed_layer.FixedLayer):
 	# All text modules support groups
 	def supports_groups(self):
 		return True
+
+	def set_batch(self, batch):
+		self.graphic.begin_update()
+		super(FixedTextLayer, self).set_batch(batch)
+		self.graphic.end_update()
+
+	def set_group(self, group):
+		self.graphic.begin_update()
+		super(FixedTextLayer, self).set_group(group)
+		self.graphic.end_update()

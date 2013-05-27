@@ -36,7 +36,7 @@ stage_layer = tile_map_layer.TileMapLayer(stage, cam)
 # TODO Remove this?
 #title_overlay = overlay.Overlay(level_data.get_level_title(), cam)
 transition_layer = fixed_animation_layer.FixedAnimationLayer(transition.TiledAnimation(transition_sprite.sprite, cam.width, cam.height, delay=0.5, duration=1.25, ease_power=1.75), cam)
-title_layer = fixed_text_layer.FixedTextLayer(heading.Heading(level_data.get_level_title(), font_size=18, anchor_x='center', anchor_y='center', duration=2.25), cam, offset_x=cam.half_width, offset_y=cam.half_height)
+title_layer = fixed_text_layer.FixedTextLayer(heading.Heading(text=level_data.get_level_title(), font_size=18, anchor_x='center', anchor_y='center', duration=2.25), cam, offset_x=cam.half_width, offset_y=cam.half_height)
 fps_text = live_text.LiveText(lambda: str(int(pyglet.clock.get_fps())))
 fps_text.set_style('background_color', (0,0,0,255))
 fps_layer = fixed_text_layer.FixedTextLayer(fps_text, cam, offset_x=10, offset_y=10)
