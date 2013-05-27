@@ -2,8 +2,7 @@ import pyglet
 from game import tile, util
 from ..settings import tile_settings
 
-# TODO Clean up stage.data methods to feel more intuitive
-
+# TODO This could really be a general purpose TileMap class
 class Stage(object):
 
 	def __init__(self, level_data):
@@ -68,6 +67,16 @@ class Stage(object):
 	# Draw the stage to the screen
 	def draw(self):
 		self.batch.draw()
+
+	def set_batch(self, batch):
+		# TODO There should be a list of actual tile object references to make these loops faster
+		# Loop through each tile and set its batch attribute to the given batch if it is not None
+		map(lambda row: map(lambda tile: tile and tile.__setattr__('batch', batch), row), self.tiles)
+
+	def set_group(self, group):
+		# TODO There should be a list of actual tile object references to make these loops faster
+		# Loop through each tile and set its group attribute to the given group if it is not None
+		map(lambda row: map(lambda tile: tile and tile.__setattr__('group', group), row), self.tiles)
 
 	# TODO Ideally we shouldn't need this class to know how to reload itself, the reloader alone should handle that
 	def reload(self, level_data):

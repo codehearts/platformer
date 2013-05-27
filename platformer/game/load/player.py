@@ -1,4 +1,3 @@
-import pyglet
 from game import util
 from ..physical_objects import player
 from ..resources import player_sprite

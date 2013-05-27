@@ -1,7 +1,7 @@
 import pyglet
 from pyglet.window import key
 from game import load, camera, stageevents, reloader, transition
-from game.layers import layer_manager, fixed_layer, fixed_animation_layer, fixed_text_layer, sprite_layer
+from game.layers import layer_manager, fixed_layer, fixed_animation_layer, fixed_text_layer, sprite_layer, tile_map_layer
 from game.settings import general_settings
 from game.resources import transition_sprite
 
@@ -29,15 +29,16 @@ cam.focus() # TODO Should this be called on init?
 
 player_layer = sprite_layer.SpriteLayer(player.character, cam)
 
-# TODO This should be handled dynamically by the level loader. I'm creating these manually until I implement that ability
+# TODO Layer creation should be handled dynamically by the level loader. I'm creating these manually until I implement that ability
 background = fixed_layer.FixedLayer(pyglet.sprite.Sprite(img=pyglet.resource.image(level_data.get_background_image_file())), cam)
+stage_layer = tile_map_layer.TileMapLayer(stage, cam)
 # TODO Remove this?
 #title_overlay = overlay.Overlay(level_data.get_level_title(), cam)
 transition_layer = fixed_animation_layer.FixedAnimationLayer(transition.TiledAnimation(transition_sprite.sprite, cam.width, cam.height, delay=0.5, duration=1.25, ease_power=1.75), cam)
 title_layer = fixed_text_layer.FixedTextLayer(transition.Heading(level_data.get_level_title(), duration=2.25), cam, offset_x=cam.half_width, offset_y=cam.half_height)
 # TODO FPS display layer
 #title_layer = fixed_layer.FixedLayer(pyglet.text.Label(level_data.get_level_title(), font_name='Helvetica Neue', font_size=18, anchor_x='center', anchor_y='center'), cam)
-layering = layer_manager.LayerManager([background, player_layer, transition_layer, title_layer])
+layering = layer_manager.LayerManager([background, stage_layer, player_layer, transition_layer, title_layer])
 
 # TODO This should be a LevelEvents object inside a Level class
 stage_events = stageevents.StageEvents(player.character, cam, level_data.get_stage_events())
@@ -49,7 +50,7 @@ def on_draw():
 	# TODO It's possible that this could be removed if it's a significant performance bottleneck
 	game_window.clear()
 
-	stage.draw()
+	#stage.draw()
 	#characters.draw()
 	layering.draw()
 
