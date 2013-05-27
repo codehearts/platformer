@@ -1,7 +1,7 @@
 import pyglet
 from pyglet.window import key
 from game import load, camera, stageevents, reloader, transition
-from game.layers import layer_manager, fixed_layer, fixed_animation_layer, text_layer
+from game.layers import layer_manager, fixed_layer, fixed_animation_layer, fixed_text_layer
 from game.settings import general_settings
 from game.resources import transition_sprite
 
@@ -32,7 +32,7 @@ background = fixed_layer.FixedLayer(pyglet.sprite.Sprite(img=pyglet.resource.ima
 # TODO Remove this?
 #title_overlay = overlay.Overlay(level_data.get_level_title(), cam)
 transition_layer = fixed_animation_layer.FixedAnimationLayer(transition.TiledAnimation(transition_sprite.sprite, cam.width, cam.height, delay=0.5, duration=1.25, ease_power=1.75), cam)
-title_layer = text_layer.TextLayer(transition.Heading(level_data.get_level_title(), duration=2.25), cam, offset_x=cam.half_width, offset_y=cam.half_height)
+title_layer = fixed_text_layer.FixedTextLayer(transition.Heading(level_data.get_level_title(), duration=2.25), cam, offset_x=cam.half_width, offset_y=cam.half_height)
 # TODO FPS display layer
 #title_layer = fixed_layer.FixedLayer(pyglet.text.Label(level_data.get_level_title(), font_name='Helvetica Neue', font_size=18, anchor_x='center', anchor_y='center'), cam)
 layering = layer_manager.LayerManager([background], [transition_layer, title_layer])
@@ -44,6 +44,7 @@ module_reloader = reloader.Reloader(stage, player, game_window, cam, background,
 
 @game_window.event
 def on_draw():
+	# TODO It's possible that this could be removed if it's a significant performance bottleneck
 	game_window.clear()
 
 	layering.draw_background()

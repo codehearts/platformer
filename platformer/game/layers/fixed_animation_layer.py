@@ -1,5 +1,6 @@
 import animation_layer
 
+# TODO Should support automatic layer deletion when the animation ends as a setting
 class FixedAnimationLayer(animation_layer.AnimationLayer):
 	"""A layer of animated graphical content which remains fixed relative to the viewport."""
 

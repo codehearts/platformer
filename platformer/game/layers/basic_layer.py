@@ -20,7 +20,7 @@ class BasicLayer(object):
 		"""Updates the layer's graphical content.
 
 		Args:
-			dt (float): The time delta between the current frame and the previous frame.
+			dt: The time delta (in seconds) between the current frame and the previous frame.
 		"""
 		pass
 

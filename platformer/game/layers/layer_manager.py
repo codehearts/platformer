@@ -1,68 +1,67 @@
-import pyglet
+from pyglet.graphics import Batch
 
 # TODO Write tests for this
 class LayerManager(object):
+	"""Manager for maintaining and drawing multiple background and foreground layers in a specified order.
 
-	# TODO Document the list syntax
+	Attributes:
+		layers (list): A list of all layers currently being managed.
+	"""
+
+	# TODO This could possibly accept a single list, and I could just pass the stage like any other layer
 	def __init__(self, bg_layers, fg_layers):
-		self.bg_batch = pyglet.graphics.Batch()
-		self.fg_batch = pyglet.graphics.Batch()
+		"""Creates a new manager for the given layers.
 
+		Args:
+			bg_layers: A list of the layers to be rendered in the background, with lower indices in the list being drawn further towards the background.
+			fg_layers: A list of the layers to be rendered in the foreground, with lower indices in the list being drawn further towards the background.
+		"""
 		# TODO If a layer is ever deleted, batches should be coerced if possible
-		self.bg_drawing_queue = []
-		self.fg_drawing_queue = []
+		self._bg_drawing_queue = []
+		self._fg_drawing_queue = []
 		self.layers = []
 
-		# Add all background layers to the background batch
-		#map(lambda bg_layer: bg_layer.set_batch(self.bg_batch), bg_layers)
-		# TODO This code shouldn't be dulicated
-		for bg_layer in bg_layers:
-			# If this layer supports batches, add it to the current batch in the drawing queue
-			if bg_layer.supports_batches():
-				# If the current item in the drawing queue is not a batch, create a batch and add it
-				if not self.bg_drawing_queue or not isinstance(self.bg_drawing_queue[-1], pyglet.graphics.Batch):
-					self.bg_drawing_queue.append(pyglet.graphics.Batch())
+		# Add all layers to the drawing queue
+		map(lambda layer: self.append_to_drawing_queue(layer, self._bg_drawing_queue), bg_layers)
+		map(lambda layer: self.append_to_drawing_queue(layer, self._fg_drawing_queue), fg_layers)
 
-				bg_layer.set_batch(self.bg_drawing_queue[-1])
-			# If the layer doesn't support batches, it will be asked to draw itself
-			else:
-				self.bg_drawing_queue.append(bg_layer)
-
-			self.layers.append(bg_layer)
-
-		# Add all foreground layers to the foreground batch
-		#map(lambda fg_layer: fg_layer.layer.set_batch(self.fg_batch), fg_layers)
-		for fg_layer in fg_layers:
-			# If this layer supports batches, add it to the current batch in the drawing queue
-			if fg_layer.supports_batches():
-				# If the current item in the drawing queue is not a batch, create a batch and add it
-				if not self.fg_drawing_queue or not isinstance(self.fg_drawing_queue[-1], pyglet.graphics.Batch):
-					self.fg_drawing_queue.append(pyglet.graphics.Batch())
-
-				fg_layer.set_batch(self.fg_drawing_queue[-1])
-			# If the layer doesn't support batches, it will be asked to draw itself
-			else:
-				self.fg_drawing_queue.append(fg_layer)
-
-			self.layers.append(fg_layer)
-
-		# @TODO 2 or 3 layers of parallax backgrounds
-		# @TODO Non-collidable background midground layer
-
-		# @TODO Is this necessary?
-		self.update(0)
+		# Keep track of all layers
+		self.layers = bg_layers + fg_layers
 
 	def update(self, dt):
+		"""Updates all managed layers.
+
+		Args:
+			dt: The time delta (in seconds) between the current frame and the previous frame.
+		"""
 		map(lambda layer: layer.update(dt), self.layers)
-		"""
-		self.bg.update(dt)
-		self.overlay.update(dt)
-		"""
 
-	# Draw the background to the screen
 	def draw_background(self):
-		map(lambda layer: layer.draw(), self.bg_drawing_queue)
+		"""Draws all background layers."""
+		map(lambda layer: layer.draw(), self._bg_drawing_queue)
 
-	# Draw the foreground to the screen
 	def draw_foreground(self):
-		map(lambda layer: layer.draw(), self.fg_drawing_queue)
+		"""Draws all foreground layers."""
+		map(lambda layer: layer.draw(), self._fg_drawing_queue)
+
+	def append_to_drawing_queue(self, layer, queue):
+		"""Adds the layer to the drawing queue.
+
+		If the layer supports batches, it will be added to a batch
+		at the end of the queue. If the layer does not support batches,
+		the layer itself will be added to the end of the queue.
+
+		Args:
+			layer: The layer to append to the queue.
+			queue: The queue to append the layer to.
+		"""
+		# If this layer supports batches, add it to the current batch in the drawing queue
+		if layer.supports_batches():
+			# If the current item in the drawing queue is not a batch, create a batch and add it to the queue
+			if not queue or not isinstance(queue[-1], Batch):
+				queue.append(Batch())
+
+			layer.set_batch(queue[-1])
+		# If this layer doesn't support batches, it will be asked to draw itself
+		else:
+			queue.append(layer)

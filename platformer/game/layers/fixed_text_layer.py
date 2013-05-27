@@ -1,9 +1,10 @@
 import fixed_layer
 
-class TextLayer(fixed_layer.FixedLayer):
+class FixedTextLayer(fixed_layer.FixedLayer):
+	"""A layer of text content which remainds fixed relative to the viewport."""
 
 	def __init__(self, *args, **kwargs):
-		super(TextLayer, self).__init__(*args, **kwargs)
+		super(FixedTextLayer, self).__init__(*args, **kwargs)
 
 	def update(self, dt):
 		# TODO If the Heading was on a timer, this object should delete itself when the timer ends

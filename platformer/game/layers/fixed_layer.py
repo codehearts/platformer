@@ -2,7 +2,12 @@ import basic_layer
 
 # Layer which remains fixed relative to the viewport
 class FixedLayer(basic_layer.BasicLayer):
-	"""A layer of graphical content which remains fixed relative to the viewport."""
+	"""A layer of graphical content which remains fixed relative to the viewport.
+
+	Attributes:
+		offset_x (number): The number of pixels that the graphical content is horizontally offset by from the viewport's anchor point (usually the bottom left corner).
+		offset_y (number): The number of pixels that the graphical content is vertically offset by from the viewport's anchor point (usually the bottom left corner).
+	"""
 
 	# Accepts optional offset_x and offset_y kwargs, both default to 0
 	def __init__(self, *args, **kwargs):
