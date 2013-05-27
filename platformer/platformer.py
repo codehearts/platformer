@@ -1,9 +1,10 @@
 import pyglet
 from pyglet.window import key
-from game import load, camera, stageevents, reloader, transition
+from game import load, camera, stageevents, reloader
 from game.layers import layer_manager, fixed_layer, fixed_animation_layer, fixed_text_layer, sprite_layer, tile_map_layer
 from game.settings import general_settings
 from game.resources import transition_sprite
+from game.animation import tiled_animation
 from game.text import heading, live_text
 
 # Graphical output window
@@ -35,7 +36,7 @@ background = fixed_layer.FixedLayer(pyglet.sprite.Sprite(img=pyglet.resource.ima
 stage_layer = tile_map_layer.TileMapLayer(stage, cam)
 # TODO Remove this?
 #title_overlay = overlay.Overlay(level_data.get_level_title(), cam)
-transition_layer = fixed_animation_layer.FixedAnimationLayer(transition.TiledAnimation(transition_sprite.sprite, cam.width, cam.height, delay=0.5, duration=1.25, ease_power=1.75), cam)
+transition_layer = fixed_animation_layer.FixedAnimationLayer(tiled_animation.TiledAnimation(transition_sprite.sprite, cam.width, cam.height, delay=0.5, duration=1.25, ease_power=1.75), cam)
 title_layer = fixed_text_layer.FixedTextLayer(heading.Heading(text=level_data.get_level_title(), font_size=18, anchor_x='center', anchor_y='center', duration=2.25), cam, offset_x=cam.half_width, offset_y=cam.half_height)
 fps_text = live_text.LiveText(lambda: str(int(pyglet.clock.get_fps())))
 fps_text.set_style('background_color', (0,0,0,255))

@@ -19,5 +19,4 @@ class Text(Label):
 
 	# TODO Free up the memory this object was using
 	def handle_duration_end(self, dt):
-		print 'called'
 		self.delete() # Remove this label from its batch
