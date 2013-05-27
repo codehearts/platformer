@@ -23,6 +23,7 @@ class LayerManager(object):
 		# Add all layers to the drawing queue
 		map(self.append_to_drawing_queue, layers)
 
+	# TODO Should this class really handle updating objects? Well, it should handle updating layers (like fixed layers), so then it kind of makes sense for this class to handle updates
 	def update(self, dt):
 		"""Updates all managed layers.
 

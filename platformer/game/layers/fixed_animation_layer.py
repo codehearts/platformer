@@ -10,8 +10,7 @@ class FixedAnimationLayer(animation_layer.AnimationLayer):
 			offset_x (number): The number of pixels to horizontally offset the graphical content from the viewport's anchor point (usually the bottom left corner).
 			offset_y (number): The number of pixels to vertically offset the graphical content from the viewport's anchor point (usually the bottom left corner).
 		"""
-		# Get this subclass's kwargs, or their default value if they were not specified
-		# Calling kwargs.pop means they won't be present when initializing the parent
+		# Get subclass kwargs with kwargs.pop to prevent passing them to parent
 		self.offset_x = kwargs.pop('offset_x', 0)
 		self.offset_y = kwargs.pop('offset_y', 0)
 

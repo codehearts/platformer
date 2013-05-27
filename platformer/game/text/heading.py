@@ -1,0 +1,11 @@
+import text
+
+# TODO What's the point of this class? It functions almost exactly as text.Text
+class Heading(text.Text):
+
+	def __init__(self, *args, **kwargs):
+		# Set the default font size to 18
+		if not 'font_size' in kwargs:
+			kwargs['font_size'] = 18
+
+		super(Heading, self).__init__(*args, **kwargs)

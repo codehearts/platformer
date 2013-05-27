@@ -53,6 +53,7 @@ class BasicLayer(object):
 		if self.supports_batches():
 			self.graphic.batch = batch
 
+	# TODO Should add support for setting batch and group at once (this is actually more efficient for text, which sanwiches these updates between a start() and end() call)
 	def set_group(self, group):
 		"""Adds this layer's graphical content to the given group.
 
