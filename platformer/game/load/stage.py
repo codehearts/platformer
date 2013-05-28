@@ -3,6 +3,7 @@ from game import tile, util
 from ..settings import tile_settings
 
 # TODO This could really be a general purpose TileMap class
+# TODO Offscreen tiles could be culled by setting their `visible` attribute to False (check if this improves performance at all)
 class Stage(object):
 
 	def __init__(self, level_data):
