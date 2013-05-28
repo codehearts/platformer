@@ -13,7 +13,5 @@ sheet = pyglet.image.ImageGrid(image, 1, 31)
 
 # Transition sprite
 
-sprite = []
-for i in xrange(0, 31):
-    sprite.append(pyglet.image.TileableTexture.create_for_image(sheet[i]))
+sprite = [pyglet.image.TileableTexture.create_for_image(still_frame) for still_frame in sheet]
 #sprite = animation.make_from(sheet, range(0, 31), [general_settings.FRAME_LENGTH])

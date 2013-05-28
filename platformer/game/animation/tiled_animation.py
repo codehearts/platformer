@@ -6,15 +6,15 @@ class TiledAnimation(object):
 
 	# delay - amount of time to wait on the first frame before animating
 	# TODO duration should support (and default to) infinite duration (and also support looping)
-	# TODO Could this Texture object actually be made into a SpriteGroup with support for batches and groups?
-	def __init__(self, sprite, width, height, delay=0, duration=None, ease_power=2):
-		self.sprite = sprite
+	# TODO Could this Texture object actually be made into a framesGroup with support for batches and groups?
+	def __init__(self, frames, width, height, delay=0, duration=None, ease_power=2):
+		self.frames = frames
 		self.width = width
 		self.height = height
 
 		self.is_done = False
 
-		self.frame_count = len(sprite)
+		self.frame_count = len(frames)
 		self.current_frame = 0
 		self.delay = delay
 		self.duration = duration
@@ -30,7 +30,7 @@ class TiledAnimation(object):
 			glEnable(GL_BLEND)
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-			self.sprite[self.current_frame].blit_tiled(x, y, z, self.width, self.height)
+			self.frames[self.current_frame].blit_tiled(x, y, z, self.width, self.height)
 
 			# Update the frame on an easing function if we're past the first frame
 			if self.elapsed_time > self.delay:

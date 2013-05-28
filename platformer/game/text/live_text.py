@@ -1,17 +1,17 @@
 import text
 
 class LiveText(text.Text):
-	"""A text label which updates its contents using a given function.
+	"""A text label which updates its contents with the return value of a function.
 
 	Attributes:
-		get_text_source: The function used in updating the label's contents.
+		get_text_source (function): The source of the label's contents.
 	"""
 
 	def __init__(self, get_text_source, *args, **kwargs):
-		"""Creates a new live text label that updates its contents with the given function.
+		"""Creates a new live text label that updates its contents with the return value of ``get_text_source``.
 
 		Args:
-			get_text_source (function): A function which provides the contents for the text label when it is updated.
+			get_text_source (function): A function which returns the contents for the text label when the label is updated.
 		"""
 		super(LiveText, self).__init__(*args, **kwargs)
 

@@ -15,6 +15,7 @@ class Stage(object):
 		self.create_tile_map(level_data)
 
 	# TODO This method could probably be moved out to its own file, possibly as a static class method
+	# TODO Instead of adding each tile object to a batch and drawing that, this could be drawn as a single texture, and only the region visible by te viewport is drawn
 	# Create the stage map as a 2d array of tile objects indexed with an anchor point at the bottom left
 	# The level data is expected to have a stage_map property that is a 2d array of numeric tile values
 	def create_tile_map(self, level_data):
