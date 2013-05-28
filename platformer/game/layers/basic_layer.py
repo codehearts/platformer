@@ -26,6 +26,7 @@ class BasicLayer(object):
 
 	def draw(self):
 		"""Draws the layer's graphical content."""
+		print "draw"
 		self.graphic.draw()
 
 	def supports_batches(self):

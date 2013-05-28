@@ -1,7 +1,7 @@
 import pyglet
 from pyglet.window import key
 from game import load, camera, stageevents, reloader
-from game.layers import layer_manager, fixed_layer, fixed_animation_layer, fixed_text_layer, sprite_layer, tile_map_layer
+from game.layers import layer_manager, fixed_layer, fixed_animation_layer, fixed_text_layer, tile_map_layer, physical_object_layer
 from game.settings import general_settings
 from game.resources import transition_sprite
 from game.animation import tiled_animation
@@ -29,7 +29,7 @@ game_window.push_handlers(player.character.key_handler)
 cam = camera.Camera(player.character, game_window, stage.get_tiles())
 cam.focus() # TODO Should this be called on init?
 
-player_layer = sprite_layer.SpriteLayer(player.character, cam)
+player_layer = physical_object_layer.PhysicalObjectLayer(player.character, cam)
 
 # TODO Layer creation should be handled dynamically by the level loader. I'm creating these manually until I implement that ability
 background = fixed_layer.FixedLayer(pyglet.sprite.Sprite(img=pyglet.resource.image(level_data.get_background_image_file())), cam)
@@ -58,6 +58,8 @@ def on_draw():
 	layers.draw()
 
 def update(dt):
+	# TODO Write a manager to handle updates and update order?
+	player.update(dt)
 	stage_events.update()
 
 	cam.update(dt)

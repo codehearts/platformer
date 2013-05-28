@@ -33,7 +33,7 @@ class LayerManager(object):
 		map(lambda layer: layer.update(dt), self.layers)
 
 	def draw(self):
-		map(lambda layer: layer.draw(), self._drawing_queue)
+		map(lambda item: item.draw(), self._drawing_queue)
 
 	def append_to_drawing_queue(self, layer):
 		"""Adds the layer to the drawing queue.
