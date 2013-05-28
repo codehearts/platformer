@@ -2,6 +2,7 @@ from pyglet.text import Label
 from pyglet.clock import schedule_once
 
 # TODO Should this be an HTMLLabel subclass instead of a Label subclass?
+# TODO Does it really make sense for this class to support a duration?
 class Text(Label):
 	"""A text label which can be displayed for a set duration of time.
 
