@@ -79,6 +79,8 @@ class Stage(object):
 		# Loop through each tile and set its group attribute to the given group if it is not None
 		map(lambda row: map(lambda tile: tile and tile.__setattr__('group', group), row), self.tiles)
 
+	# TODO A get_region method could be useful for setting the visibility of onscreen and offscreen tiles
+
 	# TODO Ideally we shouldn't need this class to know how to reload itself, the reloader alone should handle that
 	def reload(self, level_data):
 		self.create_tile_map(level_data)
