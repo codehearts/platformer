@@ -2,8 +2,7 @@ from pyglet.clock import schedule_once
 from pyglet.event import EventDispatcher
 
 class BasicLayer(EventDispatcher):
-	# TODO Put full path of LayerManager class in docstring
-	"""A layer of graphical content which can be drawn with other layers in a specific order when passed to a :class:`layers.layer_manager.LayerManager` object.
+	"""A layer of graphical content which can be drawn with other layers in a specific order when passed to a :class:`game.layers.layer_manager.LayerManager` object.
 
 	If a duration is given, the layer will be drawn for that amount of time and then deleted.
 
@@ -19,6 +18,8 @@ class BasicLayer(EventDispatcher):
 		Args:
 			graphic (object): The graphical content for the layer.
 			viewport (object): The viewport that the layer will be viewed through. The viewport should have ``x`` and ``y`` attributes.
+
+		Kwargs:
 			duration (number): The number of seconds the layer should be drawn for before deleting itself.
 		"""
 		self.graphic = graphic

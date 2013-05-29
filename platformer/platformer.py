@@ -3,9 +3,9 @@ from pyglet.window import key
 from game import load, camera, stageevents, reloader
 from game.layers import layer_manager, fixed_layer, fixed_animation_layer, fixed_text_layer, tile_map_layer, physical_object_layer
 from game.settings import general_settings
-from game.resources import transition_sprite
 from game.animation import tiled_animation
 from game.text import heading, live_text
+from game.easing.ease_out import EaseOut
 
 # Graphical output window
 game_window = pyglet.window.Window(800, 600, caption='Platformer Demo')
@@ -36,7 +36,17 @@ background = fixed_layer.FixedLayer(pyglet.sprite.Sprite(img=pyglet.resource.ima
 stage_layer = tile_map_layer.TileMapLayer(stage, cam)
 # TODO Remove this?
 #title_overlay = overlay.Overlay(level_data.get_level_title(), cam)
-transition_layer = fixed_animation_layer.FixedAnimationLayer(tiled_animation.TiledAnimation(transition_sprite.sprite, cam.width, cam.height, delay=0.5, duration=1.25, ease_power=1.75), cam, duration=1.75)
+#transition_layer = fixed_animation_layer.FixedAnimationLayer(tiled_animation.TiledAnimation(transition_sprite.sprite, cam.width, cam.height, delay=0.5, duration=1.25, ease_power=1.75), cam, duration=1.75)
+transition_animation = tiled_animation.TiledAnimation.from_image(
+			pyglet.resource.image('transition.png'),
+			1,
+			31,
+			EaseOut.get_frame_durations(1*31, 1.25, ease_power=0.5),
+			cam.width,
+			cam.height,
+			delay=0.5
+		)
+transition_layer = fixed_animation_layer.FixedAnimationLayer(transition_animation, cam, on_animation_end=lambda layer, animation: layer.delete())
 title_layer = fixed_text_layer.FixedTextLayer(heading.Heading(text=level_data.get_level_title(), font_size=18, anchor_x='center', anchor_y='center'), cam, offset_x=cam.half_width, offset_y=cam.half_height, duration=2.25)
 fps_text = live_text.LiveText(lambda: str(int(pyglet.clock.get_fps())))
 fps_text.set_style('background_color', (0,0,0,255))
