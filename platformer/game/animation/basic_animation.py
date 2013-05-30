@@ -79,6 +79,8 @@ class BasicAnimation(EventDispatcher):
 		self.current_frame_index = frame_index
 		self.current_frame = self.frames[frame_index]
 
+		self.dispatch_event('on_frame_change', self)
+
 	# TODO There is quite a bit of timing error when drawing frames. The duration of each frame should be tweaked to work with the intended frame rate. Look at how pyglet.sprite.Sprite handle this.
 	# TODO It'd be easier to sort out the timing issues with tests
 	def _schedule_frame_change(self, dt, frame_index):
@@ -198,4 +200,5 @@ class BasicAnimation(EventDispatcher):
 		return cls.from_image_sequence(sequence, *args, **kwargs)
 
 # Register animation events
+BasicAnimation.register_event_type('on_frame_change')
 BasicAnimation.register_event_type('on_animation_end')
