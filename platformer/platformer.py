@@ -1,5 +1,6 @@
 import pyglet
 from pyglet.window import key
+from pyglet.gl import glEnable, glBlendFunc, GL_BLEND, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
 from game import load, camera, stageevents, reloader
 from game.layers import layer_manager, fixed_layer, fixed_animation_layer, fixed_text_layer, tile_map_layer, physical_object_layer
 from game.settings import general_settings
@@ -46,7 +47,7 @@ transition_animation = tiled_animation.TiledAnimation.from_image(
 			cam.height,
 			delay=0.5
 		)
-transition_layer = fixed_animation_layer.FixedAnimationLayer(transition_animation, cam, on_animation_end=lambda layer, animation: layer.delete())
+transition_layer = fixed_animation_layer.FixedAnimationLayer(transition_animation, cam, on_animation_end=lambda animation, layer: layer.delete())
 title_layer = fixed_text_layer.FixedTextLayer(heading.Heading(text=level_data.get_level_title(), font_size=18, anchor_x='center', anchor_y='center'), cam, offset_x=cam.half_width, offset_y=cam.half_height, duration=2.25)
 fps_text = live_text.LiveText(lambda: str(int(pyglet.clock.get_fps())))
 fps_text.set_style('background_color', (0,0,0,255))
@@ -82,6 +83,8 @@ def update(dt):
 		character.update(dt)"""
 
 if __name__ == '__main__':
-	pyglet.clock.schedule_interval(update, general_settings.FRAME_LENGTH)
+	glEnable(GL_BLEND)
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
+	pyglet.clock.schedule_interval(update, general_settings.FRAME_LENGTH)
 	pyglet.app.run()
