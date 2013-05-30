@@ -23,10 +23,20 @@ class FixedLayer(basic_layer.BasicLayer):
 		super(FixedLayer, self).__init__(*args, **kwargs)
 
 	def update(self, dt):
-		"""Updates the layer's graphical content to appear fixed relative to the viewport.
+		"""Updates the layer and its graphical content to appear fixed relative to the viewport.
 
 		Args:
 			dt (number): The time delta (in seconds) between the current frame and the previous frame.
 		"""
-		self.graphic.x = self.viewport.x + self.offset_x
-		self.graphic.y = self.viewport.y + self.offset_y
+		self._update_graphic_coordinates(self.viewport.x + self.offset_x, self.viewport.y + self.offset_y, dt)
+
+	def _update_graphic_coordinates(self, x, y, dt):
+		"""Updates the layer's graphical content to appear fixed relative to the viewport.
+
+		Args:
+			x (number): The new x coordinate of the layer's graphical content.
+			y (number): The new y coordinate of the layer's graphical content.
+			dt (number): The time delta (in seconds) between the current frame and the previous frame.
+		"""
+		self.graphic.x = x
+		self.graphic.y = y

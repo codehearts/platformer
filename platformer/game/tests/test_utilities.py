@@ -2,8 +2,8 @@ import unittest
 from game import util
 
 class TestUtilities(unittest.TestCase):
-    
-    # Tests the horizontal movement of simple AI
+
+    # Tests list equalization
     def test_list_equalizer(self):
         self.assertEqual([1,2,1,2,1], util.equalize_list_sizes(range(5), [1,2]), 'List equalization failed')
         self.assertEqual([1,2,1,2], util.equalize_list_sizes(range(4), [1,2]), 'List equalization failed')

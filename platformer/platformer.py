@@ -19,6 +19,7 @@ key_handler = key.KeyStateHandler()
 # TODO Stage data should be loaded by the stage loader
 level_data = load.LevelData('demo') # TODO Could this be a Level class which contains Stage and LevelEvents objects?
 
+# TODO Stage should not take in so much data
 stage = load.Stage(level_data)
 
 #characters = load.Characters(stage_data.get_character_data(), stage.get_tiles())
@@ -35,9 +36,6 @@ player_layer = physical_object_layer.PhysicalObjectLayer(player.character, cam)
 # TODO Layer creation should be handled dynamically by the level loader. I'm creating these manually until I implement that ability
 background = fixed_layer.FixedLayer(pyglet.sprite.Sprite(img=pyglet.resource.image(level_data.get_background_image_file())), cam)
 stage_layer = tile_map_layer.TileMapLayer(stage, cam)
-# TODO Remove this?
-#title_overlay = overlay.Overlay(level_data.get_level_title(), cam)
-#transition_layer = fixed_animation_layer.FixedAnimationLayer(tiled_animation.TiledAnimation(transition_sprite.sprite, cam.width, cam.height, delay=0.5, duration=1.25, ease_power=1.75), cam, duration=1.75)
 transition_animation = tiled_animation.TiledAnimation.from_image(
 			pyglet.resource.image('transition.png'),
 			1,
@@ -52,7 +50,6 @@ title_layer = fixed_text_layer.FixedTextLayer(heading.Heading(text=level_data.ge
 fps_text = live_text.LiveText(lambda: str(int(pyglet.clock.get_fps())))
 fps_text.set_style('background_color', (0,0,0,255))
 fps_layer = fixed_text_layer.FixedTextLayer(fps_text, cam, offset_x=10, offset_y=10)
-# TODO FPS display layer
 layers = layer_manager.LayerManager([background, stage_layer, player_layer, transition_layer, title_layer, fps_layer])
 
 # TODO This should be a LevelEvents object inside a Level class
