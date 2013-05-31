@@ -1,3 +1,4 @@
+# TODO Delete this file once it's deprecated
 import pyglet
 from game import tile, util
 from ..settings import tile_settings

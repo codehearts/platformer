@@ -3,6 +3,7 @@ from pyglet.window import key
 #from game import load, stageevents, backgrounds
 from game import load
 
+# TODO Make this class work again
 class Reloader(object):
 
 	# TODO Ideally this class would not need to know about all these objects, it would have a dynamic collection of objects that get reloaded or something

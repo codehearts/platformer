@@ -1,21 +1,40 @@
 import pyglet
-from game import tile, util
-from ..settings import general_settings, tile_settings
+from game import util
+from game.tiles import tile_factory
+from ..settings import general_settings
 
 # TODO Offscreen tiles could be culled by setting their `visible` attribute to False (check if this improves performance at all)
 # TODO A subclass should be made which uses a texture for everything
+# TODO Documentation!
+# TODO Add methods for getting a tile's neighbors (tile_map.get_left(tile), tile_map.get_top_left(tile))
 class TileMap(object):
+	"""A grid of tiles.
 
-	# Needs an array of tile values (tile value map)
-	# Needs optional dimensions, or defaults to size of tile value map
-	# Needs tile sprite file
-	# Needs tile type assignments
+	Useful for drawing tile-based environments.
+
+	Attributes:
+		tiles (2d list of :class:`game.tiles.tile.Tile`): 2d list of tiles on the map. Empty tiles are represented as ``None``.
+	"""
+
 	def __init__(self, value_map, tile_image, rows=None, cols=None):
-		self.batch = pyglet.graphics.Batch()
-		self.tiles = [] # Map of all tile objects
+		"""Creates a new tile map.
+
+		If rows and columns aren't specified, they will be calculated using the
+		size of the tile image and the default tile size.
+
+		Args:
+			value_map (list of int): List of tile indices from the tile image.
+			tile_image (:class:`pyglet.image.AbstractImage`): Sprite image containing artwork for each tile.
+
+		Kwargs:
+			rows (int): The number of rows of tile artwork in the tile image.
+			cols (int): The number of columns of tile artwork in the tile image.
+		"""
+		self._batch = pyglet.graphics.Batch()
+		self.tiles = []
 
 		# Create the stage map from the given level data
-		self._create_tile_map(value_map, tile_image, rows=None, cols=None)
+		self._create_tile_map(value_map, tile_image, image_rows=rows, image_cols=cols)
 
 	# TODO Instead of adding each tile object to a batch and drawing that, this could be drawn as a single texture, and only the region visible by the viewport is drawn
 	# TODO When initializing, a single tile could be made for each tile_value and then blitted into the tilemap texture
@@ -51,28 +70,54 @@ class TileMap(object):
 					col = tile_value - row * image_cols - 1
 					row = image_rows - row - 1 # Adjust for index 0 being at the bottom left
 
-					# Determine whether this is a special tile
-					tile_type = tile_settings.NORMAL
-					for tile_key, special_values in level_data.get_tile_type_assignments().iteritems():
-						if tile_value in special_values:
-							tile_type = tile_key
+					# TODO This should not be hardcoded here. There should be a config file for each tile sprite that gets read.
+					temp_tile_args = {}
+					if tile_value is 9:
+						temp_tile_args['type'] = 'slope'
+						temp_tile_args['left_height'] = 0
+						temp_tile_args['right_height'] = 32
+					elif tile_value is 10:
+						temp_tile_args['type'] = 'slope'
+						temp_tile_args['left_height'] = 32
+						temp_tile_args['right_height'] = 0
+					elif tile_value is 13:
+						temp_tile_args['type'] = 'slope'
+						temp_tile_args['left_height'] = 0
+						temp_tile_args['right_height'] = 16
+					elif tile_value is 14:
+						temp_tile_args['type'] = 'slope'
+						temp_tile_args['left_height'] = 17
+						temp_tile_args['right_height'] = 32
+					elif tile_value is 15:
+						temp_tile_args['type'] = 'slope'
+						temp_tile_args['left_height'] = 32
+						temp_tile_args['right_height'] = 17
+					elif tile_value is 16:
+						temp_tile_args['type'] = 'slope'
+						temp_tile_args['left_height'] = 16
+						temp_tile_args['right_height'] = 0
+					elif tile_value is 18:
+						temp_tile_args['type'] = 'slope'
+						temp_tile_args['left_height'] = 0
+						temp_tile_args['right_height'] = 32
+						temp_tile_args['is_ceiling'] = True
 
-					# TODO Need a way to tell which tile object to get
-
-					self.tiles[adjusted_y][x] = tile.Tile(img=tileset[row, col], x=coordinates[0], y=coordinates[1], tile_type=tile_type, batch=self.batch)
+					self.tiles[adjusted_y][x] = tile_factory.create_tile(img=tileset[row, col], x=coordinates[0], y=coordinates[1], batch=self._batch, **temp_tile_args)
 
 	# Returns a 2d array of all tile objects on the stage
+	# TODO Remove all calls to this method and delete it in favor of accessing the attribute directly
 	def get_tiles(self):
 		return self.tiles
 
-	# Draw the stage to the screen
+	# Draw the map
 	def draw(self):
-		self.batch.draw()
+		self._batch.draw()
 
 	def set_batch(self, batch):
 		# TODO There should be a list of actual tile object references (list of tiles excluding None values) to make these loops faster
 		# Loop through each tile and set its batch attribute to the given batch if it is not None
 		map(lambda row: map(lambda tile: tile and tile.__setattr__('batch', batch), row), self.tiles)
+		self._batch = batch
 
 	def set_group(self, group):
 		# TODO There should be a list of actual tile object references (list of tiles excluding None values) to make these loops faster
@@ -80,3 +125,5 @@ class TileMap(object):
 		map(lambda row: map(lambda tile: tile and tile.__setattr__('group', group), row), self.tiles)
 
 	# TODO A get_region method could be useful for setting the visibility of onscreen and offscreen tiles
+	def draw_region(self, x, y, width, height):
+		self.draw()

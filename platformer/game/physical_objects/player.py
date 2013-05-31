@@ -1,9 +1,9 @@
 import pyglet
 from pyglet.window import key
 from ..settings import general_settings
-import physicalobject
+from physical_object import PhysicalObject
 
-class Player(physicalobject.PhysicalObject):
+class Player(PhysicalObject):
 
 	def __init__(self, *args, **kwargs):
 		super(Player, self).__init__(*args, **kwargs)

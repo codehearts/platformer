@@ -1,3 +1,5 @@
+# TODO I should be able to delete this file sometime
+
 import general_settings
 
 NORMAL          = 0
