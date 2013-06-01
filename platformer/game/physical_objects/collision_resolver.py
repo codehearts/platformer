@@ -8,6 +8,7 @@ def resolve_collisions(obj):
 	if obj.moving_to_x is not obj.hitbox.x:
 		# Handle horizontal component first in case of slopes
 		_resolve_collision_x(obj, obj.stage)
+
 	_resolve_collision_y(obj, obj.stage)
 
 def _resolve_collision_x(obj, tile_map):
@@ -28,7 +29,9 @@ def _resolve_collision_x(obj, tile_map):
 					 ◢□■
 					◢□■■
 					"""
-					if left_tile and left_tile.type is 'slope' and left_tile.faces_left and obj.hitbox.x + obj.hitbox.half_width <= collision_tile.x and obj.y >= left_tile.y:
+					# TODO obj.hitbox.x + obj.hitbox.half_width should be obj.bottom_center or something similar
+					# TODO This check used to end with ` and obj.y >= left_tile.y`. I should test if that was really necessary or not.
+					if left_tile and left_tile.type is 'slope' and left_tile.faces_left and obj.hitbox.x + obj.hitbox.half_width <= collision_tile.x:
 						continue
 
 					if y is not 0:
@@ -52,7 +55,8 @@ def _resolve_collision_x(obj, tile_map):
 					■□◣
 					■■□◣
 					"""
-					if right_tile and right_tile.type is 'slope' and right_tile.faces_right and obj.hitbox.x + obj.hitbox.half_width > collision_tile.x2 and obj.y >= right_tile.y:
+					# TODO This check used to end with ` and obj.y >= right_tile.y`. I should test if that was really necessary or not.
+					if right_tile and right_tile.type is 'slope' and right_tile.faces_right and obj.hitbox.x + obj.hitbox.half_width >= collision_tile.x2:
 						continue
 
 					if y is not 0:
