@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
-import tile
 import math
+from tile import Tile
 from ..settings import general_settings
 
-class _SlopeTile(tile.Tile):
+class _SlopeTile(Tile):
 	"""A sloped tile for use in maps.
 
 	Attributes:
@@ -72,6 +72,8 @@ class _SlopeTile(tile.Tile):
 
 		return False
 
+
+
 class LeftwardSlopeTile(_SlopeTile):
 	"""A sloped floor tile which faces to the left (◢)."""
 
@@ -95,6 +97,8 @@ class LeftwardSlopeTile(_SlopeTile):
 
 		return False
 
+
+
 class RightwardSlopeTile(_SlopeTile):
 	"""A sloped floor tile which faces to the right (◣)."""
 
@@ -116,6 +120,8 @@ class RightwardSlopeTile(_SlopeTile):
 
 		return False
 
+
+
 # TODO Implement this
 class LeftwardCeilingSlopeTile(_SlopeTile):
 	"""A sloped ceiling tile which faces to the left (◥)."""
@@ -126,6 +132,8 @@ class LeftwardCeilingSlopeTile(_SlopeTile):
 		self.faces_left = True
 		self.is_ceiling = True
 
+
+
 # TODO Implement this
 class RightwardCeilingSlopeTile(_SlopeTile):
 	"""A sloped ceiling tile which faces to the left (◤)."""
@@ -135,3 +143,35 @@ class RightwardCeilingSlopeTile(_SlopeTile):
 
 		self.faces_right = True
 		self.is_ceiling = True
+
+
+
+
+
+# Define a factory method for creating slope tiles
+def slope_tile_factory(*args, **kwargs):
+	"""Creates the appropriate slope tile object for the given tile arguments.
+
+	Kwargs:
+		left_height (int): The height of the left end of the slope.
+		right_height (int): The height of the right end of the slope.
+		is_ceiling (bool): Whether this slope is intended for use as a ceiling tile.
+
+	Returns:
+		A slope tile object.
+	"""
+	is_ceiling = kwargs.pop('is_ceiling', False)
+
+	# If this slope is a ceiling slope
+	if is_ceiling:
+		# Check if this is a left-facing slope
+		if kwargs['left_height'] > kwargs['right_height']:
+			return LeftwardCeilingSlopeTile(*args, **kwargs)
+		else:
+			return RightwardCeilingSlopeTile(*args, **kwargs)
+	else:
+		# Check if this is a Left-facing slope
+		if kwargs['left_height'] < kwargs['right_height']:
+			return LeftwardSlopeTile(*args, **kwargs)
+		else:
+			return RightwardSlopeTile(*args, **kwargs)
