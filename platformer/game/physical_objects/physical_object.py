@@ -4,6 +4,8 @@ from game import util
 from ..settings import general_settings
 from collision_resolver import resolve_collisions
 
+# TODO Could draw hitbox overlays using pyglet.image.SolidColorImagePattern
+
 # TODO Create a HitboxPhysicalObject class and a MultiHitboxPhysicalObject class
 
 # TODO This implementation of PhysicalObject should replace the other one

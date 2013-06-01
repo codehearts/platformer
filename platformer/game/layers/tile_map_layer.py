@@ -1,11 +1,11 @@
-import basic_layer
+from basic_layer import BasicLayer
 
-class TileMapLayer(basic_layer.BasicLayer):
-	# TODO Reference the full path of TileMap in the docstring
-	"""A layer which contains a :class:`TileMap` as its content."""
+class TileMapLayer(BasicLayer):
+	"""A layer which contains a :class:`game.tiles.tile_map.TileMap` as its content."""
 
-	def __init__(self, *args, **kwargs):
-		super(TileMapLayer, self).__init__(*args, **kwargs)
+	def draw(self):
+		"""Draws only the visible region of the tile map."""
+		self.graphic.draw_region(self.viewport.x, self.viewport.y, self.viewport.width, self.viewport.height)
 
 	# All TileMaps support batches
 	def supports_batches(self):

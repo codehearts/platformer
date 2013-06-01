@@ -33,9 +33,6 @@ class _SlopeTile(tile.Tile):
 		self.type = 'slope'
 
 	def resolve_collision_y(self, obj):
-		if not self.is_collidable:
-			return False
-
 		# If the object is moving down
 		if obj.moving_to_y < obj.hitbox.y:
 			# TODO Clean up this method!
@@ -85,9 +82,6 @@ class LeftwardSlopeTile(_SlopeTile):
 
 	# TODO Probably don't need tile_map kwarg
 	def resolve_collision_x(self, obj):
-		if not self.is_collidable:
-			return False
-
 		# If the object is moving left
 		# TODO Comment this better
 		# TODO self.y + self.right_height could be cached, but needs to be updated if self.y is ever changed
@@ -110,9 +104,6 @@ class RightwardSlopeTile(_SlopeTile):
 		self.faces_right = True
 
 	def resolve_collision_x(self, obj, tile_map=None):
-		if not self.is_collidable:
-			return False
-
 		# TODO Comment this better
 		# TODO self.y + self.right_height could be cached, but needs to be updated if self.y is ever changed
 		# TODO Clean up this mess, probably by writing utility methods to make this more readable

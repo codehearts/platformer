@@ -19,7 +19,7 @@ class Player(PhysicalObject):
 		self.replenish_dash = False
 		self.replenish_wait = 1
 
-		self.max_walk_speed = 2 * general_settings.FPS # Max x velocity when walking
+		self.max_walk_speed = 250 # Max x velocity when walking
 		self.max_dash_speed = 3 * self.max_walk_speed # Max x velocity when dashing
 		self.max_speed = self.max_walk_speed
 

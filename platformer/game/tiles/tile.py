@@ -1,7 +1,6 @@
 from pyglet.sprite import Sprite
 from ..settings.general_settings import TILE_SIZE
 
-# TODO Implement this
 class Tile(Sprite):
 	"""A tile for use in maps.
 
@@ -48,9 +47,6 @@ class Tile(Sprite):
 		Returns:
 			True if a collision occurred, False otherwise.
 		"""
-		if not self.is_collidable:
-			return False
-
 		# If the object is moving left
 		if obj.moving_to_x < obj.hitbox.x:
 			obj.moving_to_x = self.x2
@@ -73,17 +69,16 @@ class Tile(Sprite):
 		Returns:
 			True if a collision occurred, False otherwise.
 		"""
-		if not self.is_collidable:
-			return False
-
-		# If the object is moving down
+		# If the object is moving down through the tile
 		if obj.moving_to_y < obj.hitbox.y:
+			# Move it on top of the tile
 			obj.moving_to_y = self.y2
 			obj.on_bottom_collision(self)
 
 			return True
 		# If the object is moving up from below the tile
 		elif obj.moving_to_y < self.y2:
+			# Move it under the tile
 			obj.moving_to_y = self.y - obj.hitbox.height
 			obj.on_top_collision(self)
 

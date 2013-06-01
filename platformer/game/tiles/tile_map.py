@@ -1,10 +1,9 @@
 import pyglet
 from game import util
 from game.tiles import tile_factory
-from ..settings import general_settings
+from ..settings.general_settings import TILE_SIZE
 
 # TODO Offscreen tiles could be culled by setting their `visible` attribute to False (check if this improves performance at all)
-# TODO A subclass should be made which uses a texture for everything
 # TODO Documentation!
 # TODO Add methods for getting a tile's neighbors (tile_map.get_left(tile), tile_map.get_top_left(tile))
 class TileMap(object):
@@ -36,15 +35,13 @@ class TileMap(object):
 		# Create the stage map from the given level data
 		self._create_tile_map(value_map, tile_image, image_rows=rows, image_cols=cols)
 
-	# TODO Instead of adding each tile object to a batch and drawing that, this could be drawn as a single texture, and only the region visible by the viewport is drawn
-	# TODO When initializing, a single tile could be made for each tile_value and then blitted into the tilemap texture
 	# Create the stage map as a 2d array of tile objects indexed with an anchor point at the bottom left
 	# The level data is expected to have a stage_map property that is a 2d array of numeric tile values
 	def _create_tile_map(self, value_map, tile_image, image_rows=None, image_cols=None):
 		if not image_rows:
-			image_rows = int(tile_image.width / general_settings.TILE_SIZE)
+			image_rows = int(tile_image.width / TILE_SIZE)
 		if not image_cols:
-			image_cols = int(tile_image.height / general_settings.TILE_SIZE)
+			image_cols = int(tile_image.height / TILE_SIZE)
 
 		self.tiles[:] = [[None] * len(value_map[0]) for i in xrange(len(value_map))] # Initiate an empty stage
 
