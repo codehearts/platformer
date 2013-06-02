@@ -1,6 +1,5 @@
-import unittest
+import custom_tile_types, unittest
 from game.settings.general_settings import TILE_SIZE
-from game.tiles import custom_tile_loader
 from game.tiles.tile import Tile
 from game.tiles.tile_factory import create_tile
 from pyglet.image import SolidColorImagePattern
@@ -9,16 +8,8 @@ class TestTileFactory(unittest.TestCase):
 	"""Tests tile creation via the tile factory."""
 
 	def setUp(self):
-		"""Prepare for testing the tile factory.
-
-		Disables any custom tile types by temporarily removing custom tile
-		type factories for the duration of these tests. The custom tile
-		factories are restored to their original condition on teardown.
-
-		Creates a test image for creating tiles.
-		"""
-		self.saved_custom_tile_types = custom_tile_loader.custom_tile_types.copy()
-		custom_tile_loader.custom_tile_types.update({})
+		# Disable any custom tile type callbacks which have already been set
+		custom_tile_types.setUp()
 
 		self.expected_x = None
 		self.expected_y = None
@@ -29,14 +20,9 @@ class TestTileFactory(unittest.TestCase):
 		self.test_image = SolidColorImagePattern().create_image(TILE_SIZE, TILE_SIZE)
 		self.test_tile = None
 
-
-
 	def tearDown(self):
-		"""Clean up after testing.
-
-		Restores the custom tile type factories.
-		"""
-		custom_tile_loader.custom_tile_types.update(self.saved_custom_tile_types)
+		# Restore custom tile type callbacks
+		custom_tile_types.tearDown()
 
 
 
@@ -108,11 +94,11 @@ class TestTileFactory(unittest.TestCase):
 		that it is still functional.
 		"""
 
-		# Register the custom tile type
-		custom_tile_loader.custom_tile_types['custom'] = custom_tile_factory
+		# Register the "custom" tile type
+		custom_tile_types.register_custom()
 
 		# Test creating a custom tile facing right with only custom tile arguments
-		self.expected_tile_class = RightFacingTile
+		self.expected_tile_class = custom_tile_types.RightFacingTile
 		self.expected_tile_type = 'custom'
 		self.expected_x = 0
 		self.expected_y = 0
@@ -123,7 +109,7 @@ class TestTileFactory(unittest.TestCase):
 		self.assert_tile('Given type "custom" with only custom tile arguments.')
 
 		# Test creating a custom tile facing left with arguments
-		self.expected_tile_class = LeftFacingTile
+		self.expected_tile_class = custom_tile_types.LeftFacingTile
 		self.expected_x = TILE_SIZE
 		self.expected_y = TILE_SIZE * 2
 		self.expected_is_collidable = False
@@ -133,7 +119,7 @@ class TestTileFactory(unittest.TestCase):
 		self.assert_tile('Given type "custom" with arguments.')
 
 		# Test creating a custom tile without arguments
-		self.expected_tile_class = UpFacingTile # Factory default
+		self.expected_tile_class = custom_tile_types.UpFacingTile # Factory default
 		self.expected_x = 0
 		self.expected_y = 0
 		self.expected_is_collidable = True
@@ -154,12 +140,11 @@ class TestTileFactory(unittest.TestCase):
 		that it is still functional.
 		"""
 
-		# Register the custom tile types
-		custom_tile_loader.custom_tile_types['custom'] = custom_tile_factory
-		custom_tile_loader.custom_tile_types['custom2'] = Custom2Tile
+		# Register all custom tile types
+		custom_tile_types.register_all()
 
 		# Test creating a custom2 tile with no arguments
-		self.expected_tile_class = Custom2Tile
+		self.expected_tile_class = custom_tile_types.Custom2Tile
 		self.expected_tile_type = 'custom2'
 		self.expected_x = 0
 		self.expected_y = 0
@@ -189,7 +174,7 @@ class TestTileFactory(unittest.TestCase):
 
 
 	def assert_tile(self, condition=''):
-		"""Asserts that the tile coordinates are correct."""
+		"""Asserts that the tile object is configured correctly."""
 		if condition:
 			condition = ' Condition: '+condition
 
@@ -198,50 +183,3 @@ class TestTileFactory(unittest.TestCase):
 		self.assertEqual(self.test_tile.x, self.expected_x, "Tile factory failed to set x coordinate of created tile." + condition)
 		self.assertEqual(self.test_tile.y, self.expected_y, "Tile factory failed to set y coordinate of created tile." + condition)
 		self.assertEqual(self.test_tile.is_collidable, self.expected_is_collidable, "Tile factory failed to set is_collidable attribute of created tile." + condition)
-
-
-
-
-# Custom Tile subclasses
-
-
-
-class _CustomTile(Tile):
-	"""Custom tile subclass."""
-
-	type = 'custom'
-	faces = None # Direction the tile faces
-
-class UpFacingTile(_CustomTile):
-	faces = 'up'
-
-class DownFacingTile(_CustomTile):
-	faces = 'down'
-
-class LeftFacingTile(_CustomTile):
-	faces = 'left'
-
-class RightFacingTile(_CustomTile):
-	faces = 'right'
-
-def custom_tile_factory(*args, **kwargs):
-	"""Returns a tile object facing the specified direction.
-
-	If a direction is not specified or is invalid, an UpFacingTile is created.
-	"""
-	faces = kwargs.pop('faces', None)
-	tiles = [UpFacingTile, DownFacingTile, LeftFacingTile, RightFacingTile]
-
-	for tile_class in tiles:
-		if tile_class.faces == faces:
-			return tile_class(*args, **kwargs)
-
-	return UpFacingTile(*args, **kwargs)
-
-class Custom2Tile(Tile):
-	"""Second custom tile subclass.
-
-	This class has no special factory method for itself.
-	"""
-
-	type = 'custom2'

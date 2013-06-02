@@ -1,4 +1,4 @@
-from json import load as json_load
+from json import loads as parse_json
 
 class TilesetConfig(object):
 	"""Tileset config data which defines how each tile in a tileset should behave.
@@ -19,6 +19,9 @@ class TilesetConfig(object):
 
 		Kwargs:
 			config_data (str): A JSON formatted string of config data for this tileset.
+
+		Raises:
+			ValueError: The config file is not formatted as valid JSON.
 		"""
 		self._config = {}
 
@@ -30,12 +33,12 @@ class TilesetConfig(object):
 
 		Args:
 			config_data (str): A JSON formatted string of config data for this tileset.
+
+		Raises:
+			ValueError: The config file is not formatted as valid JSON.
 		"""
 		# Attempt to parse the config data
-		try:
-			raw_config = json_load(config_data)
-		except ValueError:
-			pass
+		raw_config = parse_json(config_data)
 
 		# Convert the keys from str to int (the keys are tile values)
 		for tile_value, tile_config in raw_config.iteritems():
@@ -49,6 +52,7 @@ class TilesetConfig(object):
 
 		Returns:
 			A dict of additional parameters for creating a new tile object.
+			If there are no additional parameters, an empty dict is returned.
 		"""
 		# If the value has an entry in the config, return the config entry
 		if tile_value in self._config:

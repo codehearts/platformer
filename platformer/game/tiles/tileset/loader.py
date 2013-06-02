@@ -34,19 +34,19 @@ def load_tileset_image(tileset_name, name):
 	return open_image(TILESET_DIRECTORY+'/'+tileset_name+'/'+name)
 
 def get_tileset_config(tileset_name):
-	"""Loads the config file for a tileset.
+	"""Loads the contents of the config file for a tileset.
 
-	If the file can not be opened, ``None`` is returned.
+	If the config file can not be opened, an empty string is returned.
 
 	Args:
 		tileset_name (str): The name of the tileset to load the config for.
 
 	Returns:
-		A file object if the config was sucessfully loaded,
-		or ``None`` if the file could not be loaded.
+		The contents of the config file as a string. If the file could not
+		be openned, its "contents" are assumed to be an empty string.
 	"""
 	try:
-		return load_tileset_file(tileset_name, 'config.json')
+		return load_tileset_file(tileset_name, 'config.json').read()
 	except ResourceNotFoundException:
 		return None
 
