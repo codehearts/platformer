@@ -8,6 +8,7 @@ from game.animation import tiled_animation
 from game.text import heading, live_text
 from game.easing.ease_out import EaseOut
 from game.tiles import texture_tile_map
+from game.tiles import tileset
 
 # Graphical output window
 game_window = pyglet.window.Window(800, 600, caption='Platformer Demo')
@@ -22,7 +23,8 @@ level_data = load.LevelData('demo') # TODO Could this be a Level class which con
 
 # TODO Stage should not take in so much data
 #stage = tile_map.TileMap(level_data.get_stage_map(), level_data.get_tile_sprite_file(), rows=level_data.get_stage_size()[0], cols=level_data.get_stage_size()[1])
-stage = texture_tile_map.TextureTileMap(level_data.get_stage_map(), level_data.get_tile_sprite_file(), rows=level_data.get_stage_size()[0], cols=level_data.get_stage_size()[1])
+stage_tileset = tileset.Tileset('demo', rows=level_data.get_stage_size()[0], cols=level_data.get_stage_size()[1])
+stage = texture_tile_map.TextureTileMap(level_data.get_stage_map(), stage_tileset)
 
 #characters = load.Characters(stage_data.get_character_data(), stage.get_tiles())
 

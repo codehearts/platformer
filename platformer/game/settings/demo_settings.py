@@ -6,7 +6,7 @@ TILE_DATA = {
 # TODO Call this level-title or something
     'name': 'Demo Stage',
 # TODO Call this tile-file or something
-    'file': 'demo-tiles.png',
+    'file': 'tilesets/demo/tiles.png',
 #TODO Call this background-image
     'background': 'sky.png',
 # TODO Find a more descriptive name for this
