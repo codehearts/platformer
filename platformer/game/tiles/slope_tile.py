@@ -15,6 +15,11 @@ class _SlopeTile(Tile):
 		is_ceiling (bool): Whether this slope is intended for use as a ceiling tile.
 	"""
 
+	type = 'slope'
+	faces_left = False
+	faces_right = False
+	is_ceiling = False
+
 	def __init__(self, left_height, right_height, *args, **kwargs):
 		"""Creates a new slope tile.
 
@@ -26,11 +31,6 @@ class _SlopeTile(Tile):
 
 		self.left_height = int(left_height)
 		self.right_height = int(right_height)
-		self.faces_left = False
-		self.faces_right = False
-		self.is_ceiling = False
-
-		self.type = 'slope'
 
 	def resolve_collision_y(self, obj):
 		# If the object is moving down
@@ -77,10 +77,7 @@ class _SlopeTile(Tile):
 class LeftwardSlopeTile(_SlopeTile):
 	"""A sloped floor tile which faces to the left (◢)."""
 
-	def __init__(self, *args, **kwargs):
-		super(LeftwardSlopeTile, self).__init__(*args, **kwargs)
-
-		self.faces_left = True
+	faces_left = True
 
 	# TODO Probably don't need tile_map kwarg
 	def resolve_collision_x(self, obj):
@@ -102,10 +99,7 @@ class LeftwardSlopeTile(_SlopeTile):
 class RightwardSlopeTile(_SlopeTile):
 	"""A sloped floor tile which faces to the right (◣)."""
 
-	def __init__(self, *args, **kwargs):
-		super(RightwardSlopeTile, self).__init__(*args, **kwargs)
-
-		self.faces_right = True
+	faces_right = True
 
 	def resolve_collision_x(self, obj, tile_map=None):
 		# TODO Comment this better
@@ -123,26 +117,26 @@ class RightwardSlopeTile(_SlopeTile):
 
 
 # TODO Implement this
-class LeftwardCeilingSlopeTile(_SlopeTile):
-	"""A sloped ceiling tile which faces to the left (◥)."""
+class _CeilingSlopeTile(_SlopeTile):
+	"""A sloped ceiling tile."""
 
-	def __init__(self, *args, **kwargs):
-		super(LeftwardCeilingSlopeTile, self).__init__(*args, **kwargs)
-
-		self.faces_left = True
-		self.is_ceiling = True
+	is_ceiling = True
 
 
 
 # TODO Implement this
-class RightwardCeilingSlopeTile(_SlopeTile):
+class LeftwardCeilingSlopeTile(_CeilingSlopeTile):
+	"""A sloped ceiling tile which faces to the left (◥)."""
+
+	faces_left = True
+
+
+
+# TODO Implement this
+class RightwardCeilingSlopeTile(_CeilingSlopeTile):
 	"""A sloped ceiling tile which faces to the left (◤)."""
 
-	def __init__(self, *args, **kwargs):
-		super(RightwardCeilingSlopeTile, self).__init__(*args, **kwargs)
-
-		self.faces_right = True
-		self.is_ceiling = True
+	faces_right = True
 
 
 

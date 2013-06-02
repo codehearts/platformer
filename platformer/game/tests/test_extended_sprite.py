@@ -4,6 +4,11 @@ from game.settings.general_settings import TILE_SIZE
 from pyglet.image import SolidColorImagePattern
 
 class TestExtendedSprite(unittest.TestCase):
+	"""Tests the ExtendedSprite class.
+
+	These tests ensure that the additional positioning attributes that
+	the class provides are always updated with the correct values.
+	"""
 
 	def setUp(self):
 		"""Sets up variables for use with testing the ExtendedSprite class."""
@@ -16,8 +21,8 @@ class TestExtendedSprite(unittest.TestCase):
 		self.expected_width = None
 		self.expected_height = None
 
-		# Define the test image
 		self.test_image = None
+		self.test_sprite = None
 
 
 
@@ -55,162 +60,84 @@ class TestExtendedSprite(unittest.TestCase):
 		"""Tests the positioning of an ExtendedSprite object."""
 		self.test_image = SolidColorImagePattern().create_image(self.expected_width, self.expected_height)
 
-		self.expected_x = 0
-		self.expected_y = 0
+		self.expected_x = TILE_SIZE * 3
+		self.expected_y = TILE_SIZE
 
-		test_sprite = ExtendedSprite(img=self.test_image, x=self.expected_x, y=self.expected_y)
+		self.test_sprite = ExtendedSprite(img=self.test_image, x=self.expected_x, y=self.expected_y)
 
-		# Test lower left coordinates
-		self.assertEqual(test_sprite.x, self.expected_x, "Sprite was not placed on given x coordinate.")
-		self.assertEqual(test_sprite.y, self.expected_y, "Sprite was not placed on given y coordinate.")
-
-		# Test upper right coordinates
-		self.assertEqual(test_sprite.x2, self.expected_x2(), "Sprite has incorrect x2 coordinate.")
-		self.assertEqual(test_sprite.y2, self.expected_y2(), "Sprite has incorrect y2 coordinate.")
-
-		# Test lower left tile coordinates
-		self.assertEqual(test_sprite.tile_x, self.expected_tile_x(), "Sprite has incorrect tile x coordinate.")
-		self.assertEqual(test_sprite.tile_y, self.expected_tile_y(), "Sprite has incorrect tile y coordinate.")
-
-		# Test upper right tile coordinates
-		self.assertEqual(test_sprite.tile_x2, self.expected_tile_x2(), "Sprite has incorrect tile x2 coordinate.")
-		self.assertEqual(test_sprite.tile_y2, self.expected_tile_y2(), "Sprite has incorrect tile y2 coordinate.")
+		self.assert_coordinates('After tile initialization.')
 
 		# Change the tile's lower left coordinates
 		self.expected_x = self.expected_width
 		self.expected_y = self.expected_height
-		test_sprite.x = self.expected_x
-		test_sprite.y = self.expected_y
+		self.test_sprite.x = self.expected_x
+		self.test_sprite.y = self.expected_y
 
-		# Test lower left coordinates
-		self.assertEqual(test_sprite.x, self.expected_x, "Sprite did not move to new x coordinate after being moved via x attribute.")
-		self.assertEqual(test_sprite.y, self.expected_y, "Sprite did not move to new y coordinate after being moved via y attribute.")
-
-		# Test upper right coordinates
-		self.assertEqual(test_sprite.x2, self.expected_x2(), "Sprite did not update x2 coordinate after being moved via x attribute.")
-		self.assertEqual(test_sprite.y2, self.expected_y2(), "Sprite did not update y2 coordinate after being moved via y attribute.")
-
-		# Test lower left tile coordinates
-		self.assertEqual(test_sprite.tile_x, self.expected_tile_x(), "Sprite has incorrect tile x coordinate after being moved via x attribute.")
-		self.assertEqual(test_sprite.tile_y, self.expected_tile_y(), "Sprite has incorrect tile y coordinate after being moved via y attribute.")
-
-		# Test upper right tile coordinates
-		self.assertEqual(test_sprite.tile_x2, self.expected_tile_x2(), "Sprite has incorrect tile x2 coordinate after being moved via x attribute.")
-		self.assertEqual(test_sprite.tile_y2, self.expected_tile_y2(), "Sprite has incorrect tile y2 coordinate after being moved via y attribute.")
+		self.assert_coordinates('Moved via x and y attributes.')
 
 		# Change the tile's upper right coordinates
 		self.expected_x = self.expected_width * 2
 		self.expected_y = self.expected_height * 2
-		test_sprite.x2 = self.expected_x2()
-		test_sprite.y2 = self.expected_y2()
+		self.test_sprite.x2 = self.expected_x2()
+		self.test_sprite.y2 = self.expected_y2()
 
-		# Test lower left coordinates
-		self.assertEqual(test_sprite.x, self.expected_x, "Sprite did not move to new x coordinate after being moved via x2 attribute.")
-		self.assertEqual(test_sprite.y, self.expected_y, "Sprite did not move to new y coordinate after being moved via y2 attribute.")
-
-		# Test upper right coordinates
-		self.assertEqual(test_sprite.x2, self.expected_x2(), "Sprite did not update x2 coordinate after being moved via x2 attribute.")
-		self.assertEqual(test_sprite.y2, self.expected_y2(), "Sprite did not update y2 coordinate after being moved via y2 attribute.")
-
-		# Test lower left tile coordinates
-		self.assertEqual(test_sprite.tile_x, self.expected_tile_x(), "Sprite has incorrect tile x coordinate after being moved via x2 attribute.")
-		self.assertEqual(test_sprite.tile_y, self.expected_tile_y(), "Sprite has incorrect tile y coordinate after being moved via y2 attribute.")
-
-		# Test upper right tile coordinates
-		self.assertEqual(test_sprite.tile_x2, self.expected_tile_x2(), "Sprite has incorrect tile x2 coordinate after being moved via x2 attribute.")
-		self.assertEqual(test_sprite.tile_y2, self.expected_tile_y2(), "Sprite has incorrect tile y2 coordinate after being moved via y2 attribute.")
+		self.assert_coordinates('Moved via x2 and y2 attributes.')
 
 		# Change the tile's lower left tile coordinates
 		self.expected_x = self.expected_width * 4
 		self.expected_y = self.expected_height * 5
-		test_sprite.tile_x = self.expected_tile_x()
-		test_sprite.tile_y = self.expected_tile_y()
+		self.test_sprite.tile_x = self.expected_tile_x()
+		self.test_sprite.tile_y = self.expected_tile_y()
 
-		# Test lower left coordinates
-		self.assertEqual(test_sprite.x, self.expected_x, "Sprite did not move to new x coordinate after being moved via tile_x attribute.")
-		self.assertEqual(test_sprite.y, self.expected_y, "Sprite did not move to new y coordinate after being moved via tile_y attribute.")
-
-		# Test upper right coordinates
-		self.assertEqual(test_sprite.x2, self.expected_x2(), "Sprite did not update x2 coordinate after being moved via tile_x attribute.")
-		self.assertEqual(test_sprite.y2, self.expected_y2(), "Sprite did not update y2 coordinate after being moved via tile_y attribute.")
-
-		# Test lower left tile coordinates
-		self.assertEqual(test_sprite.tile_x, self.expected_tile_x(), "Sprite has incorrect tile x coordinate after being moved via tile_x attribute.")
-		self.assertEqual(test_sprite.tile_y, self.expected_tile_y(), "Sprite has incorrect tile y coordinate after being moved via tile_y attribute.")
-
-		# Test upper right tile coordinates
-		self.assertEqual(test_sprite.tile_x2, self.expected_tile_x2(), "Sprite has incorrect tile x2 coordinate after being moved via tile_x attribute.")
-		self.assertEqual(test_sprite.tile_y2, self.expected_tile_y2(), "Sprite has incorrect tile 2 coordinate after being moved via tile_y attribute.")
+		self.assert_coordinates('Moved via tile_x and tile_y attributes.')
 
 		# Change the tile's upper right tile coordinates
 		self.expected_x = self.expected_width * 8
 		self.expected_y = self.expected_height * 2
-		test_sprite.tile_x2 = self.expected_tile_x2()
-		test_sprite.tile_y2 = self.expected_tile_y2()
+		self.test_sprite.tile_x2 = self.expected_tile_x2()
+		self.test_sprite.tile_y2 = self.expected_tile_y2()
 
-		# Test lower left coordinates
-		self.assertEqual(test_sprite.x, self.expected_x, "Sprite did not move to new x coordinate after being moved via tile_x2 attribute.")
-		self.assertEqual(test_sprite.y, self.expected_y, "Sprite did not move to new y coordinate after being moved via tile_y2 attribute.")
-
-		# Test upper right coordinates
-		self.assertEqual(test_sprite.x2, self.expected_x2(), "Sprite did not update x2 coordinate after being moved via tile_x2 attribute.")
-		self.assertEqual(test_sprite.y2, self.expected_y2(), "Sprite did not update y2 coordinate after being moved via tile_y2 attribute.")
-
-		# Test lower left tile coordinates
-		self.assertEqual(test_sprite.tile_x, self.expected_tile_x(), "Sprite has incorrect tile x coordinate after being moved via tile_x2 attribute.")
-		self.assertEqual(test_sprite.tile_y, self.expected_tile_y(), "Sprite has incorrect tile y coordinate after being moved via tile_y2 attribute.")
-
-		# Test upper right tile coordinates
-		self.assertEqual(test_sprite.tile_x2, self.expected_tile_x2(), "Sprite has incorrect tile x2 coordinate after being moved via tile_x2 attribute.")
-		self.assertEqual(test_sprite.tile_y2, self.expected_tile_y2(), "Sprite has incorrect tile 2 coordinate after being moved via tile_y2 attribute.")
+		self.assert_coordinates('Moved via tile_x2 and tile_y2 attributes.')
 
 		# Change the tile's coordinates with floats
 		self.expected_x = 1.5
 		self.expected_y = 15.725
-		test_sprite.x = self.expected_x
-		test_sprite.y = self.expected_y
+		self.test_sprite.x = self.expected_x
+		self.test_sprite.y = self.expected_y
 		self.expected_x = int(self.expected_x)
 		self.expected_y = int(self.expected_y)
 
-		# Test lower left coordinates
-		self.assertEqual(test_sprite.x, self.expected_x, "Sprite x coordinate is not int.")
-		self.assertEqual(test_sprite.y, self.expected_y, "Sprite y coordinate is not int.")
+		self.assert_coordinates('Moved via passing float to x and y attributes.')
 
 		# Change the tile's coordinates with floats
 		self.expected_x = 3.1415
 		self.expected_y = 0.9999
-		test_sprite.x2 = self.expected_x2()
-		test_sprite.y2 = self.expected_y2()
+		self.test_sprite.x2 = self.expected_x2()
+		self.test_sprite.y2 = self.expected_y2()
 		self.expected_x = int(self.expected_x)
 		self.expected_y = int(self.expected_y)
 
-		# Test upper right coordinates
-		self.assertEqual(test_sprite.x2, self.expected_x2(), "Sprite x2 coordinate is not int.")
-		self.assertEqual(test_sprite.y2, self.expected_y2(), "Sprite y2 coordinate is not int.")
+		self.assert_coordinates('Moved via passing float to x2 and y2 attributes.')
 
 		# Change the tile's coordinates with floats
 		self.expected_x = 59.6
 		self.expected_y = 2.171819
-		test_sprite.tile_x = self.expected_tile_x()
-		test_sprite.tile_y = self.expected_tile_y()
+		self.test_sprite.tile_x = self.expected_tile_x()
+		self.test_sprite.tile_y = self.expected_tile_y()
 		self.expected_x = int(self.expected_x)
 		self.expected_y = int(self.expected_y)
 
-		# Test lower left tile coordinates
-		self.assertEqual(test_sprite.tile_x, self.expected_tile_x(), "Sprite tile x coordinate is not int.")
-		self.assertEqual(test_sprite.tile_y, self.expected_tile_y(), "Sprite tile y coordinate is not int.")
+		self.assert_coordinates('Moved via passing float to tile_x and tile_y attributes.')
 
 		# Change the tile's coordinates with floats
 		self.expected_x = 23.375
 		self.expected_y = 348.408
-		test_sprite.tile_x2 = self.expected_tile_x2()
-		test_sprite.tile_y2 = self.expected_tile_y2()
+		self.test_sprite.tile_x2 = self.expected_tile_x2()
+		self.test_sprite.tile_y2 = self.expected_tile_y2()
 		self.expected_x = int(self.expected_x)
 		self.expected_y = int(self.expected_y)
 
-		# Test upper right tile coordinates
-		self.assertEqual(test_sprite.tile_x2, self.expected_tile_x2(), "Sprite tile x2 coordinate is not int.")
-		self.assertEqual(test_sprite.tile_y2, self.expected_tile_y2(), "Sprite tile y2 coordinate is not int.")
+		self.assert_coordinates('Moved via passing float to tile_x2 and tile_y2 attributes.')
 
 
 
@@ -218,21 +145,42 @@ class TestExtendedSprite(unittest.TestCase):
 		"""Tests the dimensions of an ExtendedSprite object."""
 		self.test_image = SolidColorImagePattern().create_image(self.expected_width, self.expected_height)
 
-		test_sprite = ExtendedSprite(img=self.test_image, x=self.expected_x, y=self.expected_y)
+		self.test_sprite = ExtendedSprite(img=self.test_image, x=self.expected_x, y=self.expected_y)
 
 		# Test pixel dimensions
-		self.assertEqual(test_sprite.width, self.expected_width, "Sprite has incorrect width.")
-		self.assertEqual(test_sprite.height, self.expected_height, "Sprite has incorrect height.")
+		self.assertEqual(self.test_sprite.width, self.expected_width, "Sprite has incorrect width.")
+		self.assertEqual(self.test_sprite.height, self.expected_height, "Sprite has incorrect height.")
 
 		# Test tile dimensions
-		self.assertEqual(test_sprite.tile_width, self.expected_tile_width(), "Sprite has incorrect tile width.")
-		self.assertEqual(test_sprite.tile_height, self.expected_tile_height(), "Sprite has incorrect tile height.")
+		self.assertEqual(self.test_sprite.tile_width, self.expected_tile_width(), "Sprite has incorrect tile width.")
+		self.assertEqual(self.test_sprite.tile_height, self.expected_tile_height(), "Sprite has incorrect tile height.")
 
 
 
 	# Helper methods
 
 
+
+	def assert_coordinates(self, condition=''):
+		"""Asserts that the tile coordinates are correct."""
+		if condition:
+			condition = ' Condition: '+condition
+
+		# Test lower left coordinates
+		self.assertEqual(self.test_sprite.x, self.expected_x, "Sprite has incorrect x coordinate." + condition)
+		self.assertEqual(self.test_sprite.y, self.expected_y, "Sprite has incorrect y coordinate." + condition)
+
+		# Test upper right coordinates
+		self.assertEqual(self.test_sprite.x2, self.expected_x2(), "Sprite has incorrect x2 coordinate." + condition)
+		self.assertEqual(self.test_sprite.y2, self.expected_y2(), "Sprite has incorrect y2 coordinate." + condition)
+
+		# Test lower left tile coordinates
+		self.assertEqual(self.test_sprite.tile_x, self.expected_tile_x(), "Sprite has incorrect tile x coordinate." + condition)
+		self.assertEqual(self.test_sprite.tile_y, self.expected_tile_y(), "Sprite has incorrect tile y coordinate." + condition)
+
+		# Test upper right tile coordinates
+		self.assertEqual(self.test_sprite.tile_x2, self.expected_tile_x2(), "Sprite has incorrect tile x2 coordinate." + condition)
+		self.assertEqual(self.test_sprite.tile_y2, self.expected_tile_y2(), "Sprite has incorrect tile y2 coordinate." + condition)
 
 	def expected_x2(self):
 		"""Returns x2 for the current test coordinate values."""

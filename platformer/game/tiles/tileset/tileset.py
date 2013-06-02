@@ -3,6 +3,7 @@ from tileset_image import TilesetImage
 from loader import get_tileset_config, get_tileset_image
 from .. import tile_factory
 
+# TODO Instead of loading the data itself, the data could be loaded by the loader file and then this class would be more testable because it doesn't require files
 class Tileset(object):
 	"""Loads and manages the appearance and behavoir of tiles in a tileset.
 

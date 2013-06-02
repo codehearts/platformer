@@ -22,6 +22,7 @@ def _resolve_collision_x(obj, tile_map):
 		for x in x_range:
 			collision_tile = tile_map[y][x]
 			if collision_tile and collision_tile.is_collidable:
+				# TODO Implement hooks for custom tiles to determine exceptions and say whether tiles should be ignored
 				if x is not 0:
 					left_tile = tile_map[y][x-1]
 

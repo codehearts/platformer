@@ -13,7 +13,7 @@ def create_tile(*args, **kwargs):
 	tile_type = kwargs.pop('type', None)
 
 	# If a factory method has been provided for this tile type, use it
-	if tile_type and custom_tile_types and custom_tile_types[tile_type]:
+	if tile_type in custom_tile_types:
 		return custom_tile_types[tile_type](*args, **kwargs)
 
 	return Tile(*args, **kwargs)

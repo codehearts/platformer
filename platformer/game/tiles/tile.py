@@ -8,6 +8,8 @@ class Tile(ExtendedSprite):
 		type (str): The type of tile.
 	"""
 
+	type = 'basic'
+
 	def __init__(self, *args, **kwargs):
 		"""Creates a new tile.
 
@@ -17,8 +19,6 @@ class Tile(ExtendedSprite):
 		self.is_collidable = kwargs.pop('is_collidable', True)
 
 		super(Tile, self).__init__(*args, **kwargs)
-
-		self.type = 'basic'
 
 	def resolve_collision_x(self, obj):
 		"""Resolves a collision with a physical object on the x-axis.
