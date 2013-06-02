@@ -9,6 +9,7 @@ from collision_resolver import resolve_collisions
 # TODO Create a HitboxPhysicalObject class and a MultiHitboxPhysicalObject class
 
 # TODO This implementation of PhysicalObject should replace the other one
+# TODO Subclass ExtendedSprite instead of pyglet's Sprite
 class PhysicalObject(pyglet.sprite.Sprite):
 
 	# TODO Shouldn't these new kwargs be handled by calling pop on kwargs before calling super?
