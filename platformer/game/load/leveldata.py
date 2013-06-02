@@ -43,11 +43,6 @@ class LevelData(object):
 	def get_level_title(self):
 		return self.level_data['name']
 
-	# TODO Group all tile stuff together, group all stage stuff together
-	# Returns a dictionary with assignments of tile types (slopes, etc.) to numeric tile values
-	def get_tile_type_assignments(self):
-		return self.level_data['key']
-
 	# Returns an array of stage events for this level
 	def get_stage_events(self):
 		return self.level_data['events']

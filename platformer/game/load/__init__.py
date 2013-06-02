@@ -1,4 +1,5 @@
+# TODO This should be improved
+
 from characters import *
 from player import *
-from stage import *
 from leveldata import *
