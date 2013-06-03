@@ -1,6 +1,7 @@
 import pyglet
 from game import util
 
+# TODO Probably best to deprecate this class
 # TODO Offscreen tiles could be culled by setting their `visible` attribute to False (check if this improves performance at all)
 class TileMap(object):
 	"""A grid of tiles.

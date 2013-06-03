@@ -2,7 +2,7 @@ import custom_tile_types, unittest
 from game.settings.general_settings import TILE_SIZE
 from game.tiles.tile import Tile
 from game.tiles.tile_factory import create_tile
-from pyglet.image import SolidColorImagePattern
+from util.image import dummy_image
 
 class TestTileFactory(unittest.TestCase):
 	"""Tests tile creation via the tile factory."""
@@ -17,7 +17,7 @@ class TestTileFactory(unittest.TestCase):
 		self.expected_tile_class = None
 		self.expected_tile_type = None
 
-		self.test_image = SolidColorImagePattern().create_image(TILE_SIZE, TILE_SIZE)
+		self.test_image = dummy_image(TILE_SIZE, TILE_SIZE)
 		self.test_tile = None
 
 	def tearDown(self):

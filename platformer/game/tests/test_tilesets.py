@@ -1,9 +1,9 @@
 import unittest
+from game.settings.general_settings import TILE_SIZE
 from game.tiles.tileset import TilesetConfig, TilesetImage, Tileset
 from pyglet.image import TextureGrid, ImageGrid
-# TODO Make a test.util module with methods for easily making dummy images
-from game.settings.general_settings import TILE_SIZE
-from pyglet.image import SolidColorImagePattern
+from util.tileset import get_valid_config_data
+from util.image import dummy_image
 
 class TestTilesetConfig(unittest.TestCase):
 	"""Tests parsing of tileset config data."""
@@ -123,7 +123,7 @@ class TestTilesetImage(unittest.TestCase):
 		self.expected_rows = self.expected_tile_height
 		self.expected_cols = self.expected_tile_width
 
-		self.test_image = SolidColorImagePattern().create_image(self.expected_width(), self.expected_height())
+		self.test_image = dummy_image(self.expected_width(), self.expected_height())
 		self.test_image_grid = TextureGrid(ImageGrid(self.test_image, self.expected_rows, self.expected_cols))
 
 		# Test creating a TilesetImage without specifying dimensions
@@ -139,7 +139,7 @@ class TestTilesetImage(unittest.TestCase):
 		self.expected_rows = 5
 		self.expected_cols = 4
 
-		self.test_image = SolidColorImagePattern().create_image(self.expected_width(), self.expected_height())
+		self.test_image = dummy_image(self.expected_width(), self.expected_height())
 		self.test_image_grid = TextureGrid(ImageGrid(self.test_image, self.expected_rows, self.expected_cols))
 
 		# Test creating a TilesetImage with specific dimensions
@@ -248,17 +248,11 @@ class TestTileset(unittest.TestCase):
 
 	def test_tileset_cache(self):
 		"""Tests the caching of image and config data for a tileset."""
-		test_image1 = SolidColorImagePattern().create_image(
-			6 * TILE_SIZE,
-			8 * TILE_SIZE
-		)
+		test_image1 = dummy_image(6 * TILE_SIZE, 8 * TILE_SIZE)
 		tileset_image1 = TilesetImage(test_image1)
 		tileset_config1 = TilesetConfig(get_valid_config_data()['JSON'])
 
-		test_image2 = SolidColorImagePattern().create_image(
-			10 * TILE_SIZE,
-			2 * TILE_SIZE
-		)
+		test_image2 = dummy_image(10 * TILE_SIZE, 2 * TILE_SIZE)
 		tileset_image2 = TilesetImage(test_image2)
 		tileset_config2 = TilesetConfig('')
 
@@ -273,10 +267,7 @@ class TestTileset(unittest.TestCase):
 
 	def test_tileset_tile_creation(self):
 		"""Tests the creation of tiles via a tileset."""
-		test_image = SolidColorImagePattern().create_image(
-			6 * TILE_SIZE,
-			8 * TILE_SIZE
-		)
+		test_image = dummy_image(6 * TILE_SIZE, 8 * TILE_SIZE)
 		tileset_image = TilesetImage(test_image)
 		tileset_config = TilesetConfig(get_valid_config_data()['JSON'])
 
@@ -310,64 +301,3 @@ class TestTileset(unittest.TestCase):
 		test_tile = self.tileset.create_tile(7)
 
 		self.assertEqual(test_tile.is_collidable, False, "Tileset failed to set is_collidable on tile from tileset config.")
-
-
-
-# Global helper methods
-
-def get_valid_config_data():
-	"""Returns a dict with valid tileset config test data.
-
-	This config makes use of custom tile types, string values,
-	integer values, and boolean values.
-
-	Returns:
-		A dict with two keys: "JSON", which contains the JSON encoded
-		string for initializing a TilesetConfig object, and "expected",
-		which is a Python dict of the expected results from parsing
-		the JSON string.
-	"""
-	# Valid JSON config for testing
-	JSON_config = '''{
-		"1": {
-			"type": "custom",
-			"faces": "right"
-		},
-		"3": {
-			"type": "custom2"
-		},
-		"5": {
-			"x": 32,
-			"y": 128
-		},
-		"7": {
-			"is_collidable": false
-		}
-	}'''
-
-	# Expected values for the parsed tileset config
-	expected_config = {
-		1: {
-			'type': 'custom',
-			'faces': 'right',
-		},
-		2: {},
-		3: {
-			'type': 'custom2',
-		},
-		4: {},
-		5: {
-			'x': 32,
-			'y': 128,
-		},
-		6: {},
-		7: {
-			'is_collidable': False,
-		},
-		8: {},
-	}
-
-	return {
-		'JSON': JSON_config,
-		'expected': expected_config
-	}

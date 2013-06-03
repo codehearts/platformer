@@ -1,5 +1,5 @@
 from game import util
-from pyglet.image import Texture
+from game.extended_texture import ExtendedTexture
 from tile_map import TileMap
 from ..settings.general_settings import TILE_SIZE
 
@@ -39,7 +39,7 @@ class TextureTileMap(TileMap):
 		self.tiles = [[None] * rows for i in xrange(cols)]
 
 		# Create the texture for the tile map
-		self.texture = Texture.create(rows*TILE_SIZE, cols*TILE_SIZE)
+		self.texture = ExtendedTexture.create(rows*TILE_SIZE, cols*TILE_SIZE)
 
 		for y in xrange(cols):
 			for x in xrange(rows):
@@ -74,5 +74,17 @@ class TextureTileMap(TileMap):
 			width (int): The width of the region to draw.
 			height (int): The height of the region to draw.
 		"""
-		# TODO If the region goes beyond the texture, the texture repeats. Try not to do this!
+		# Bound the drawn region to the texture's dimensions
+		if x + width > self.texture.x2:
+			width = self.texture.x2 - x
+		elif x < self.texture.x:
+			width -= self.texture.x - x
+			x = self.texture.x
+
+		if y + height > self.texture.y2:
+			height = self.texture.y2 - y
+		elif y < self.texture.y:
+			height -= self.texture.y - y
+			y = self.texture.y
+
 		self.texture.get_region(x, y, width, height).blit(x, y)
