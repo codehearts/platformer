@@ -1,5 +1,5 @@
-import custom_tile_types, unittest
-from game.tiles.tileset import TilesetConfig, TilesetImage
+import unittest
+from game.tiles.tileset import TilesetConfig, TilesetImage, Tileset
 from pyglet.image import TextureGrid, ImageGrid
 # TODO Make a test.util module with methods for easily making dummy images
 from game.settings.general_settings import TILE_SIZE
@@ -14,21 +14,10 @@ class TestTilesetConfig(unittest.TestCase):
 
 		self.tileset_config = None
 
-		# TODO Don't need this for this class
-		custom_tile_types.setUp()
-
-	# TODO Don't need this for this class
-	def tearDown(self):
-		custom_tile_types.tearDown()
-
 
 
 	def test_valid_tileset_config(self):
 		"""Tests parsing valid tileset configs with TilesetConfig."""
-		# TODO Registering types should only be done for the Tileset tests
-		# Register all custom tile types
-		custom_tile_types.register_all()
-
 		# Initialize valid test config data
 		self.setup_valid_config_data()
 
@@ -47,6 +36,11 @@ class TestTilesetConfig(unittest.TestCase):
 			self.assertRaises(ValueError, TilesetConfig, self.JSON_config)
 		except:
 			raise AssertionError("Tileset did not raise ValueError when passed invalid JSON.")
+
+	def test_empty_tileset_config(self):
+		"""Tests parsing empty tileset configs with TilesetConfig."""
+		# Ensure nothing is raised when initializing an empty config
+		self.tileset_config = TilesetConfig('')
 
 
 
@@ -68,45 +62,13 @@ class TestTilesetConfig(unittest.TestCase):
 		This config makes use of custom tile types, string values,
 		integer values, and boolean values.
 		"""
+		config = get_valid_config_data()
+
 		# Valid JSON config for testing
-		self.JSON_config = '''{
-			"1": {
-				"type": "custom",
-				"faces": "right"
-			},
-			"3": {
-				"type": "custom2"
-			},
-			"5": {
-				"x": 32,
-				"y": 128
-			},
-			"7": {
-				"is_collidable": false
-			}
-		}'''
+		self.JSON_config = config['JSON']
 
 		# Expected values for the parsed tileset config
-		self.expected_config = {
-			1: {
-				'type': 'custom',
-				'faces': 'right',
-			},
-			2: {},
-			3: {
-				'type': 'custom2',
-			},
-			4: {},
-			5: {
-				'x': 32,
-				'y': 128,
-			},
-			6: {},
-			7: {
-				'is_collidable': False,
-			},
-			8: {},
-		}
+		self.expected_config = config['expected']
 
 	def setup_invalid_config_data(self):
 		"""Sets up invalid JSON test config data.
@@ -266,3 +228,146 @@ class TestTilesetImage(unittest.TestCase):
 	def bottom_left_tile_value(self):
 		"""Returns the tile value of the bottom left tile image for the current test dimensions."""
 		return self.expected_cols * (self.expected_rows - 1) + 1
+
+
+
+
+
+
+
+
+
+
+class TestTileset(unittest.TestCase):
+	"""Tests the management of tileset images and configs."""
+
+	def setUp(self):
+		self.tileset = None
+
+
+
+	def test_tileset_cache(self):
+		"""Tests the caching of image and config data for a tileset."""
+		test_image1 = SolidColorImagePattern().create_image(
+			6 * TILE_SIZE,
+			8 * TILE_SIZE
+		)
+		tileset_image1 = TilesetImage(test_image1)
+		tileset_config1 = TilesetConfig(get_valid_config_data()['JSON'])
+
+		test_image2 = SolidColorImagePattern().create_image(
+			10 * TILE_SIZE,
+			2 * TILE_SIZE
+		)
+		tileset_image2 = TilesetImage(test_image2)
+		tileset_config2 = TilesetConfig('')
+
+		# Create two different versions of the same tileset
+		tileset1 = Tileset('test', tileset_image1, tileset_config1)
+		tileset2 = Tileset('test', tileset_image2, tileset_config2)
+
+		# Ensure that the cache works and was updated
+		self.assertEqual('test', tileset1.name, "Tileset name was not set.")
+		self.assertIs(tileset1.config, tileset2.config, "Tileset config cache was not updated.")
+		self.assertIs(tileset1.image, tileset2.image, "Tileset image cache was not updated.")
+
+	def test_tileset_tile_creation(self):
+		"""Tests the creation of tiles via a tileset."""
+		test_image = SolidColorImagePattern().create_image(
+			6 * TILE_SIZE,
+			8 * TILE_SIZE
+		)
+		tileset_image = TilesetImage(test_image)
+		tileset_config = TilesetConfig(get_valid_config_data()['JSON'])
+
+		self.tileset = Tileset('test', tileset_image, tileset_config)
+
+		# Test tile creation
+
+		# 1 is a custom tile which faces right
+		test_tile = self.tileset.create_tile(1)
+
+		self.assertEqual(test_tile.type, 'custom', "Tileset failed to create a custom tile.")
+		self.assertEqual(test_tile.faces, 'right', "Tileset failed to create a custom tile facing the correct direction.")
+
+		# 2 should be a basic tile
+		test_tile = self.tileset.create_tile(2, x=32, y=64)
+
+		self.assertEqual(test_tile.type, 'basic', "Tileset failed to create a basic tile.")
+		self.assertEqual((test_tile.x, test_tile.y), (32, 64), "Tileset failed to pass additional arguments when creating tile.")
+
+		# 3 should be a custom2 tile
+		test_tile = self.tileset.create_tile(3)
+
+		self.assertEqual(test_tile.type, 'custom2', "Tileset failed to create a custom2 tile.")
+
+		# 5 should have its coordinates preset
+		test_tile = self.tileset.create_tile(5)
+
+		self.assertEqual((test_tile.x, test_tile.y), (32, 128), "Tileset failed to set coordinates of tile from tileset config.")
+
+		# 7 should not be collidable
+		test_tile = self.tileset.create_tile(7)
+
+		self.assertEqual(test_tile.is_collidable, False, "Tileset failed to set is_collidable on tile from tileset config.")
+
+
+
+# Global helper methods
+
+def get_valid_config_data():
+	"""Returns a dict with valid tileset config test data.
+
+	This config makes use of custom tile types, string values,
+	integer values, and boolean values.
+
+	Returns:
+		A dict with two keys: "JSON", which contains the JSON encoded
+		string for initializing a TilesetConfig object, and "expected",
+		which is a Python dict of the expected results from parsing
+		the JSON string.
+	"""
+	# Valid JSON config for testing
+	JSON_config = '''{
+		"1": {
+			"type": "custom",
+			"faces": "right"
+		},
+		"3": {
+			"type": "custom2"
+		},
+		"5": {
+			"x": 32,
+			"y": 128
+		},
+		"7": {
+			"is_collidable": false
+		}
+	}'''
+
+	# Expected values for the parsed tileset config
+	expected_config = {
+		1: {
+			'type': 'custom',
+			'faces': 'right',
+		},
+		2: {},
+		3: {
+			'type': 'custom2',
+		},
+		4: {},
+		5: {
+			'x': 32,
+			'y': 128,
+		},
+		6: {},
+		7: {
+			'is_collidable': False,
+		},
+		8: {},
+	}
+
+	return {
+		'JSON': JSON_config,
+		'expected': expected_config
+	}

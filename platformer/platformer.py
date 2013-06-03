@@ -23,7 +23,7 @@ level_data = load.LevelData('demo') # TODO Could this be a Level class which con
 
 # TODO Stage should not take in so much data
 #stage = tile_map.TileMap(level_data.get_stage_map(), level_data.get_tile_sprite_file(), rows=level_data.get_stage_size()[0], cols=level_data.get_stage_size()[1])
-stage_tileset = tileset.Tileset('demo', rows=level_data.get_stage_size()[0], cols=level_data.get_stage_size()[1])
+stage_tileset = tileset.Tileset.load('demo', rows=level_data.get_stage_size()[0], cols=level_data.get_stage_size()[1])
 stage = texture_tile_map.TextureTileMap(level_data.get_stage_map(), stage_tileset)
 
 #characters = load.Characters(stage_data.get_character_data(), stage.get_tiles())

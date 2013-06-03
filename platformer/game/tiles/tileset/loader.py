@@ -33,6 +33,7 @@ def load_tileset_image(tileset_name, name):
 	"""
 	return open_image(TILESET_DIRECTORY+'/'+tileset_name+'/'+name)
 
+# TODO Unit tests
 def get_tileset_config(tileset_name):
 	"""Loads the contents of the config file for a tileset.
 
@@ -50,6 +51,7 @@ def get_tileset_config(tileset_name):
 	except ResourceNotFoundException:
 		return ''
 
+# TODO Unit tests
 def get_tileset_image(tileset_name):
 	"""Loads the image file for a tileset.
 
