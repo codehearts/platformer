@@ -1,5 +1,7 @@
 from game.extended_sprite import ExtendedSprite
 
+# TODO Possibly have a large tiling tile class which can be used to draw large regions of repeated tiles with a single tile object
+# TODO Possible have a class for drawing large tiles with multiple artworks/a slice of the tileset image for an image
 class Tile(ExtendedSprite):
 	"""A tile for use in maps.
 

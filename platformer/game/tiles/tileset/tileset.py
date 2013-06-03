@@ -14,8 +14,8 @@ class Tileset(object):
 	``{resources_dir}/{tilesets_dir}/forest/``, for example.
 
 	Attributes:
-		image (:class:`game.tiles.tileset.tileset_image.TilesetImage`): The image data for the tileset.
-		config (:class:`game.tiles.tileset.tileset_config.TilesetConfig`): The config data for the tileset.
+		image (:class:`game.tiles.tileset.TilesetImage`): The image data for the tileset.
+		config (:class:`game.tiles.tileset.TilesetConfig`): The config data for the tileset.
 	"""
 
 	_cached_tilesets = {}

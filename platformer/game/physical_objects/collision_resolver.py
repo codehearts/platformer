@@ -23,7 +23,7 @@ def _resolve_collision_x(obj, tile_map):
 			collision_tile = tile_map[y][x]
 			if collision_tile and collision_tile.is_collidable:
 				# TODO Implement hooks for custom tiles to determine exceptions and say whether tiles should be ignored
-				if x is not 0:
+				if x != 0:
 					left_tile = tile_map[y][x-1]
 
 					"""Ignore adjacent tiles connected to left-facing slopes (allows for ascending connected left-facing slopes)
@@ -35,7 +35,7 @@ def _resolve_collision_x(obj, tile_map):
 					if left_tile and left_tile.type is 'slope' and left_tile.faces_left and obj.hitbox.x + obj.hitbox.half_width <= collision_tile.x:
 						continue
 
-					if y is not 0:
+					if y != 0:
 						bottom_left = tile_map[y-1][x-1]
 
 						"""Allow ascending connected left-facing slopes by bypassing protection against entering
@@ -60,7 +60,7 @@ def _resolve_collision_x(obj, tile_map):
 					if right_tile and right_tile.type is 'slope' and right_tile.faces_right and obj.hitbox.x + obj.hitbox.half_width >= collision_tile.x2:
 						continue
 
-					if y is not 0:
+					if y != 0:
 						bottom_right = tile_map[y-1][x+1]
 
 						# Allow us to ascend continuous rightward slopes, because you can not enter a slope tile that's above your current y

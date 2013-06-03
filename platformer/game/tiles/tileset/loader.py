@@ -48,7 +48,7 @@ def get_tileset_config(tileset_name):
 	try:
 		return load_tileset_file(tileset_name, 'config.json').read()
 	except ResourceNotFoundException:
-		return None
+		return ''
 
 def get_tileset_image(tileset_name):
 	"""Loads the image file for a tileset.

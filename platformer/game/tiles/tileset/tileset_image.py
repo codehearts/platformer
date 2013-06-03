@@ -1,5 +1,6 @@
 from pyglet.image import ImageGrid, TextureGrid
 from ...settings.general_settings import TILE_SIZE
+from math import ceil
 
 class TilesetImage(object):
 	"""Tileset image data which defines how each tile in a tileset should look.
@@ -31,9 +32,9 @@ class TilesetImage(object):
 		"""
 		# If rows and columns were not specified, calculate them
 		if not rows:
-			rows = int(tileset_image.width / TILE_SIZE)
+			rows = int(ceil(tileset_image.height / TILE_SIZE))
 		if not cols:
-			cols = int(tileset_image.height / TILE_SIZE)
+			cols = int(ceil(tileset_image.width / TILE_SIZE))
 
 		self._image = TextureGrid(ImageGrid(tileset_image, rows, cols))
 		self._image_data = {}
@@ -53,7 +54,7 @@ class TilesetImage(object):
 		col = tile_value - (row * self.cols) - 1
 		row = self.rows - row - 1 # Adjust for index 0 being at the bottom left
 
-		return (col, row)
+		return (row, col)
 
 	def get_tile_image(self, tile_value):
 		"""Returns the image for a tile in the tileset.
@@ -65,7 +66,7 @@ class TilesetImage(object):
 			A :class:`pyglet.image.Texture` object of the tile's image.
 		"""
 		indices = self._value_to_indices(tile_value)
-		return self._image[indices[1], indices[0]]
+		return self._image[indices[0], indices[1]]
 
 	def get_tile_image_data(self, tile_value):
 		"""Returns the image data for a tile in the tileset.
