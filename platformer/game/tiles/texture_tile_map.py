@@ -1,13 +1,15 @@
 from game import util
+from game.bounded_box import BoundedBox
 from game.extended_texture import ExtendedTexture
-from tile_map import TileMap
 from ..settings.general_settings import TILE_SIZE
 
-class TextureTileMap(TileMap):
+class TextureTileMap(object):
 	"""A grid of tiles which can be drawn efficiently.
 
 	Attributes:
 		tiles (2d list of :class:`game.tiles.tile.Tile`): A 2d list of the tiles on the map. Empty tiles are represented as ``None``.
+		rows (int): The number of rows of tiles in the map.
+		cols (int): The number of columns of tiles in the map.
 		texture (:class:`pyglet.image.Texture`): A texture containing the entire tile map image.
 	"""
 
@@ -18,8 +20,15 @@ class TextureTileMap(TileMap):
 			value_map (2d list of int): A 2d list of the tile values for each tile in the tile map.
 			tileset (:class:`game.tiles.tileset.Tileset`): The tileset to use for the map.
 		"""
+		self.rows = len(value_map[0])
+		self.cols = len(value_map)
 		self.tiles = None
 		self.texture = None
+
+		# The maximum dimensions of this tile map
+		self._max_dimensions = BoundedBox(
+			0, 0, self.cols * TILE_SIZE, self.rows * TILE_SIZE
+		)
 
 		# Create the map from the given tile values and tileset
 		self._create_tile_map(value_map, tileset)
@@ -31,23 +40,21 @@ class TextureTileMap(TileMap):
 			value_map (2d list of int): A 2d list of the tile values for each tile in the tile map.
 			tileset (:class:`game.tiles.tileset.Tileset`): The tileset to use for the map.
 		"""
-		# Get the number of rows and columns for the tile map
-		rows = len(value_map[0])
-		cols = len(value_map)
-
 		# Initialize an empty tile map
-		self.tiles = [[None] * rows for i in xrange(cols)]
+		self.tiles = [[None] * self.rows for i in xrange(self.cols)]
 
 		# Create the texture for the tile map
-		self.texture = ExtendedTexture.create(rows*TILE_SIZE, cols*TILE_SIZE)
+		self.texture = ExtendedTexture.create(
+			self._max_dimensions.width, self._max_dimensions.height
+		)
 
-		for y in xrange(cols):
-			for x in xrange(rows):
+		for y in xrange(self.cols):
+			for x in xrange(self.rows):
 				tile_value = value_map[y][x]
 
 				if tile_value is not 0: # Ignore empty tiles
 					# Adjust the y coordinate because the anchor point is at the bottom left
-					adjusted_y = cols - y - 1
+					adjusted_y = self.cols - y - 1
 					coords = util.tile_to_coordinate(x, adjusted_y)
 
 					# Create the tile and add it to the map
@@ -66,7 +73,7 @@ class TextureTileMap(TileMap):
 		self.texture.blit(x, y)
 
 	def draw_region(self, x, y, width, height):
-		"""Draws a region of the texture map with its anchor point (usually the bottom left corner) at the given coordinates.
+		"""Draws a region of the tile map.
 
 		Args:
 			x (int): The x coordinate to draw the region from.
@@ -77,13 +84,13 @@ class TextureTileMap(TileMap):
 		# Bound the drawn region to the texture's dimensions
 		if x + width > self.texture.x2:
 			width = self.texture.x2 - x
-		elif x < self.texture.x:
+		if x < self.texture.x:
 			width -= self.texture.x - x
 			x = self.texture.x
 
 		if y + height > self.texture.y2:
 			height = self.texture.y2 - y
-		elif y < self.texture.y:
+		if y < self.texture.y:
 			height -= self.texture.y - y
 			y = self.texture.y
 

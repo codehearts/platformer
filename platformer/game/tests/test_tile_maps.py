@@ -1,6 +1,8 @@
 import unittest
 from game.tiles.tile_map import TileMap
 from game.tiles.texture_tile_map import TextureTileMap
+from game.settings.general_settings import TILE_SIZE
+from pyglet.graphics import Batch, Group
 from util.tileset import get_testing_tileset
 
 class TestTileMap(unittest.TestCase):
@@ -93,10 +95,104 @@ class TestTileMap(unittest.TestCase):
 
 
 
+	def test_tile_map_visible_region(self):
+		"""Tests setting the visible region of a TileMap to ensure that
+		only the requested region is visible."""
+		# Test with the TileMap class
+		self.tile_map_class = TileMap
+
+		test_map = [
+			[ 1, 1, 1, 0],
+			[ 1, 1, 1, 1],
+			[ 1, 1, 0, 1],
+			[ 1, 0, 1, 1],
+		]
+
+		self.tile_map = self.tile_map_class(test_map, self.tileset)
+
+		# Test with multiples of tile sizes
+		self.tile_map.set_visible_region(
+			x =		    TILE_SIZE,	y =			    TILE_SIZE,
+			width =	2 * TILE_SIZE,	height =	3 * TILE_SIZE
+		)
+
+		self.invisible_coordinates = [
+			(0,3),					(3,3),
+			(0,2),					(3,2),
+			(0,1),					(3,1),
+			(0,0),	(1,0),	(2,0),	(3,0),
+		]
+
+		self.visible_coordinates = [
+			(1,3),	(2,3),
+			(1,2),	(2,2),
+			(1,1),	(2,1),
+		]
+
+		self.assert_tile_map_visible_region()
+
+		# Test changing the region slightly
+		self.tile_map.set_visible_region(
+			x =		0 * TILE_SIZE,	y =			    TILE_SIZE,
+			width =	2 * TILE_SIZE,	height =	2 * TILE_SIZE
+		)
+
+		self.invisible_coordinates = [
+			(0,3),	(1,3),	(2,3),	(3,3),
+							(2,2),	(3,2),
+							(2,1),	(3,1),
+			(0,0),	(1,0),	(2,0),	(3,0),
+		]
+
+		self.visible_coordinates = [
+			(0,2),	(1,2),
+			(0,1),	(1,1),
+		]
+
+		self.assert_tile_map_visible_region()
+
+		# Test setting the region with floats
+		self.tile_map.set_visible_region(
+			x =		1.5 * TILE_SIZE,	y =			2.1  * TILE_SIZE,
+			width =	0.5 * TILE_SIZE,	height =	2.71 * TILE_SIZE
+		)
+
+		self.invisible_coordinates = [
+			(0,3),			(2,3),	(3,3),
+			(0,2),			(2,2),	(3,2),
+			(0,1),	(1,1),	(2,1),	(3,1),
+			(0,0),	(1,0),	(2,0),	(3,0),
+		]
+
+		self.visible_coordinates = [
+			(1,3),
+			(1,2),
+		]
+
+		self.assert_tile_map_visible_region()
+
+	def assert_tile_map_visible_region(self):
+		"""Asserts that the tile map's visible region is correct."""
+		# Ensure that tiles outside the region are invisible
+		for coords in self.invisible_coordinates:
+			tile = self.tile_map.tiles[coords[1]][coords[0]]
+			if tile:
+				self.assertFalse(tile.visible,
+				"Failed to set tile outside of region as invisible.")
+
+		# Ensure that tiles within the region are visible
+		for coords in self.visible_coordinates:
+			tile = self.tile_map.tiles[coords[1]][coords[0]]
+			if tile:
+				self.assertTrue(tile.visible,
+				"Failed to set tile inside of region as visible.")
+
+
+
 	def test_texture_tile_map_draw_region(self):
 		"""Tests TextureTileMap region drawing to ensure that only the
 		requested region is drawn."""
-		# Test with the TileMap class
+		# Test with the TextureTileMap class
 		self.tile_map_class = TextureTileMap
 
 		test_map = [
@@ -108,7 +204,67 @@ class TestTileMap(unittest.TestCase):
 
 		self.tile_map = self.tile_map_class(test_map, self.tileset)
 
+		# TODO Implement this. TextureTileMap should have a get_region method to make this test easier
 		pass
+
+
+
+	def test_tile_map_graphics_attributes(self):
+		"""Tests setting the batch and group for tiles in a TileMap."""
+		# Test with the TileMap class
+		self.tile_map_class = TileMap
+
+		test_map = [
+			[ 1, 1, 1, 0],
+			[ 1, 1, 0, 1],
+			[ 1, 1, 0, 1],
+			[ 1, 0, 1, 1],
+		]
+
+		# Create a batch and group for testing
+		self.test_batch = Batch()
+		self.test_group = Group()
+
+		# Create a tile map with the batch and group
+		self.tile_map = self.tile_map_class(
+			test_map, self.tileset,
+			batch=self.test_batch, group=self.test_group
+		)
+
+		# Assert that everything was set properly
+		self.assert_tile_map_graphics_attributes()
+
+		# Create a new batch and group and test setting them
+		self.test_batch = Batch()
+		self.test_group = Group()
+
+		self.assertIsNot(self.test_batch, self.tile_map.tiles[0][0].batch,
+			"New test batch is same as old test batch.")
+		self.assertIsNot(self.test_group, self.tile_map.tiles[0][0].group,
+			"New test group is same as old test group.")
+
+		# Set the new batch and group
+		self.tile_map.batch = self.test_batch
+		self.tile_map.group = self.test_group
+
+		# Assert that everything was updated
+		self.assert_tile_map_graphics_attributes()
+
+	def assert_tile_map_graphics_attributes(self):
+		"""Asserts that the current test map's graphics attributes are correct."""
+		for y in xrange(self.tile_map.rows):
+			for x in xrange(self.tile_map.cols):
+				tile = self.tile_map.tiles[y][x]
+				if tile:
+					self.assertIs(
+						self.test_batch, tile.batch,
+						"Tile map did not add tile to the correct graphics batch."
+					)
+					self.assertIs(
+						self.test_group, tile.group,
+						"Tile map did not add tile to the correct graphics group."
+					)
+
 
 
 # TODO Test TextureTileMap texture
