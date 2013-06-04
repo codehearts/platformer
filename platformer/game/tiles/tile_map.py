@@ -60,7 +60,7 @@ class TileMap(object):
 			for x in xrange(self.rows):
 				tile_value = value_map[y][x]
 
-				if tile_value is not 0: # Ignore empty tiles
+				if tile_value != 0: # Ignore empty tiles
 					# Adjust the y coordinate for an anchor at the bottom left
 					adjusted_y = self.cols-y-1
 					coordinates = util.tile_to_coordinate(x, adjusted_y)

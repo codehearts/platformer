@@ -31,11 +31,11 @@ class Tileset(object):
 		if not tileset_name in self._cached_tilesets:
 			self._cache_tileset(tileset_name, tileset_image, tileset_config)
 
-		# Update the cache is necessary
-		if tileset_image is not self._cached_tilesets[tileset_name]['image']:
-			self._cached_tilesets[tileset_name]['image'].__dict__.update(tileset_image.__dict__)
-		if tileset_config is not self._cached_tilesets[tileset_name]['config']:
-			self._cached_tilesets[tileset_name]['config'].__dict__.update(tileset_config.__dict__)
+		# Update the cache if necessary
+		if tileset_image != self._cached_tilesets[tileset_name]['image']:
+			self._cached_tilesets[tileset_name]['image'] = tileset_image
+		if tileset_config != self._cached_tilesets[tileset_name]['config']:
+			self._cached_tilesets[tileset_name]['config'] = tileset_config
 
 		self.name = tileset_name
 		self.image = self._cached_tilesets[tileset_name]['image']

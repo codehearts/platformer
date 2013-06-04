@@ -3,10 +3,16 @@ from game.tiles.tileset import Tileset, TilesetImage, TilesetConfig
 from image import dummy_image
 
 def get_testing_tileset(rows, cols):
-	image = TilesetImage(dummy_image(cols*TILE_SIZE, rows*TILE_SIZE))
-	config = TilesetConfig(get_valid_config_data()['JSON'])
+	image = get_testing_tileset_image(rows, cols)
+	config = get_testing_tileset_config()
 
 	return Tileset('test', image, config)
+
+def get_testing_tileset_image(rows, cols):
+	return TilesetImage(dummy_image(cols*TILE_SIZE, rows*TILE_SIZE))
+
+def get_testing_tileset_config():
+	return TilesetConfig(get_valid_config_data()['JSON'])
 
 def get_valid_config_data():
 	"""Returns a dict with valid tileset config test data.

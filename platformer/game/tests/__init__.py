@@ -1,4 +1,5 @@
 # TODO Make these all pass again
+# TODO Run tests with different default tile sizes
 from test_bounded_box import *
 from test_tile_factory import *
 from test_tilesets import *

@@ -45,14 +45,14 @@ class TextureTileMap(object):
 
 		# Create the texture for the tile map
 		self.texture = ExtendedTexture.create(
-			self._max_dimensions.width, self._max_dimensions.height
+			self._max_dimensions.height, self._max_dimensions.width
 		)
 
 		for y in xrange(self.cols):
 			for x in xrange(self.rows):
 				tile_value = value_map[y][x]
 
-				if tile_value is not 0: # Ignore empty tiles
+				if tile_value != 0: # Ignore empty tiles
 					# Adjust the y coordinate because the anchor point is at the bottom left
 					adjusted_y = self.cols - y - 1
 					coords = util.tile_to_coordinate(x, adjusted_y)
@@ -61,7 +61,8 @@ class TextureTileMap(object):
 					self.tiles[adjusted_y][x] = tileset.create_tile(tile_value, x=coords[0], y=coords[1])
 
 					# Blit the tile image to the map texture
-					tileset.image.get_tile_image_data(tile_value).blit_to_texture(self.texture.target, self.texture.level, coords[0], coords[1], 0)
+					self.texture.blit_into(tileset.image.get_tile_image_data(tile_value), coords[0], coords[1], 0)
+					#tileset.image.get_tile_image_data(tile_value).blit_to_texture(self.texture.target, self.texture.level, coords[0], coords[1], 0)
 
 	def draw(self, x, y):
 		"""Draws the entire tile map with its anchor point (usually the bottom left corner) at the given coordinates.
@@ -71,6 +72,25 @@ class TextureTileMap(object):
 			y (int): The y coordinate to draw the tile map from.
 		"""
 		self.texture.blit(x, y)
+
+	def get_region(self, x, y, width, height):
+		"""Returns a region of the tile map.
+
+		Args:
+			x (int): The x coordinate of the region.
+			y (int): The y coordinate of the region.
+			width (int): The width of the region.
+			height (int): The height of the region.
+
+		Returns:
+			A :class:`game.extended_texture.ExtendedTextureRegion` object.
+		"""
+		region = BoundedBox(x, y, width, height)
+		region.bound_within(self.texture)
+
+		return self.texture.get_region(
+			region.x, region.y, region.width, region.height
+		)
 
 	def draw_region(self, x, y, width, height):
 		"""Draws a region of the tile map.
@@ -82,16 +102,5 @@ class TextureTileMap(object):
 			height (int): The height of the region to draw.
 		"""
 		# Bound the drawn region to the texture's dimensions
-		if x + width > self.texture.x2:
-			width = self.texture.x2 - x
-		if x < self.texture.x:
-			width -= self.texture.x - x
-			x = self.texture.x
-
-		if y + height > self.texture.y2:
-			height = self.texture.y2 - y
-		if y < self.texture.y:
-			height -= self.texture.y - y
-			y = self.texture.y
-
-		self.texture.get_region(x, y, width, height).blit(x, y)
+		region = self.get_region(x, y, width, height)
+		region.blit(region.x, region.y)

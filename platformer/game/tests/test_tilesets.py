@@ -262,8 +262,8 @@ class TestTileset(unittest.TestCase):
 
 		# Ensure that the cache works and was updated
 		self.assertEqual('test', tileset1.name, "Tileset name was not set.")
-		self.assertIs(tileset1.config, tileset2.config, "Tileset config cache was not updated.")
-		self.assertIs(tileset1.image, tileset2.image, "Tileset image cache was not updated.")
+		self.assertIs(tileset2.config, tileset_config2, "Tileset config cache was not updated.")
+		self.assertIs(tileset2.image, tileset_image2, "Tileset image cache was not updated.")
 
 	def test_tileset_tile_creation(self):
 		"""Tests the creation of tiles via a tileset."""

@@ -29,10 +29,10 @@ stage = texture_tile_map.TextureTileMap(level_data.get_stage_map(), stage_tilese
 #characters = load.Characters(stage_data.get_character_data(), stage.get_tiles())
 
 # TODO Should probably just pass the reference to the stage here
-player = load.Player(level_data.get_player_data(), stage.get_tiles(), key_handler)
+player = load.Player(level_data.get_player_data(), stage.tiles, key_handler)
 game_window.push_handlers(player.character.key_handler)
 
-cam = camera.Camera(player.character, game_window, stage.get_tiles())
+cam = camera.Camera(player.character, game_window, stage.tiles)
 cam.focus() # TODO Should this be called on init?
 
 player_layer = physical_object_layer.PhysicalObjectLayer(player.character, cam)
