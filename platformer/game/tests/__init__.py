@@ -1,10 +1,11 @@
 # TODO Make these all pass again
-# TODO Run tests with different default tile sizes
-# TODO Run tests with different frame rates
+# TODO Run some tests multiple times with different default tile sizes
+# TODO Run some tests multiple times with different frame rates
 from test_bounded_box import *
 from test_tile_factory import *
 from test_tilesets import *
 from test_tile_maps import *
+from test_easing import *
 #from test_loaders import *
 #from test_camera import *
 #from test_layers import *

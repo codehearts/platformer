@@ -6,7 +6,7 @@ from game.layers import layer_manager, fixed_layer, fixed_animation_layer, fixed
 from game.settings import general_settings
 from game.animation import tiled_animation
 from game.text import heading, live_text
-from game.easing.ease_out import EaseOut
+from game.easing import EaseOut
 from game.tiles import texture_tile_map
 from game.tiles import tileset
 
@@ -45,7 +45,7 @@ transition_animation = tiled_animation.TiledAnimation.from_image(
 			pyglet.resource.image('transition.png'),
 			1,
 			31,
-			EaseOut.get_frame_durations(1*31, 1.25, ease_power=0.5),
+			EaseOut.get_frame_durations(1*31, 1.25, ease_power=2),
 			cam.width,
 			cam.height,
 			delay=0.5
