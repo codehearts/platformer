@@ -1,7 +1,8 @@
-import custom_tile_types, unittest
+import unittest
 from game.settings.general_settings import TILE_SIZE
 from game.tiles.tile import Tile
 from game.tiles.tile_factory import create_tile
+from util import custom_tile_types
 from util.image import dummy_image
 
 class TestTileFactory(unittest.TestCase):

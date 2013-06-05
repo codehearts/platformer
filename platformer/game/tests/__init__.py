@@ -5,7 +5,6 @@ from test_bounded_box import *
 from test_tile_factory import *
 from test_tilesets import *
 from test_tile_maps import *
-#from test_utilities import *
 #from test_loaders import *
 #from test_camera import *
 #from test_layers import *
