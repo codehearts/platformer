@@ -42,7 +42,9 @@ def tearDown():
 	"""Restores the custom tile type callbacks."""
 	global _saved_custom_tile_types, custom_tile_types
 
-	custom_tile_types.update(_saved_custom_tile_types)
+	# tearDown can be called before setUp
+	if _saved_custom_tile_types is not None:
+		custom_tile_types.update(_saved_custom_tile_types)
 
 def register_custom():
 	"""Registers a factory callback for the 'custom' tile type."""

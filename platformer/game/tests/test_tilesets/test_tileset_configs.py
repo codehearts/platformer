@@ -31,7 +31,7 @@ class TestTilesetConfig(unittest.TestCase):
 		# Attempt to Create a config object for the test data
 		try:
 			self.assertRaises(ValueError, TilesetConfig, self.JSON_config)
-		except:
+		except AssertionError:
 			raise AssertionError("Tileset did not raise ValueError when passed invalid JSON.")
 
 	def test_empty_tileset_config(self):

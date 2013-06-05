@@ -1,5 +1,4 @@
-from pyglet.resource import file as open_file
-from pyglet.resource import image as open_image
+import pyglet.resource
 from pyglet.resource import ResourceNotFoundException
 from ...settings.general_settings import TILESET_DIRECTORY
 
@@ -16,7 +15,7 @@ def load_tileset_file(tileset_name, name):
 	Raises:
 		ResourceNotFoundException: The resource to load could not be found.
 	"""
-	return open_file(TILESET_DIRECTORY+'/'+tileset_name+'/'+name)
+	return pyglet.resource.file(TILESET_DIRECTORY+'/'+tileset_name+'/'+name)
 
 def load_tileset_image(tileset_name, name):
 	"""Loads a tileset image file.
@@ -31,7 +30,7 @@ def load_tileset_image(tileset_name, name):
 	Raises:
 		ResourceNotFoundException: The resource to load could not be found.
 	"""
-	return open_image(TILESET_DIRECTORY+'/'+tileset_name+'/'+name)
+	return pyglet.resource.image(TILESET_DIRECTORY+'/'+tileset_name+'/'+name)
 
 # TODO Unit tests
 def get_tileset_config(tileset_name):
@@ -56,7 +55,7 @@ def get_tileset_image(tileset_name):
 	"""Loads the image file for a tileset.
 
 	Because tileset images can be one of multiple image formats,
-	this loader searches for gif, then png, then jpg, then jpeg.
+	this loader searches for png, then gif, then jpg, then jpeg.
 	If a tile image can not be found for any of those formats, an
 	exception is raised.
 
@@ -70,7 +69,7 @@ def get_tileset_image(tileset_name):
 		ResourceNotFoundException: The resource to load could not be found.
 	"""
 	# Try opening a "tiles.*" file in this order
-	filetypes = ['gif', 'png', 'jpg', 'jpeg']
+	filetypes = ['png', 'gif', 'jpg', 'jpeg']
 
 	for filetype in filetypes:
 		try:
@@ -78,4 +77,4 @@ def get_tileset_image(tileset_name):
 		except ResourceNotFoundException:
 			# If we've checked all of the filetypes, it doesn't exist
 			if filetype is filetypes[-1]:
-				raise ResourceNotFoundException()
+				raise ResourceNotFoundException("tiles.{supported format}")

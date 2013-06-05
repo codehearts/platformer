@@ -1,0 +1,9 @@
+{
+	"1": {
+		"type": "basic"
+	},
+	"6": {
+		"type": "custom",
+		"faces": "down"
+	}
+}

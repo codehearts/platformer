@@ -1,6 +1,6 @@
 from tileset_config import TilesetConfig
 from tileset_image import TilesetImage
-from loader import get_tileset_config, get_tileset_image
+from tileset_loaders import get_tileset_config, get_tileset_image
 from .. import tile_factory
 
 class Tileset(object):
