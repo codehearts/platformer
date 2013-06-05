@@ -12,6 +12,11 @@ class Tileset(object):
 	``{resources_dir}/{tilesets_dir}/`` such as
 	``{resources_dir}/{tilesets_dir}/forest/``, for example.
 
+	Because file reads can be expensive, tileset data is cached on initialization.
+	The cache can be emptied for a single tileset by calling :func:`empty_cache`
+	on a :class:`game.tiles.tileset.Tileset` instance, or the cache can
+	be emptied for all tilesets by calling :func:`flush_cache` on this class.
+
 	Attributes:
 		name (str): The name of the tileset.
 		image (:class:`game.tiles.tileset.TilesetImage`): The image data for the tileset.
@@ -30,11 +35,9 @@ class Tileset(object):
 		"""
 		if not tileset_name in self._cached_tilesets:
 			self._cache_tileset(tileset_name, tileset_image, tileset_config)
-
-		# Update the cache if necessary
-		if tileset_image != self._cached_tilesets[tileset_name]['image']:
+		else:
+			# Update the cache
 			self._cached_tilesets[tileset_name]['image'] = tileset_image
-		if tileset_config != self._cached_tilesets[tileset_name]['config']:
 			self._cached_tilesets[tileset_name]['config'] = tileset_config
 
 		self.name = tileset_name
@@ -70,6 +73,24 @@ class Tileset(object):
 		kwargs = dict(kwargs.items() + self.config.get_tile_entry(tile_value).items())
 
 		return tile_factory.create_tile(img=self.image.get_tile_image(tile_value), *args, **kwargs)
+
+	def empty_cache(self):
+		"""Empties the cache for this tileset object's data."""
+		self.empty_tileset_cache(self.name)
+
+	@classmethod
+	def empty_tileset_cache(cls, tileset_name):
+		"""Empties a tileset's data from the cache.
+
+		Args:
+			tileset_name (str): The name of the tileset to empty from the cache.
+		"""
+		cls._cached_tilesets.pop(tileset_name)
+
+	@classmethod
+	def flush_cache(cls):
+		"""Empties all tilesets from the cache."""
+		cls._cached_tilesets = {}
 
 	@classmethod
 	def load(cls, tileset_name, rows=None, cols=None):

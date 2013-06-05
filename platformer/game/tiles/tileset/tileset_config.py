@@ -60,3 +60,7 @@ class TilesetConfig(object):
 
 		# Otherwise return an empty entry
 		return {}
+
+	def __eq__(self, other):
+		"""Compares the equality of two TilesetConfig objects."""
+		return hasattr(other, '_config') and self._config == other._config
