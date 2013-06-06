@@ -4,6 +4,7 @@ import math
 from tile import Tile
 from ..settings import general_settings
 
+# TODO Float equality should be checked with util.floats_equal
 class _SlopeTile(Tile):
 	"""A sloped tile for use in maps.
 

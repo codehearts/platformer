@@ -1,6 +1,6 @@
-import text
+from text import Text
 
-class LiveText(text.Text):
+class LiveText(Text):
 	"""A text label which updates its contents with the return value of a function.
 
 	Attributes:

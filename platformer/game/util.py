@@ -119,3 +119,8 @@ def equalize_list_sizes(larger_list, smaller_list):
 		new_list.append(smaller_list[i%smaller_size - 1])
 
 	return new_list
+
+ABS_TOLERANCE = 0.0000000001
+def floats_equal(x, y):
+	"""Returns whether two floats are equal within ABS_TOLERANCE."""
+	return abs(x - y) <= ABS_TOLERANCE * max(1.0, abs(x), abs(y))

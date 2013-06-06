@@ -4,6 +4,7 @@ from ..settings import general_settings
 from ..util import coordinate_to_tile
 
 # TODO If you dash up multiple rightward slopes and jump, you hit a solid tile and jitter
+# TODO Float equality should be checked with util.floats_equal
 
 def resolve_collisions(obj):
 	# Don't resolve horizontal collisions if the object has no horizontal velocity

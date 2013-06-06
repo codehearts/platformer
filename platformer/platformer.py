@@ -45,7 +45,7 @@ transition_animation = tiled_animation.TiledAnimation.from_image(
 			pyglet.resource.image('transition.png'),
 			1,
 			31,
-			EaseOut.get_frame_durations(1*31, 1.25, ease_power=2),
+			EaseOut.get_frame_durations(1*31, 1.25, ease_power=0.5),
 			cam.width,
 			cam.height,
 			delay=0.5
