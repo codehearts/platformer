@@ -1,31 +1,72 @@
-import basic_layer
+from graphics_layer import StaticGraphicsLayer
+from fixed_layer import FixedLayer
 
-class TextLayer(basic_layer.BasicLayer):
-	"""A layer of text content."""
+class StaticTextLayer(StaticGraphicsLayer):
+	"""A layer of static text content.
+
+	The contents of this layer are never updated.
+	"""
+
+	def __init__(self, *args, **kwargs):
+		super(StaticTextLayer, self).__init__(*args, **kwargs)
+
+	@property
+	def batch(self):
+		return self.graphic.batch
+
+	@batch.setter
+	def batch(self, batch):
+		self.graphic.begin_update()
+		self.graphic.batch = batch
+		self.graphic.end_update()
+
+	@property
+	def group(self):
+		return self.graphic.group
+
+	@group.setter
+	def group(self, group):
+		self.graphic.begin_update()
+		self.graphic.group = group
+		self.graphic.end_update()
+
+
+
+class TextLayer(StaticTextLayer):
+	"""A layer of text content which updates each frame."""
 
 	def __init__(self, *args, **kwargs):
 		super(TextLayer, self).__init__(*args, **kwargs)
 
-	# All text modules support batches
-	def supports_batches(self):
-		return True
+	def update(self, dt):
+		"""Updates the layer's text contents.
 
-	# All text modules support groups
-	def supports_groups(self):
-		return True
+		This is performed by calling ``self.graphic.update(dt)``.
 
-	def set_batch(self, batch):
-		self.graphic.begin_update()
-		self.graphic.batch = batch
-		self.graphic.end_update()
+		Args:
+			dt (float): The number of seconds that elapsed between the last update.
+		"""
+		self.graphic.update(dt)
 
-	def set_group(self, group):
-		self.graphic.begin_update()
-		self.graphic.group = group
-		self.graphic.end_update()
 
-	def set_batch_and_group(self, batch, group):
-		self.graphic.begin_update()
-		self.graphic.batch = batch
-		self.graphic.group = group
-		self.graphic.end_update()
+
+class FixedStaticTextLayer(FixedLayer, StaticTextLayer):
+	"""A layer of static text fixed relative to the viewport."""
+
+	def __init__(self, *args, **kwargs):
+		super(FixedStaticTextLayer, self).__init__(*args, **kwargs)
+
+	def update(self, dt):
+		self.fix_graphic()
+
+
+
+class FixedTextLayer(FixedStaticTextLayer):
+	"""A layer of text fixed relative to the viewport."""
+
+	def __init__(self, *args, **kwargs):
+		super(FixedTextLayer, self).__init__(*args, **kwargs)
+
+	def update(self, dt):
+		super(FixedTextLayer, self).update(dt)
+		self.graphic.update(dt)

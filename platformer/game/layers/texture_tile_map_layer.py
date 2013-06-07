@@ -1,13 +1,31 @@
-from tile_map_layer import TileMapLayer
+from image_layer import StaticImageLayer
+from fixed_layer import FixedLayer
 
-# TODO When TextureTileMap is refactored into TileMap, update the docstring
-class TextureTileMapLayer(TileMapLayer):
-	"""A layer which contains a :class:`game.tiles.texture_tile_map.TextureTileMap` as its content."""
+class TextureTileMapLayer(StaticImageLayer):
+	"""A layer which contains a :class:`game.tiles.TextureTileMap`."""
 
-	# TextureTileMaps do not support batches
-	def supports_batches(self):
-		return False
+	def __init__(self, *args, **kwargs):
+		super(TextureTileMapLayer, self).__init__(*args, **kwargs)
 
-	# TextureTileMaps do not support groups
-	def supports_groups(self):
-		return False
+	def draw(self):
+		"""Draw the visible region of the tile map."""
+		self.graphic.blit_region(self.viewport.x, self.viewport.y, self.viewport.width, self.viewport.height)
+
+
+
+class FixedTextureTileMapLayer(FixedLayer, TextureTileMapLayer):
+	"""A texture tile map layer which remains fixed to the viewport."""
+
+	def __init__(self, *args, **kwargs):
+		super(FixedTextureTileMapLayer, self).__init__(*args, **kwargs)
+
+	def draw(self):
+		"""Draws the tile map fixed to the viewport.
+
+		This is performed by setting ``anchor_x`` and ``anchor_y`` on the
+		tile map and then blitting it relative to the viewport.
+
+		Only the visible region of the tile map is drawn.
+		"""
+		self.fix_graphic()
+		self.graphic.draw_region(self.viewport.x + self.offset_x, self.viewport.y + self.offset_y, self.viewport.width, self.viewport.height)

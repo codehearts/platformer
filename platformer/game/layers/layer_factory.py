@@ -1,8 +1,10 @@
-from ..animation.basic_animation import BasicAnimation
-from ..physical_objects.physicalobject import PhysicalObject
-from ..text.text import Text
-from . import *
 from pyglet.sprite import Sprite
+from ..animation import BasicAnimation
+from ..physical_objects.physicalobject import PhysicalObject
+from ..text import Text
+from . import *
+
+# TODO This should work like the tile factory by allowing new types to be registered via an installed_layers module or some such
 
 def create_layer(graphic, *args, **kwargs):
 	"""Creates the appropriate layer object for the given graphic and style specifications.

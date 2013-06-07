@@ -1,18 +1,31 @@
 from pyglet.graphics import Batch, OrderedGroup
 
+# TODO This class should handle updating. The order should be viewport target, viewport, everything else.
+# TODO Layers could not initialize their graphical contents until the layer manager tells them to
+
+# TODO Handle the viewport attribute being set
 # TODO Write tests for this
 # TODO When writing tests, test coalescing and freeing of deleted layers, for ALL types of layers
 class LayerManager(object):
-	"""Manager for updating and drawing multiple layers in a specified order."""
+	"""Manager for updating and drawing layers in a specified order.
 
-	def __init__(self, layers):
+	Attributes:
+		viewport: The viewport that the manager's layers are viewed through.
+	"""
+
+	def __init__(self, viewport, layers):
 		"""Begins managing the updating and drawing of the given layers.
 
 		Args:
-			layers (list of :class:`game.layers.basic_layer.BasicLayer`): The layers to maintain, with the highest index being the top foreground layer and the first index being the bottom background layer.
+			viwport: The viewport that the layers will be viewed through.
+			layers (list of :class:`game.layers.BasicLayer`): The layers to maintain, with the highest index being the top foreground layer and the first index being the bottom background layer.
 		"""
+		self.viewport = viewport
+
 		self._drawing_queue = []
+		# TODO Keep the viewport target separate, update it first, then the viewport, then update everything else
 		self._update_queue = []
+		self._viewport_target_layer = None
 		self._depth = 0 # Used for setting draw order with OrderedGroups
 
 		# Add all given layers to the manager
@@ -24,6 +37,9 @@ class LayerManager(object):
 		Args:
 			dt (number): The time delta (in seconds) between the current frame and the previous frame.
 		"""
+		if self._viewport_target_layer:
+			self._viewport_target_layer.update(dt)
+		self.viewport.update(dt)
 		map(lambda item: item.update(dt), self._update_queue)
 
 	def draw(self):
@@ -36,10 +52,16 @@ class LayerManager(object):
 		Args:
 			layer (:class:`game.layers.basic_layer.BasicLayer`): The layer to add to the manager.
 		"""
+		layer.viewport = self.viewport
 		self._append_to_drawing_queue(layer)
 		self._push_layer_event_handlers(layer)
 
 		if self._layer_supports_updating(layer):
+			# TODO This viewport target check is awful
+			if hasattr(self.viewport, 'target'):
+				if hasattr(layer.graphic, 'hitbox') and layer.graphic.hitbox is self.viewport.target:
+					self._viewport_target_layer = layer
+					return
 			self._update_queue.append(layer)
 
 	def _append_to_drawing_queue(self, layer):
@@ -51,20 +73,18 @@ class LayerManager(object):
 		be expected to draw itself.
 
 		Args:
-			layer (:class:`game.layers.basic_layer.BasicLayer`): The layer to append to the drawing queue.
+			layer (:class:`game.layers.BasicLayer`): The layer to append to the drawing queue.
 		"""
 		# If the layer supports batches, add it to the current batch in the drawing queue
-		if layer.supports_batches():
+		if hasattr(layer, 'batch'):
 			# If the current item in the drawing queue is not a batch, create a batch and add it to the queue
 			if not self._drawing_queue or not isinstance(self._drawing_queue[-1], Batch):
 				self._drawing_queue.append(Batch())
 
-			# If the layer supports groups, order its rendering to the current depth
-			if layer.supports_groups():
-				layer.set_batch_and_group(self._drawing_queue[-1], OrderedGroup(self._depth))
-				self._depth += 1 # Render the next layer at the next depth
-			else:
-				layer.set_batch(self._drawing_queue[-1])
+			# Order the layer's rendering to the current depth
+			layer.batch = self._drawing_queue[-1]
+			layer.group = OrderedGroup(self._depth)
+			self._depth += 1 # Render the next layer at the next depth
 		# If this layer doesn't support batches, it will be asked to draw itself
 		else:
 			self._drawing_queue.append(layer)
@@ -73,10 +93,11 @@ class LayerManager(object):
 		"""Sets event handlers for when a layer dispatches an event.
 
 		Args:
-			layer (:class:`game.layers.basic_layer.BasicLayer`): The layer to set event handlers on.
+			layer (:class:`game.layers.BasicLayer`): The layer to set event handlers on.
 		"""
 		layer.set_handler('on_delete', self._on_layer_delete)
 
+	# TODO This should happen after everything updates/draws. Doing it during iteration could lead to unexpected behavoir
 	def _on_layer_delete(self, layer):
 		"""Event handler for when a layer is deleted.
 
@@ -85,7 +106,7 @@ class LayerManager(object):
 		responsible for drawing itself.
 
 		Args:
-			layer (:class:`game.layers.basic_layer.BasicLayer`): The layer which was deleted.
+			layer (:class:`game.layers.BasicLayer`): The layer which was deleted.
 		"""
 		# If the layer supported updating, remove it from the update queue
 		if self._layer_supports_updating(layer):
@@ -93,7 +114,7 @@ class LayerManager(object):
 
 		# TODO If this was the only thing in its batch/group, delete the group
 		# TODO If this didn't support batching, coalesce batches if possible
-		if not layer.supports_batches():
+		if layer in self._drawing_queue:
 			self._drawing_queue.remove(layer)
 
 	def _layer_supports_updating(self, layer):
@@ -102,7 +123,7 @@ class LayerManager(object):
 		This is done by checking for an ``update`` method on the layer.
 
 		Args:
-			layer (:class:`game.layers.basic_layer.BasicLayer`): The layer to check for update support.
+			layer (:class:`game.layers.BasicLayer`): The layer to check for update support.
 
 		Returns:
 			True if the layer supports updating, False otherwise.

@@ -20,8 +20,8 @@ class TextureTileMap(object):
 			value_map (2d list of int): A 2d list of the tile values for each tile in the tile map.
 			tileset (:class:`game.tiles.tileset.Tileset`): The tileset to use for the map.
 		"""
-		self.rows = len(value_map[0])
-		self.cols = len(value_map)
+		self.rows = len(value_map)
+		self.cols = len(value_map[0])
 		self.tiles = None
 		self.texture = None
 
@@ -41,20 +41,20 @@ class TextureTileMap(object):
 			tileset (:class:`game.tiles.tileset.Tileset`): The tileset to use for the map.
 		"""
 		# Initialize an empty tile map
-		self.tiles = [[None] * self.rows for i in xrange(self.cols)]
+		self.tiles = [[None] * self.cols for i in xrange(self.rows)]
 
 		# Create the texture for the tile map
 		self.texture = ExtendedTexture.create(
-			self._max_dimensions.height, self._max_dimensions.width
+			self._max_dimensions.width, self._max_dimensions.height
 		)
 
-		for y in xrange(self.cols):
-			for x in xrange(self.rows):
+		for y in xrange(self.rows):
+			for x in xrange(self.cols):
 				tile_value = value_map[y][x]
 
 				if tile_value != 0: # Ignore empty tiles
 					# Adjust the y coordinate because the anchor point is at the bottom left
-					adjusted_y = self.cols - y - 1
+					adjusted_y = self.rows - y - 1
 					coords = util.tile_to_coordinate(x, adjusted_y)
 
 					# Create the tile and add it to the map
@@ -64,7 +64,7 @@ class TextureTileMap(object):
 					self.texture.blit_into(tileset.image.get_tile_image_data(tile_value), coords[0], coords[1], 0)
 					#tileset.image.get_tile_image_data(tile_value).blit_to_texture(self.texture.target, self.texture.level, coords[0], coords[1], 0)
 
-	def draw(self, x, y):
+	def blit(self, x, y):
 		"""Draws the entire tile map with its anchor point (usually the bottom left corner) at the given coordinates.
 
 		Args:
@@ -85,14 +85,14 @@ class TextureTileMap(object):
 		Returns:
 			A :class:`game.extended_texture.ExtendedTextureRegion` object.
 		"""
-		region = BoundedBox(x, y, width, height)
+		region = BoundedBox(x - self.texture.anchor_x, y - self.texture.anchor_y, width, height)
 		region.bound_within(self.texture)
 
 		return self.texture.get_region(
 			region.x, region.y, region.width, region.height
 		)
 
-	def draw_region(self, x, y, width, height):
+	def blit_region(self, x, y, width, height):
 		"""Draws a region of the tile map.
 
 		Args:
@@ -103,4 +103,20 @@ class TextureTileMap(object):
 		"""
 		# Bound the drawn region to the texture's dimensions
 		region = self.get_region(x, y, width, height)
-		region.blit(region.x, region.y)
+		region.blit(region.x + self.texture.anchor_x, region.y + self.texture.anchor_y)
+
+	@property
+	def x(self):
+		return self.texture.anchor_x
+
+	@x.setter
+	def x(self, x):
+		self.texture.anchor_x = x
+
+	@property
+	def y(self):
+		return self.texture.anchor_y
+
+	@y.setter
+	def y(self, y):
+		self.texture.anchor_y = y

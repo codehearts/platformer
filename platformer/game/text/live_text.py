@@ -20,5 +20,3 @@ class LiveText(Text):
 	def update(self, *args, **kwargs):
 		"""Updates the label with the returned value of the text source function."""
 		self.text = self.get_text_source()
-
-		super(LiveText, self).update(*args, **kwargs)

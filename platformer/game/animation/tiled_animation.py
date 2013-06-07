@@ -21,7 +21,7 @@ class TiledAnimation(BasicAnimation):
 		self.width = int(width)
 		self.height = int(height)
 
-	def draw(self, x=0, y=0):
+	def blit(self, x, y):
 		self.current_frame.image.blit_tiled(x, y, 0, self.width, self.height)
 
 	@staticmethod

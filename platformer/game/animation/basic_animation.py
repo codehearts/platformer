@@ -75,10 +75,10 @@ class BasicAnimation(EventDispatcher):
 
 				self._change_frame(next_frame_index)
 
-	def draw(self, x=0, y=0):
+	def blit(self, x, y):
 		"""Draws the animation with its anchor point (usually the bottom left corner) at the given coordinates.
 
-		Kwargs:
+		Args:
 			x (int): The x coordinate to draw the animation's anchor point at.
 			y (int): The y coordinate to draw the animation's anchor point at.
 		"""

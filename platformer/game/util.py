@@ -120,7 +120,7 @@ def equalize_list_sizes(larger_list, smaller_list):
 
 	return new_list
 
-ABS_TOLERANCE = 0.0000000001
+ABS_TOLERANCE = 0.0000000001 # TODO Move this to its own config area
 def floats_equal(x, y):
 	"""Returns whether two floats are equal within ABS_TOLERANCE."""
 	return abs(x - y) <= ABS_TOLERANCE * max(1.0, abs(x), abs(y))

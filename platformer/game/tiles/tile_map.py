@@ -32,8 +32,8 @@ class TileMap(object):
 		self._tile_objects = [] # List of all tile objects
 
 		self.tiles = None
-		self.rows = len(value_map[0])
-		self.cols = len(value_map)
+		self.rows = len(value_map)
+		self.cols = len(value_map[0])
 
 		# The maximum dimensions of this tile map
 		self._max_dimensions = BoundedBox(
@@ -54,15 +54,15 @@ class TileMap(object):
 			tileset (:class:`game.tiles.tileset.Tileset`): The tileset to use for the map.
 		"""
 		# Initialize an empty tile map
-		self.tiles = [[None] * self.rows for i in xrange(self.cols)]
+		self.tiles = [[None] * self.cols for i in xrange(self.rows)]
 
-		for y in xrange(self.cols):
-			for x in xrange(self.rows):
+		for y in xrange(self.rows):
+			for x in xrange(self.cols):
 				tile_value = value_map[y][x]
 
 				if tile_value != 0: # Ignore empty tiles
 					# Adjust the y coordinate for an anchor at the bottom left
-					adjusted_y = self.cols-y-1
+					adjusted_y = self.rows - y - 1
 					coordinates = util.tile_to_coordinate(x, adjusted_y)
 
 					self.tiles[adjusted_y][x] = tileset.create_tile(tile_value, x=coordinates[0], y=coordinates[1], batch=self._batch, group=self._group)

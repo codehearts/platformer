@@ -1,13 +1,10 @@
-from animation_layer import AnimationLayer
-from basic_layer import BasicLayer
-from fixed_animation_layer import FixedAnimationLayer
-from fixed_layer import FixedLayer
-from fixed_sprite_layer import FixedSpriteLayer
-from fixed_text_layer import FixedTextLayer
-from layer_manager import LayerManager
-from physical_object_layer import PhysicalObjectLayer
-from sprite_layer import SpriteLayer
-from text_layer import TextLayer
+from graphics_layer import GraphicsLayer, FixedGraphicsLayer, StaticGraphicsLayer, FixedStaticGraphicsLayer
+from image_layer import ImageLayer, FixedImageLayer, StaticImageLayer, FixedStaticImageLayer
+
+from animation_layer import AnimationLayer, FixedAnimationLayer
+from text_layer import TextLayer, FixedTextLayer, StaticTextLayer, FixedStaticTextLayer
 from tile_map_layer import TileMapLayer
+from texture_tile_map_layer import TextureTileMapLayer, FixedTextureTileMapLayer
 
 from layer_factory import create_layer
+from layer_manager import LayerManager

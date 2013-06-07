@@ -1,7 +1,7 @@
-import basic_layer
+from image_layer import ImageLayer, FixedImageLayer
 
-class AnimationLayer(basic_layer.BasicLayer):
-	"""A layer of animated graphical content.
+class AnimationLayer(ImageLayer):
+	"""A layer with animated content.
 
 	Attributes:
 		on_animation_end (function): Callback function for when the animation ends.
@@ -10,28 +10,33 @@ class AnimationLayer(basic_layer.BasicLayer):
 	def __init__(self, *args, **kwargs):
 		"""
 		Args:
-			graphic (:class:`game.animation.basic_animation.BasicAnimation`): The animation to draw on the layer.
+			graphic (:class:`game.animation.BasicAnimation`): The animation.
 
 		Kwargs:
 			on_animation_end (function): Callback function for when the animation ends. The function should accept the animation as its first argument and the layer as its second.
 		"""
-		self.on_animation_end = kwargs.pop('on_animation_end', None)
+		on_animation_end = kwargs.pop('on_animation_end', None)
 		super(AnimationLayer, self).__init__(*args, **kwargs)
 
-		self.graphic.set_handler('on_animation_end', self._on_animation_end)
-
-	def update(self, dt):
-		self.graphic.update(dt)
+		if on_animation_end:
+			self._on_animation_end_callback = on_animation_end
+			self.graphic.set_handler('on_animation_end', self._on_animation_end)
 
 	def _on_animation_end(self, animation):
-		"""Event handler for when the animation ends.
+		"""Calls the given on_animation_end callback.
 
-		This is done by calling the ``on_animation_end`` attribute
-		with the animation as its first parameter and the layer
-		as its second.
+		The callback function should accept the animation as its first
+		argument and the layer as its second.
 
 		Args:
-			animation (:class:`game.animation.basic_animation.BasicAnimation`): The animation that ended.
+			animation (:class:`game.animation.BasicAnimation`): The animation which fired the on_animation_end event.
 		"""
-		if self.on_animation_end:
-			self.on_animation_end(animation, self)
+		self._on_animation_end_callback(animation, self)
+
+
+
+class FixedAnimationLayer(FixedImageLayer, AnimationLayer):
+	"""A layer with animated content fixed relative to the viewport."""
+
+	def __init__(self, *args, **kwargs):
+		super(FixedAnimationLayer, self).__init__(*args, **kwargs)
