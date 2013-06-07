@@ -31,6 +31,9 @@ class BaseLayer(EventDispatcher):
 		self.graphic = graphic
 		self.viewport = viewport
 
+		# TODO Content initialization status
+		# TODO Method for initializing contents
+
 		if duration:
 			schedule_once(self._handle_duration_end, duration)
 
