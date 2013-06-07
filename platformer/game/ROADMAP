@@ -1,0 +1,12 @@
+Layer refactoring
+Layer tests
+Level loader
+Level loader tests
+Level editor
+Camera refactoring (create viewport class, bounded viewport class, then camera)
+Stage events refactoring
+Physical object refactoring
+Physical object tests
+Collision resolver refactoring
+Tile tests
+Collision resolution
