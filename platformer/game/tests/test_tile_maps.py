@@ -72,17 +72,18 @@ class TestTileMap(unittest.TestCase):
 			[0,1,0],
 			[0,0,0],
 			[0,0,0],
+			[0,0,0],
 		]
 
 		self.tile_map = self.tile_map_class(test_map, self.tileset)
 
-		self.assertEqual(3, self.tile_map.rows,
+		self.assertEqual(4, self.tile_map.rows,
 			"Tile map has incorrect number of rows.")
 		self.assertEqual(3, self.tile_map.cols,
 			"Tile map has incorrect number of columns.")
 
 		# 0 indexing on the y axis should now be inverted
-		self.assertIsNotNone(self.tile_map.tiles[2][1], "Tile map does not have anchor point at bottom left.")
+		self.assertIsNotNone(self.tile_map.tiles[3][1], "Tile map does not have anchor point at bottom left.")
 
 
 		# Test for bottom-left aligned anchor point by checking where various empty tiles end up
