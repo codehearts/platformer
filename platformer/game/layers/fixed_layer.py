@@ -1,7 +1,4 @@
-from base_layer import BaseLayer
-
-# TODO Subclassing BaseLayer might be unnecessary
-class FixedLayer(BaseLayer):
+class FixedLayer(object):
 	"""Parent class for layers which wish to remain fixed to the viewport.
 
 	This class is not intended for direct use. Any layers wishing to remain
@@ -33,6 +30,5 @@ class FixedLayer(BaseLayer):
 	def fix_graphic(self):
 		"""Fixes the layer's graphical content to its viewport.
 		"""
-		# TODO Set invisible if the graphic is off the viewport
 		self.graphic.x = self.viewport.x + self.offset_x
 		self.graphic.y = self.viewport.y + self.offset_y

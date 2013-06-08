@@ -1,5 +1,6 @@
 from graphics_layer import StaticGraphicsLayer
 from fixed_layer import FixedLayer
+from ..text import Text
 
 class StaticTextLayer(StaticGraphicsLayer):
 	"""A layer of static text content.
@@ -70,3 +71,21 @@ class FixedTextLayer(FixedStaticTextLayer):
 	def update(self, dt):
 		super(FixedTextLayer, self).update(dt)
 		self.graphic.update(dt)
+
+
+def recognizer(graphic):
+	"""Recognizes whether this layer type supports the graphics object."""
+	return isinstance(graphic, Text)
+
+def factory(static=False, fixed=False):
+	"""Returns the proper class for the given layer properties."""
+	if fixed and static:
+		return FixedStaticTextLayer
+
+	if fixed:
+		return FixedTextLayer
+
+	if static:
+		return StaticTextLayer
+
+	return TextLayer

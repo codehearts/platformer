@@ -1,14 +1,13 @@
 import pyglet
 from pyglet.window import key
 from pyglet.gl import glEnable, glBlendFunc, GL_BLEND, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-from game import load, camera, stageevents, reloader
+from game import load, camera, stageevents
 from game import layers
 from game.settings import general_settings
 from game.animation import tiled_animation
 from game.text import heading, live_text
 from game.easing import EaseOut
 from game import tiles
-from game.tiles import tileset
 
 # Graphical output window
 game_window = pyglet.window.Window(800, 600, caption='Platformer Demo')
@@ -21,9 +20,7 @@ key_handler = key.KeyStateHandler()
 # TODO Stage data should be loaded by the stage loader
 level_data = load.LevelData('demo') # TODO Could this be a Level class which contains Stage and LevelEvents objects?
 
-# TODO Stage should not take in so much data
-#stage = tile_map.TileMap(level_data.get_stage_map(), level_data.get_tile_sprite_file(), rows=level_data.get_stage_size()[0], cols=level_data.get_stage_size()[1])
-stage_tileset = tileset.Tileset.load('demo', rows=level_data.get_stage_size()[0], cols=level_data.get_stage_size()[1])
+stage_tileset = tiles.Tileset.load('demo')
 stage = tiles.TextureTileMap(level_data.get_stage_map(), stage_tileset)
 
 #characters = load.Characters(stage_data.get_character_data(), stage.get_tiles())
@@ -35,12 +32,12 @@ game_window.push_handlers(player.character.key_handler)
 cam = camera.Camera(player.character, game_window, stage.tiles)
 cam.focus() # TODO Should this be called on init?
 
-player_layer = layers.GraphicsLayer(player.character)
+player_layer = layers.create_from(player.character)
 
 # TODO Layer creation should be handled dynamically by the level loader. I'm creating these manually until I implement that ability
-background = layers.FixedStaticGraphicsLayer(pyglet.sprite.Sprite(img=pyglet.resource.image(level_data.get_background_image_file())))
+background = layers.create_from(pyglet.sprite.Sprite(img=pyglet.resource.image(level_data.get_background_image_file())), fixed=True, static=True)
 #stage_layer = layers.TextureTileMapLayer(stage, cam)
-stage_layer = layers.TextureTileMapLayer(stage)
+stage_layer = layers.create_from(stage)
 #stage_layer = tile_map_layer.TileMapLayer(stage, cam)
 transition_animation = tiled_animation.TiledAnimation.from_image(
 			pyglet.resource.image('transition.png'),
@@ -51,20 +48,21 @@ transition_animation = tiled_animation.TiledAnimation.from_image(
 			cam.height,
 			delay=0.5
 		)
-transition_layer = layers.FixedAnimationLayer(transition_animation, on_animation_end=lambda animation, layer: layer.delete())
-title_layer = layers.FixedStaticTextLayer(heading.Heading(text=level_data.get_level_title(), font_size=18, anchor_x='center', anchor_y='center'), offset_x=cam.half_width, offset_y=cam.half_height, duration=2.25)
+transition_layer = layers.create_from(transition_animation, on_animation_end=lambda animation, layer: layer.delete(), fixed=True)
+title_layer = layers.create_from(heading.Heading(text=level_data.get_level_title(), font_size=18, anchor_x='center', anchor_y='center'), offset_x=cam.half_width, offset_y=cam.half_height, duration=2.25, fixed=True, static=True)
 fps_text = live_text.LiveText(lambda: str(int(pyglet.clock.get_fps())))
 fps_text.set_style('background_color', (0,0,0,255))
-fps_layer = layers.FixedTextLayer(fps_text, offset_x=10, offset_y=10)
+fps_layer = layers.create_from(fps_text, offset_x=10, offset_y=10, fixed=True)
 dash_text = live_text.LiveText(lambda: str(int((player.character.max_dash_time - player.character.time_dashed) / player.character.max_dash_time * 100)))
 dash_text.set_style('background_color', (0,0,0,255))
-dash_layer = layers.FixedTextLayer(dash_text, offset_x=40, offset_y=10)
-layers = layers.LayerManager(cam, [background, stage_layer, player_layer, dash_layer, transition_layer, title_layer, fps_layer])
+dash_layer = layers.create_from(dash_text, offset_x=40, offset_y=10, fixed=True)
+layer_manager = layers.LayerManager(cam, [background, stage_layer, player_layer, dash_layer, transition_layer, title_layer, fps_layer])
 
 # TODO This should be a LevelEvents object inside a Level class
 stage_events = stageevents.StageEvents(player.character, cam, level_data.get_stage_events())
 
-module_reloader = reloader.Reloader(stage, player, game_window, cam, background, stage_events, key_handler)
+# TODO Make this work again
+#module_reloader = reloader.Reloader(stage, player, game_window, cam, background, stage_events, key_handler)
 
 @game_window.event
 def on_draw():
@@ -72,7 +70,7 @@ def on_draw():
 	game_window.clear()
 
 	#characters.draw()
-	layers.draw()
+	layer_manager.draw()
 
 def update(dt):
 	# TODO Write a manager to handle updates and update order?
@@ -80,9 +78,9 @@ def update(dt):
 	stage_events.update()
 
 	#cam.update(dt)
-	layers.update(dt)
+	layer_manager.update(dt)
 
-	module_reloader.update()
+	#module_reloader.update()
 
 	# @TODO characters.update() method
 	"""for character in characters.get_characters():

@@ -67,3 +67,22 @@ class FixedImageLayer(FixedStaticImageLayer, ImageLayer):
 
 	def __init__(self, *args, **kwargs):
 		super(FixedImageLayer, self).__init__(*args, **kwargs)
+
+
+
+def recognizer(graphic):
+	"""Recognizes whether this layer type supports the graphics object."""
+	return hasattr(graphic, 'blit')
+
+def factory(static=False, fixed=False):
+	"""Returns the proper class for the given layer properties."""
+	if static and fixed:
+		return FixedStaticImageLayer
+
+	if fixed:
+		return FixedImageLayer
+
+	if static:
+		return StaticImageLayer
+
+	return ImageLayer

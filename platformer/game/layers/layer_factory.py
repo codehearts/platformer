@@ -1,55 +1,33 @@
-from pyglet.sprite import Sprite
-from ..animation import BasicAnimation
-from ..physical_objects.physicalobject import PhysicalObject
-from ..text import Text
-from . import *
+from base_layer import BaseLayer
+from installed_layers import installed_layers
 
-# TODO This should work like the tile factory by allowing new types to be registered via an installed_layers module or some such
+def create_from(graphic, *args, **kwargs):
+	"""Creates a layer for the given graphic and style specifications.
 
-def create_layer(graphic, *args, **kwargs):
-	"""Creates the appropriate layer object for the given graphic and style specifications.
+	In addition to this method's arguments, the layer's arguments should
+	be passed as well.
 
-	Please see the documentation for :class:`game.layers.basic_layer.BasicLayer` for a
-	full list of arguments that can be passed to this method.
+	This factory will only return types that have been installed via the
+	installed_layers module.
 
 	Args:
 		graphic (object): The graphic to be drawn on the layer.
 
 	Kwargs:
-		fixed (bool): Whether the layer should be fixed relative to the viewport or not.
+		static (bool): Whether the layer should be updated.
+		fixed (bool): Whether the layer should be fixed relative to the viewport.
 
 	Returns:
 		A layer object.
 	"""
+	global installed_layers
 	fixed = kwargs.pop('fixed', False)
+	static = kwargs.pop('static', False)
 
-	if isinstance(graphic, PhysicalObject):
-		layer_type = PhysicalObjectLayer
-	elif isinstance(graphic, Sprite):
-		if fixed:
-			layer_type = FixedSpriteLayer
-		else:
-			layer_type = SpriteLayer
-	# TODO Support TileMap and fixed TileMap
-	#elif isinstance(graphic, TileMap):
-		#if fixed:
-			#layer_type = FixedTileMapLayer
-		#else:
-			#layer_type = TileMapLayer
-	elif isinstance(graphic, Text):
-		if fixed:
-			layer_type = FixedTextLayer
-		else:
-			layer_type = TextLayer
-	elif isinstance(graphic, BasicAnimation):
-		if fixed:
-			layer_type = FixedAnimationLayer
-		else:
-			layer_type = AnimationLayer
-	else:
-		if fixed:
-			layer_type = FixedLayer
-		else:
-			layer_type = BasicLayer
+	layer_type = BaseLayer
+	for layer in installed_layers:
+		if layer['recognizer'](graphic):
+			layer_type = layer['factory'](static=static, fixed=fixed)
+			break
 
 	return layer_type(graphic, *args, **kwargs)

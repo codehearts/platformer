@@ -101,3 +101,22 @@ class FixedGraphicsLayer(FixedLayer, GraphicsLayer):
 		"""Updates the layer's contents to be fixed to the viewport."""
 		self.fix_graphic()
 		super(FixedGraphicsLayer, self).update(*args, **kwargs)
+
+
+
+def recognizer(graphic):
+	"""Recognizes whether this layer type supports the graphics object."""
+	return hasattr(graphic, 'batch')
+
+def factory(static=False, fixed=False):
+	"""Returns the proper class for the given layer properties."""
+	if static and fixed:
+		return FixedStaticGraphicsLayer
+
+	if fixed:
+		return FixedGraphicsLayer
+
+	if static:
+		return StaticGraphicsLayer
+
+	return GraphicsLayer

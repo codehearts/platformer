@@ -1,4 +1,5 @@
 from image_layer import ImageLayer, FixedImageLayer
+from ..animation import BasicAnimation
 
 class AnimationLayer(ImageLayer):
 	"""A layer with animated content.
@@ -35,8 +36,21 @@ class AnimationLayer(ImageLayer):
 
 
 
-class FixedAnimationLayer(FixedImageLayer, AnimationLayer):
+class FixedAnimationLayer(AnimationLayer, FixedImageLayer):
 	"""A layer with animated content fixed relative to the viewport."""
 
 	def __init__(self, *args, **kwargs):
 		super(FixedAnimationLayer, self).__init__(*args, **kwargs)
+
+
+
+def recognizer(graphic):
+	"""Recognizes whether this layer type supports the graphics object."""
+	return isinstance(graphic, BasicAnimation)
+
+def factory(fixed=False, **kwargs):
+	"""Returns the proper class for the given layer properties."""
+	if fixed:
+		return FixedAnimationLayer
+
+	return AnimationLayer

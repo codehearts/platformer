@@ -1,8 +1,6 @@
 from pyglet.clock import schedule_once
 from pyglet.event import EventDispatcher
 
-# TODO Support lazy creation of graphics content (late init)
-
 class BaseLayer(EventDispatcher):
 	"""A layer of graphical content.
 
@@ -30,9 +28,6 @@ class BaseLayer(EventDispatcher):
 		"""
 		self.graphic = graphic
 		self.viewport = viewport
-
-		# TODO Content initialization status
-		# TODO Method for initializing contents
 
 		if duration:
 			schedule_once(self._handle_duration_end, duration)

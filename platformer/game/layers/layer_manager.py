@@ -1,6 +1,9 @@
 from pyglet.graphics import Batch, OrderedGroup
 
-# TODO Layers should not initialize their graphical contents until the layer manager tells them to
+# TODO Layer manager should support hiding layers (no drawing) and deactivating layers (no drawing or updating)
+# TODO Layer manager should support being disabled and re-enabled (like when you enter a sublevel and the current layer manager changes to the sub-level's)
+
+# TODO This should probably support the naming of layers so that layers can be added later relative to a pre-existing layer more easily.
 
 # TODO Write tests for this
 # TODO When writing tests, test coalescing and freeing of deleted layers, for ALL types of layers
@@ -29,6 +32,7 @@ class LayerManager(object):
 		# Begin managing the layers
 		map(self.manage_layer, layers)
 
+
 	def update(self, dt):
 		"""Updates all managed layers which support updating.
 
@@ -42,9 +46,11 @@ class LayerManager(object):
 		self.viewport.update(dt)
 		map(lambda item: item.update(dt), self._update_queue)
 
+
 	def draw(self):
 		"""Draws all managed layers in the specified order."""
 		map(lambda item: item.draw(), self._drawing_queue)
+
 
 	def manage_layer(self, layer):
 		"""Begins managing a layer.
@@ -53,8 +59,6 @@ class LayerManager(object):
 			layer (:class:`game.layers.BaseLayer`): The layer to begin managing.
 		"""
 		layer.viewport = self.viewport
-		# TODO Check if layer is initialized, initialize it
-		# TODO A get_current_batch method which ensures there is a batch at the end of the drawing queue could be useful when initializing layers that support batches
 
 		self._append_to_drawing_queue(layer)
 		self._push_layer_event_handlers(layer)
@@ -69,6 +73,32 @@ class LayerManager(object):
 
 			self._update_queue.append(layer)
 
+
+	def _get_current_graphics_batch(self):
+		"""Returns the batch at the top of the drawing queue.
+
+		Returns:
+			:class:`pyglet.graphics.Batch`.
+		"""
+		# Create a new batch if the current drawing item is not a batch
+		if not self._drawing_queue or not isinstance(self._drawing_queue[-1], Batch):
+			self._drawing_queue.append(Batch())
+
+		return self._drawing_queue[-1]
+
+
+	def _get_current_graphics_group(self):
+		"""Returns the group at the current layer depth.
+
+		Returns:
+			:class:`pyglet.graphics.OrderedGroup`.
+		"""
+		group = OrderedGroup(self._depth)
+		self._depth += 1 # Render the next layer at the next depth
+
+		return group
+
+
 	def _append_to_drawing_queue(self, layer):
 		"""Adds a layer to the end of the drawing queue.
 
@@ -82,14 +112,8 @@ class LayerManager(object):
 		"""
 		# Add the layer to the current batch if it supports batches
 		if hasattr(layer, 'batch'):
-			# Create a new batch if the current item is not a batch
-			if not self._drawing_queue or not isinstance(self._drawing_queue[-1], Batch):
-				self._drawing_queue.append(Batch())
-
-			# Order the layer's rendering to the current depth
-			layer.batch = self._drawing_queue[-1]
-			layer.group = OrderedGroup(self._depth)
-			self._depth += 1 # Render the next layer at the next depth
+			layer.batch = self._get_current_graphics_batch()
+			layer.group = self._get_current_graphics_group()
 		# The layer should draw itself if it doesn't support batches
 		else:
 			self._drawing_queue.append(layer)
@@ -113,7 +137,7 @@ class LayerManager(object):
 		batches in the drawing queue will be coalesced if possible.
 
 		Args:
-			layer (:class:`game.layers.BasicLayer`): The layer which was deleted.
+			layer (:class:`game.layers.BaseLayer`): The layer which was deleted.
 		"""
 		if layer in self._update_queue:
 			self._update_queue.remove(layer)
@@ -126,3 +150,4 @@ class LayerManager(object):
 			self._drawing_queue.remove(layer)
 
 		# TODO Coalesce batches if necessary
+		# TODO Whichever batch has less items in it should be merged into the batch with more
