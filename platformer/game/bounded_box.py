@@ -19,8 +19,12 @@ class BoundedBox(object):
 		tile_y2 (float): The y2 coordinate of the box in terms of tiles (as opposed to pixels).
 		width (int): The width of the box in pixels.
 		height (int): The height of the box in pixels.
+		half_width (int): Half of the box's width in pixels.
+		half_height (int): Half of the box's height in pixels.
 		tile_width (float): The width of the box in terms of tiles.
 		tile_height (float): The height of the box in terms of tiles.
+		half_tile_width (float): Half of the box's width in terms of tiles.
+		half_tile_height (float): Half of the box's height in terms of tiles.
 		tile_width_span (int): The number of tiles that the box occupies horizontally.
 		tile_height_span (int): The number of tiles that the box occupies vertically.
 	"""
@@ -34,12 +38,17 @@ class BoundedBox(object):
 			width (int): The width of the box.
 			height (int): The height of the box.
 		"""
-		# Set the initial dimenions before setting coordinates
+		# Set the initial dimensions before setting coordinates
 		self._height = int(height)
-		self._tile_height = height / TILE_SIZE_FLOAT
+		self._half_height = int(ceil(self._height / 2.0))
+		self._tile_height = self._height / TILE_SIZE_FLOAT
+		self._half_tile_height = self._tile_height / 2.0
 		self._tile_height_span = int(ceil(self._tile_height))
+
 		self._width = int(width)
-		self._tile_width = width / TILE_SIZE_FLOAT
+		self._half_width = int(ceil(self._width / 2.0))
+		self._tile_width = self._width / TILE_SIZE_FLOAT
+		self._half_tile_width = self._tile_width / 2.0
 		self._tile_width_span = int(ceil(self._tile_width))
 
 		# Setting these properties sets the other coordinates as well
@@ -209,30 +218,56 @@ class BoundedBox(object):
 		"""Gets width."""
 		return self._width
 
-	@width.setter
-	def width(self, width):
-		"""Updates dimensions whenever ``width`` is set."""
+	def _set_width(self, width):
 		self._width = int(width)
-		self._tile_width = width / TILE_SIZE_FLOAT
+		self._half_width = int(ceil(self._width / 2.0))
+		self._tile_width = self._width / TILE_SIZE_FLOAT
+		self._half_tile_width = self._tile_width / 2.0
 		self._tile_width_span = int(ceil(self._tile_width))
 		self._x2 = self._x + self._width
 		self._tile_x2 = self._tile_x + self._tile_width
 		self._x2_tile = int(ceil(self._tile_x2))
+
+	@width.setter
+	def width(self, width):
+		"""Updates dimensions whenever ``width`` is set."""
+		self._set_width(width)
 
 	@property
 	def height(self):
 		"""Gets height."""
 		return self._height
 
-	@height.setter
-	def height(self, height):
-		"""Updates dimensions whenever ``height`` is set."""
+	def _set_height(self, height):
 		self._height = int(height)
-		self._tile_height = height / TILE_SIZE_FLOAT
+		self._half_height = int(ceil(self._height / 2.0))
+		self._tile_height = self._height / TILE_SIZE_FLOAT
+		self._half_tile_height = self._tile_height / 2.0
 		self._tile_height_span = int(ceil(self._tile_height))
 		self._y2 = self._y + self._height
 		self._tile_y2 = self._tile_y + self._tile_height
 		self._y2_tile = int(ceil(self._tile_y2))
+
+	@height.setter
+	def height(self, height):
+		"""Updates dimensions whenever ``height`` is set."""
+		self._set_height(height)
+
+	@property
+	def half_width(self):
+		return self._half_width
+
+	@half_width.setter
+	def half_width(self, half_width):
+		self.width = half_width * 2
+
+	@property
+	def half_height(self):
+		return self._half_height
+
+	@half_height.setter
+	def half_height(self, half_height):
+		self.height = half_height * 2
 
 	@property
 	def tile_width(self):
@@ -253,6 +288,22 @@ class BoundedBox(object):
 	def tile_height(self, tile_height):
 		"""Updates dimensions whenever ``tile_height`` is set."""
 		self.height = tile_height * TILE_SIZE
+
+	@property
+	def half_tile_width(self):
+		return self._half_tile_width
+
+	@half_tile_width.setter
+	def half_tile_width(self, half_tile_width):
+		self.width = half_tile_width * TILE_SIZE * 2
+
+	@property
+	def half_tile_height(self):
+		return self._half_tile_height
+
+	@half_tile_height.setter
+	def half_tile_height(self, half_tile_height):
+		self.height = half_tile_height * TILE_SIZE * 2
 
 	@property
 	def tile_width_span(self):

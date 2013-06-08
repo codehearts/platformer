@@ -302,6 +302,18 @@ def run_dimension_tests(self):
 	assert_dimensions(self, 'Box was shrunk via tile_width and tile_height attributes.')
 	assert_coordinates(self, 'Box was shrunk via tile_width and tile_height attributes.')
 
+	# Resize the box via half_width and half_height
+	self.expected_width += self.expected_width * 1.618
+	self.expected_height -= self.expected_height / 1.618
+	self.test_box.half_width = expected_half_width(self)
+	self.test_box.half_height = expected_half_height(self)
+	self.expected_width = expected_half_width(self) * 2
+	self.expected_height = expected_half_height(self) * 2
+
+	# Ensure that the dimensions and any coordinates depending on the dimensions were updated
+	assert_dimensions(self, 'Box was resized via half_width and half_height attributes.')
+	assert_coordinates(self, 'Box was resized via half_width and half_height attributes.')
+
 	# Resize the box via tile_width_span and tile_height_span
 	self.expected_width = int(4 * TILE_SIZE_FLOAT)
 	self.expected_height = int(ceil(1.25) * TILE_SIZE_FLOAT)
@@ -311,6 +323,18 @@ def run_dimension_tests(self):
 	# Ensure that the dimensions and any coordinates depending on the dimensions were updated
 	assert_dimensions(self, 'Box was resized via tile_width_span and tile_height_span attributes.')
 	assert_coordinates(self, 'Box was resized via tile_width_span and tile_height_span attributes.')
+
+	# Resize the box via half_tile_width and half_tile_height
+	self.expected_width += self.expected_width / 1.618
+	self.expected_height -= self.expected_height * 1.618
+	self.test_box.half_tile_width = expected_half_tile_width(self)
+	self.test_box.half_tile_height = expected_half_tile_height(self)
+	self.expected_width = int(expected_half_tile_width(self)*2*TILE_SIZE)
+	self.expected_height = int(expected_half_tile_height(self)*2*TILE_SIZE)
+
+	# Ensure that the dimensions and any coordinates depending on the dimensions were updated
+	assert_dimensions(self, 'Box was resized via half_tile_width and half_tile_height attributes.')
+	assert_coordinates(self, 'Box was resized via half_tile_width and half_tile_height attributes.')
 
 
 
@@ -324,28 +348,40 @@ def assert_coordinates(self, condition=''):
 		condition = ' Condition: '+condition
 
 	# Test lower left coordinates
-	self.assertEqual(self.test_box.x, self.expected_x, "Box has incorrect x coordinate." + condition)
-	self.assertEqual(self.test_box.y, self.expected_y, "Box has incorrect y coordinate." + condition)
+	self.assertEqual(self.test_box.x, self.expected_x,
+		"Box has incorrect x coordinate." + condition)
+	self.assertEqual(self.test_box.y, self.expected_y,
+		"Box has incorrect y coordinate." + condition)
 
 	# Test upper right coordinates
-	self.assertEqual(self.test_box.x2, expected_x2(self), "Box has incorrect x2 coordinate." + condition)
-	self.assertEqual(self.test_box.y2, expected_y2(self), "Box has incorrect y2 coordinate." + condition)
+	self.assertEqual(self.test_box.x2, expected_x2(self),
+		"Box has incorrect x2 coordinate." + condition)
+	self.assertEqual(self.test_box.y2, expected_y2(self),
+		"Box has incorrect y2 coordinate." + condition)
 
 	# Test tile of lower left coordinates
-	self.assertEqual(self.test_box.x_tile, expected_x_tile(self), "Box has incorrect x_tile index." + condition)
-	self.assertEqual(self.test_box.y_tile, expected_y_tile(self), "Box has incorrect y_tile index." + condition)
+	self.assertEqual(self.test_box.x_tile, expected_x_tile(self),
+		"Box has incorrect x_tile index." + condition)
+	self.assertEqual(self.test_box.y_tile, expected_y_tile(self),
+		"Box has incorrect y_tile index." + condition)
 
 	# Test tile of upper right coordinates
-	self.assertEqual(self.test_box.x2_tile, expected_x2_tile(self), "Box has incorrect x2_tile index." + condition)
-	self.assertEqual(self.test_box.y2_tile, expected_y2_tile(self), "Box has incorrect y2_tile index." + condition)
+	self.assertEqual(self.test_box.x2_tile, expected_x2_tile(self),
+		"Box has incorrect x2_tile index." + condition)
+	self.assertEqual(self.test_box.y2_tile, expected_y2_tile(self),
+		"Box has incorrect y2_tile index." + condition)
 
 	# Test lower left tile coordinates
-	self.assertEqual(self.test_box.tile_x, expected_tile_x(self), "Box has incorrect tile x coordinate." + condition)
-	self.assertEqual(self.test_box.tile_y, expected_tile_y(self), "Box has incorrect tile y coordinate." + condition)
+	self.assertEqual(self.test_box.tile_x, expected_tile_x(self),
+		"Box has incorrect tile x coordinate." + condition)
+	self.assertEqual(self.test_box.tile_y, expected_tile_y(self),
+		"Box has incorrect tile y coordinate." + condition)
 
 	# Test upper right tile coordinates
-	self.assertEqual(self.test_box.tile_x2, expected_tile_x2(self), "Box has incorrect tile x2 coordinate." + condition)
-	self.assertEqual(self.test_box.tile_y2, expected_tile_y2(self), "Box has incorrect tile y2 coordinate." + condition)
+	self.assertEqual(self.test_box.tile_x2, expected_tile_x2(self),
+		"Box has incorrect tile x2 coordinate." + condition)
+	self.assertEqual(self.test_box.tile_y2, expected_tile_y2(self),
+		"Box has incorrect tile y2 coordinate." + condition)
 
 
 
@@ -355,16 +391,34 @@ def assert_dimensions(self, condition=''):
 		condition = ' Condition: '+condition
 
 	# Test pixel dimensions
-	self.assertEqual(self.test_box.width, self.expected_width, "Box has incorrect width." + condition)
-	self.assertEqual(self.test_box.height, self.expected_height, "Box has incorrect height." + condition)
+	self.assertEqual(self.test_box.width, self.expected_width,
+		"Box has incorrect width." + condition)
+	self.assertEqual(self.test_box.height, self.expected_height,
+		"Box has incorrect height." + condition)
+
+	# Test half pixel dimensions
+	self.assertEqual(self.test_box.half_width, expected_half_width(self),
+		"Box has incorrect half_width." + condition)
+	self.assertEqual(self.test_box.half_height, expected_half_height(self),
+		"Box has incorrect half_height." + condition)
 
 	# Test tile dimensions
-	self.assertEqual(self.test_box.tile_width, expected_tile_width(self), "Box has incorrect tile width." + condition)
-	self.assertEqual(self.test_box.tile_height, expected_tile_height(self), "Box has incorrect tile height." + condition)
+	self.assertEqual(self.test_box.tile_width, expected_tile_width(self),
+		"Box has incorrect tile width." + condition)
+	self.assertEqual(self.test_box.tile_height, expected_tile_height(self),
+		"Box has incorrect tile height." + condition)
+
+	# Test half tile dimensions
+	self.assertEqual(self.test_box.half_tile_width, expected_half_tile_width(self),
+		"Box has incorrect half_tile_width." + condition)
+	self.assertEqual(self.test_box.half_tile_height, expected_half_tile_height(self),
+		"Box has incorrect half_tile_height." + condition)
 
 	# Test tile span dimensions
-	self.assertEqual(self.test_box.tile_width_span, expected_tile_width_span(self), "Box has incorrect tile width span." + condition)
-	self.assertEqual(self.test_box.tile_height_span, expected_tile_height_span(self), "Box has incorrect tile height span." + condition)
+	self.assertEqual(self.test_box.tile_width_span, expected_tile_width_span(self),
+		"Box has incorrect tile width span." + condition)
+	self.assertEqual(self.test_box.tile_height_span, expected_tile_height_span(self),
+		"Box has incorrect tile height span." + condition)
 
 
 
@@ -412,6 +466,14 @@ def expected_tile_y2(self):
 	"""Returns tile_y2 for the current test coordinate values."""
 	return expected_y2(self) / TILE_SIZE_FLOAT
 
+def expected_half_width(self):
+	"""Returns half_width for the current test coordinate values."""
+	return ceil(self.expected_width / 2.0)
+
+def expected_half_height(self):
+	"""Returns half_height for the current test coordinate values."""
+	return ceil(self.expected_height / 2.0)
+
 def expected_tile_width(self):
 	"""Returns tile_width for the current test coordinate values."""
 	return self.expected_width / TILE_SIZE_FLOAT
@@ -419,6 +481,14 @@ def expected_tile_width(self):
 def expected_tile_height(self):
 	"""Returns tile_height for the current test coordinate values."""
 	return self.expected_height / TILE_SIZE_FLOAT
+
+def expected_half_tile_width(self):
+	"""Returns half_tile_width for the current test coordinate values."""
+	return expected_tile_width(self) / 2.0
+
+def expected_half_tile_height(self):
+	"""Returns half_tile_height for the current test coordinate values."""
+	return expected_tile_height(self) / 2.0
 
 def expected_tile_width_span(self):
 	"""Returns tile_width_span for the current test coordinate values."""
