@@ -2,7 +2,32 @@ from bounded_box import BoundedBox
 from pyglet.sprite import Sprite
 
 class ExtendedSprite(Sprite):
-	""":class:`pgylet.sprite.Sprite` which tracks its dimensions in terms of pixels and tiles."""
+	""":class:`pgylet.sprite.Sprite` which tracks its dimensions in terms of pixels and tiles.
+
+	Attributes:
+		x (int): The x coordinate of the sprite's anchor point (usually the bottom left corner)
+		y (int): The y coordinate of the sprite's anchor point (usually the bottom left corner)
+		x2 (int): The x coordinate of a point opposite the sprite's anchor point (usually the bottom left corner).
+		y2 (int): The y coordinate of a point opposite the sprite's anchor point (usually the bottom left corner).
+		x_tile (int): The x index of the tile that the sprite's x coordinate is over.
+		y_tile (int): The y index of the tile that the sprite's y coordinate is over.
+		x2_tile (int): The x index of the tile that the sprite's x2 coordinate is over.
+		y2_tile (int): The y index of the tile that the sprite's y2 coordinate is over.
+		tile_x (float): The x coordinate of the sprite in terms of tiles (as opposed to pixels).
+		tile_y (float): The y coordinate of the sprite in terms of tiles (as opposed to pixels).
+		tile_x2 (float): The x2 coordinate of the sprite in terms of tiles (as opposed to pixels).
+		tile_y2 (float): The y2 coordinate of the sprite in terms of tiles (as opposed to pixels).
+		width (int): The width of the sprite in pixels.
+		height (int): The height of the sprite in pixels.
+		half_width (int): Half of the sprite's width in pixels.
+		half_height (int): Half of the sprite's height in pixels.
+		tile_width (float): The width of the sprite in terms of tiles.
+		tile_height (float): The height of the sprite in terms of tiles.
+		half_tile_width (float): Half of the sprite's width in terms of tiles.
+		half_tile_height (float): Half of the sprite's height in terms of tiles.
+		tile_width_span (int): The number of tiles that the sprite occupies horizontally.
+		tile_height_span (int): The number of tiles that the sprite occupies vertically.
+	"""
 
 	def __init__(self, *args, **kwargs):
 		super(ExtendedSprite, self).__init__(*args, **kwargs)
