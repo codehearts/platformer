@@ -184,7 +184,8 @@ def run_positioning_tests(self):
 
 	self.test_box = self.create_box(self.expected_x, self.expected_y, self.expected_width, self.expected_height)
 
-	assert_coordinates(self, 'After tile initialization.')
+	assert_coordinates(self, 'After initialization.')
+	assert_dimensions(self, 'After initialization.')
 
 	# Change the tile's lower left coordinates
 	self.expected_x = self.expected_width

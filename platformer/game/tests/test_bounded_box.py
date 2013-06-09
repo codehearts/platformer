@@ -4,7 +4,7 @@ from game.settings.general_settings import TILE_SIZE
 from util import bounded_box
 
 class TestBoundedBox(unittest.TestCase):
-	"""Tests the BoundedBox class.
+	"""Tests the :class:`game.bounded_box.BoundedBox` class.
 
 	These tests ensure that the positioning attributes that the class
 	provides are always up to date with the correct values.
@@ -35,7 +35,7 @@ class TestBoundedBox(unittest.TestCase):
 
 
 	def test_square_box(self):
-		"""Tests a square box."""
+		"""Tests a square BoundedBox."""
 		self.expected_width = TILE_SIZE
 		self.expected_height = TILE_SIZE
 		bounded_box.run_positioning_tests(self)
@@ -44,7 +44,7 @@ class TestBoundedBox(unittest.TestCase):
 
 
 	def test_tall_box(self):
-		"""Tests a tall box."""
+		"""Tests a tall BoundedBox."""
 		self.expected_width = TILE_SIZE
 		self.expected_height = TILE_SIZE * 3
 		bounded_box.run_positioning_tests(self)
@@ -53,7 +53,7 @@ class TestBoundedBox(unittest.TestCase):
 
 
 	def test_wide_box(self):
-		"""Tests a wide box."""
+		"""Tests a wide BoundedBox."""
 		self.expected_width = TILE_SIZE * 3
 		self.expected_height = TILE_SIZE
 		bounded_box.run_positioning_tests(self)
@@ -68,5 +68,5 @@ class TestBoundedBox(unittest.TestCase):
 
 
 	def test_box_equality(self):
-		"""Tests checking for the equality of bounded boxes."""
+		"""Tests checking for the equality of BoundedBoxes."""
 		bounded_box.run_box_equality_tests(self)

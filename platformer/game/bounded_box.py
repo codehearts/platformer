@@ -83,12 +83,9 @@ class BoundedBox(object):
 
 	@property
 	def x(self):
-		"""Gets x."""
 		return self._x
-
 	@x.setter
 	def x(self, x):
-		"""Updates coordinates whenever ``x`` is set."""
 		x = int(x)
 		self._x = x
 		self._x2 = x + self._width
@@ -101,7 +98,6 @@ class BoundedBox(object):
 	def y(self):
 		"""Gets y."""
 		return self._y
-
 	@y.setter
 	def y(self, y):
 		"""Updates coordinates whenever ``y`` is set."""
@@ -117,7 +113,6 @@ class BoundedBox(object):
 	def x2(self):
 		"""Gets x2."""
 		return self._x2
-
 	@x2.setter
 	def x2(self, x2):
 		"""Updates coordinates whenever ``x2`` is set."""
@@ -127,7 +122,6 @@ class BoundedBox(object):
 	def y2(self):
 		"""Gets y2."""
 		return self._y2
-
 	@y2.setter
 	def y2(self, y2):
 		"""Updates coordinates whenever ``y2`` is set."""
@@ -137,7 +131,6 @@ class BoundedBox(object):
 	def x_tile(self):
 		"""Gets x_tile."""
 		return self._x_tile
-
 	@x_tile.setter
 	def x_tile(self, x_tile):
 		"""Updates coordinates whenever ``x_tile`` is set."""
@@ -147,7 +140,6 @@ class BoundedBox(object):
 	def y_tile(self):
 		"""Gets y_tile."""
 		return self._y_tile
-
 	@y_tile.setter
 	def y_tile(self, y_tile):
 		"""Updates coordinates whenever ``y_tile`` is set."""
@@ -157,7 +149,6 @@ class BoundedBox(object):
 	def x2_tile(self):
 		"""Gets x2_tile."""
 		return self._x2_tile
-
 	@x2_tile.setter
 	def x2_tile(self, x2_tile):
 		"""Updates coordinates whenever ``x2_tile`` is set."""
@@ -167,7 +158,6 @@ class BoundedBox(object):
 	def y2_tile(self):
 		"""Gets y2_tile."""
 		return self._y2_tile
-
 	@y2_tile.setter
 	def y2_tile(self, y2_tile):
 		"""Updates coordinates whenever ``y2_tile`` is set."""
@@ -177,7 +167,6 @@ class BoundedBox(object):
 	def tile_x(self):
 		"""Gets tile_x."""
 		return self._tile_x
-
 	@tile_x.setter
 	def tile_x(self, tile_x):
 		"""Updates coordinates whenever ``tile_x`` is set."""
@@ -187,7 +176,6 @@ class BoundedBox(object):
 	def tile_y(self):
 		"""Gets tile_y."""
 		return self._tile_y
-
 	@tile_y.setter
 	def tile_y(self, tile_y):
 		"""Updates coordinates whenever ``tile_y`` is set."""
@@ -197,7 +185,6 @@ class BoundedBox(object):
 	def tile_x2(self):
 		"""Gets tile_x2."""
 		return self._tile_x2
-
 	@tile_x2.setter
 	def tile_x2(self, tile_x2):
 		"""Updates coordinates whenever ``tile_x2`` is set."""
@@ -207,7 +194,6 @@ class BoundedBox(object):
 	def tile_y2(self):
 		"""Gets tile_y2."""
 		return self._tile_y2
-
 	@tile_y2.setter
 	def tile_y2(self, tile_y2):
 		"""Updates coordinates whenever ``tile_y2`` is set."""
@@ -217,8 +203,9 @@ class BoundedBox(object):
 	def width(self):
 		"""Gets width."""
 		return self._width
-
-	def _set_width(self, width):
+	@width.setter
+	def width(self, width):
+		"""Updates dimensions whenever ``width`` is set."""
 		self._width = int(width)
 		self._half_width = int(ceil(self._width / 2.0))
 		self._tile_width = self._width / TILE_SIZE_FLOAT
@@ -228,17 +215,13 @@ class BoundedBox(object):
 		self._tile_x2 = self._tile_x + self._tile_width
 		self._x2_tile = int(ceil(self._tile_x2))
 
-	@width.setter
-	def width(self, width):
-		"""Updates dimensions whenever ``width`` is set."""
-		self._set_width(width)
-
 	@property
 	def height(self):
 		"""Gets height."""
 		return self._height
-
-	def _set_height(self, height):
+	@height.setter
+	def height(self, height):
+		"""Updates dimensions whenever ``height`` is set."""
 		self._height = int(height)
 		self._half_height = int(ceil(self._height / 2.0))
 		self._tile_height = self._height / TILE_SIZE_FLOAT
@@ -248,15 +231,9 @@ class BoundedBox(object):
 		self._tile_y2 = self._tile_y + self._tile_height
 		self._y2_tile = int(ceil(self._tile_y2))
 
-	@height.setter
-	def height(self, height):
-		"""Updates dimensions whenever ``height`` is set."""
-		self._set_height(height)
-
 	@property
 	def half_width(self):
 		return self._half_width
-
 	@half_width.setter
 	def half_width(self, half_width):
 		self.width = half_width * 2
@@ -264,7 +241,6 @@ class BoundedBox(object):
 	@property
 	def half_height(self):
 		return self._half_height
-
 	@half_height.setter
 	def half_height(self, half_height):
 		self.height = half_height * 2
@@ -273,7 +249,6 @@ class BoundedBox(object):
 	def tile_width(self):
 		"""Gets tile_width."""
 		return self._tile_width
-
 	@tile_width.setter
 	def tile_width(self, tile_width):
 		"""Updates dimensions whenever ``tile_width`` is set."""
@@ -283,7 +258,6 @@ class BoundedBox(object):
 	def tile_height(self):
 		"""Gets tile_height."""
 		return self._tile_height
-
 	@tile_height.setter
 	def tile_height(self, tile_height):
 		"""Updates dimensions whenever ``tile_height`` is set."""
@@ -292,7 +266,6 @@ class BoundedBox(object):
 	@property
 	def half_tile_width(self):
 		return self._half_tile_width
-
 	@half_tile_width.setter
 	def half_tile_width(self, half_tile_width):
 		self.width = half_tile_width * TILE_SIZE * 2
@@ -300,7 +273,6 @@ class BoundedBox(object):
 	@property
 	def half_tile_height(self):
 		return self._half_tile_height
-
 	@half_tile_height.setter
 	def half_tile_height(self, half_tile_height):
 		self.height = half_tile_height * TILE_SIZE * 2
@@ -309,7 +281,6 @@ class BoundedBox(object):
 	def tile_width_span(self):
 		"""Gets tile_width_span."""
 		return self._tile_width_span
-
 	@tile_width_span.setter
 	def tile_width_span(self, tile_width_span):
 		"""Updates dimensions whenever ``tile_width_span`` is set."""
@@ -319,7 +290,6 @@ class BoundedBox(object):
 	def tile_height_span(self):
 		"""Gets tile_height_span."""
 		return self._tile_height_span
-
 	@tile_height_span.setter
 	def tile_height_span(self, tile_height_span):
 		"""Updates dimensions whenever ``tile_height_span`` is set."""

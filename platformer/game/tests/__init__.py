@@ -2,6 +2,7 @@
 # TODO Run some tests multiple times with different default tile sizes
 # TODO Run some tests multiple times with different frame rates
 from test_bounded_box import *
+from test_extended_sprite import *
 from test_tile_factory import *
 from test_tilesets import *
 from test_tile_maps import *
