@@ -32,14 +32,14 @@ class Tile(ExtendedSprite):
 			True if a collision occurred, False otherwise.
 		"""
 		# If the object is moving left
-		if obj.moving_to_x < obj.hitbox.x:
+		if obj.moving_to_x < obj.x:
 			obj.moving_to_x = self.x2
 			obj.on_left_collision(self)
 
 			return True
 		# If the object is moving right
 		else:
-			obj.moving_to_x = self.x - obj.hitbox.width
+			obj.moving_to_x = self.x - obj.width
 			obj.on_right_collision(self)
 
 			return True
@@ -54,7 +54,7 @@ class Tile(ExtendedSprite):
 			True if a collision occurred, False otherwise.
 		"""
 		# If the object is moving down through the tile
-		if obj.moving_to_y < obj.hitbox.y:
+		if obj.moving_to_y < obj.y:
 			# Move it on top of the tile
 			obj.moving_to_y = self.y2
 			obj.on_bottom_collision(self)
@@ -63,7 +63,7 @@ class Tile(ExtendedSprite):
 		# If the object is moving up from below the tile
 		elif obj.moving_to_y < self.y2:
 			# Move it under the tile
-			obj.moving_to_y = self.y - obj.hitbox.height
+			obj.moving_to_y = self.y - obj.height
 			obj.on_top_collision(self)
 
 			return True

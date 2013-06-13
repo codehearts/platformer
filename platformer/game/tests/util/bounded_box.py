@@ -469,11 +469,11 @@ def expected_tile_y2(self):
 
 def expected_half_width(self):
 	"""Returns half_width for the current test coordinate values."""
-	return ceil(self.expected_width / 2.0)
+	return int(self.expected_width / 2.0)
 
 def expected_half_height(self):
 	"""Returns half_height for the current test coordinate values."""
-	return ceil(self.expected_height / 2.0)
+	return int(self.expected_height / 2.0)
 
 def expected_tile_width(self):
 	"""Returns tile_width for the current test coordinate values."""

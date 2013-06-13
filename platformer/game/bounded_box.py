@@ -1,6 +1,10 @@
 from settings.general_settings import TILE_SIZE, TILE_SIZE_FLOAT
 from math import ceil
 
+# TODO half_width/height should be floats
+# TODO implement mid_x and mid_y as x/y + int(half_width/half_height), where half_width/height are floats
+# TODO implement mid_x_tile and mid_y_tile
+# TODO Split this into BoundedPixelBox and BoundedTileBox
 class BoundedBox(object):
 	"""A box which keeps track of its dimensions in terms of pixels and tiles.
 
@@ -40,13 +44,13 @@ class BoundedBox(object):
 		"""
 		# Set the initial dimensions before setting coordinates
 		self._height = int(height)
-		self._half_height = int(ceil(self._height / 2.0))
+		self._half_height = int(self._height / 2.0)
 		self._tile_height = self._height / TILE_SIZE_FLOAT
 		self._half_tile_height = self._tile_height / 2.0
 		self._tile_height_span = int(ceil(self._tile_height))
 
 		self._width = int(width)
-		self._half_width = int(ceil(self._width / 2.0))
+		self._half_width = int(self._width / 2.0)
 		self._tile_width = self._width / TILE_SIZE_FLOAT
 		self._half_tile_width = self._tile_width / 2.0
 		self._tile_width_span = int(ceil(self._tile_width))
@@ -92,6 +96,7 @@ class BoundedBox(object):
 		self._tile_x = x / TILE_SIZE_FLOAT
 		self._tile_x2 = self._tile_x + self._tile_width
 		self._x_tile = int(self._tile_x)
+		# TODO Why is self._x_tile + self._tile_width_span not right? Which calculation is wrong?
 		self._x2_tile = int(ceil(self._tile_x2))
 
 	@property
@@ -207,7 +212,7 @@ class BoundedBox(object):
 	def width(self, width):
 		"""Updates dimensions whenever ``width`` is set."""
 		self._width = int(width)
-		self._half_width = int(ceil(self._width / 2.0))
+		self._half_width = int(self._width / 2.0)
 		self._tile_width = self._width / TILE_SIZE_FLOAT
 		self._half_tile_width = self._tile_width / 2.0
 		self._tile_width_span = int(ceil(self._tile_width))
@@ -223,7 +228,7 @@ class BoundedBox(object):
 	def height(self, height):
 		"""Updates dimensions whenever ``height`` is set."""
 		self._height = int(height)
-		self._half_height = int(ceil(self._height / 2.0))
+		self._half_height = int(self._height / 2.0)
 		self._tile_height = self._height / TILE_SIZE_FLOAT
 		self._half_tile_height = self._tile_height / 2.0
 		self._tile_height_span = int(ceil(self._tile_height))

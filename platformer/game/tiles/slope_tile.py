@@ -2,7 +2,7 @@
 
 import math
 from tile import Tile
-from ..settings import general_settings
+from ..util import floats_equal
 
 # TODO Float equality should be checked with util.floats_equal
 class _SlopeTile(Tile):
@@ -35,38 +35,41 @@ class _SlopeTile(Tile):
 
 	def resolve_collision_y(self, obj):
 		# If the object is moving down
-		if obj.moving_to_y < obj.hitbox.y:
+		if obj.moving_to_y < obj.y:
 			# TODO Clean up this method!
 			# Position on the tile, from the center of this object (0 is left, 1 is right)
-			position_on_tile = (obj.hitbox.x + obj.hitbox.half_width - self.x) / general_settings.TILE_SIZE_FLOAT
+			position_on_tile = float(obj.x + obj.half_width - self.x) / self.width
 
-			if position_on_tile < 0:
+			if position_on_tile <= 0:
 				slope_y = self.left_height
-			elif position_on_tile > 1:
+			elif position_on_tile >= 1:
 				slope_y = self.right_height
 			else:
-				slope_y = int(math.ceil((1-position_on_tile)*self.left_height + position_on_tile*self.right_height))
+				slope_y = math.ceil((1-position_on_tile)*self.left_height + position_on_tile*self.right_height)
 
 			slope_y += self.y
 
 			# TODO Determine whether the player is falling above the slope or just came from another connected slope, and set in_air accordingly
 			# TODO A constant value is not the right way to determine if we fell onto the slope or not
-			#if obj.hitbox.y - 5 > slope_y:
+			#if obj.y - 5 > slope_y:
 				## TODO Set is_falling somehow, not just in_air
 				#obj.in_air = True
 
 			# If we're on the ground or we're colliding with the slope, register the collision
-			if not obj.in_air or obj.moving_to_y <= slope_y:
+			if not obj.in_air or obj.moving_to_y < slope_y or floats_equal(obj.moving_to_y, slope_y):
 				obj.moving_to_y = slope_y
+				# TODO Is this even necessary? Think of how often it's called
 				obj.on_bottom_collision()
+
+				# TODO If facing right and there's a tile to our right that we're overlapping, resolve that collision? Same for leftward facing slopes. But then if we resolve that, we'd have to resolve this again! There has to be a better way.
 
 				return True
 		# TODO A constant value is not a good way of handling this
-		elif obj.hitbox.y2 - self.y < 5:
+		elif obj.y2 - self.y < 5:
 			# @TODO This check is no good and allows you to move through slopes from below diagonally
 			# Collide with the bottoms of slope tiles
 			# A threshold of 5 pixels ensures that we don't collide with other tiles on a multi-tile slope when jumping
-			obj.moving_to_y = self.y - obj.hitbox.height
+			obj.moving_to_y = self.y - obj.height
 			obj.on_top_collision(self)
 
 			return True
@@ -86,11 +89,11 @@ class LeftwardSlopeTile(_SlopeTile):
 		# TODO Comment this better
 		# TODO self.y + self.right_height could be cached, but needs to be updated if self.y is ever changed
 		# TODO Clean up this mess, probably by writing utility methods to make this more readable
-		if obj.hitbox.x >= self.x2 and obj.hitbox.y < self.y + self.right_height and obj.moving_to_x < obj.hitbox.x:
+		if obj.x >= self.x2 and obj.y < self.y + self.right_height and obj.moving_to_x < obj.x:
 			obj.moving_to_x = self.x2
 			return True
-		if obj.hitbox.x2 <= self.x and obj.hitbox.y < self.y and obj.hitbox.y2 >= self.y and obj.moving_to_x > obj.hitbox.x:
-			obj.moving_to_x = self.x - obj.hitbox.width
+		if obj.x2 <= self.x and obj.y < self.y and obj.y2 >= self.y and obj.moving_to_x > obj.x:
+			obj.moving_to_x = self.x - obj.width
 			return True
 
 		return False
@@ -106,10 +109,10 @@ class RightwardSlopeTile(_SlopeTile):
 		# TODO Comment this better
 		# TODO self.y + self.right_height could be cached, but needs to be updated if self.y is ever changed
 		# TODO Clean up this mess, probably by writing utility methods to make this more readable
-		if obj.hitbox.x2 <= self.x and obj.hitbox.y < self.y + self.left_height and obj.moving_to_x > obj.hitbox.x:
-			obj.moving_to_x = self.x - obj.hitbox.width
+		if obj.x2 <= self.x and obj.y < self.y + self.left_height and obj.moving_to_x > obj.x:
+			obj.moving_to_x = self.x - obj.width
 			return True
-		if obj.hitbox.x >= self.x2 and obj.hitbox.y < self.y and obj.hitbox.y2 >= self.y and obj.moving_to_x < obj.hitbox.x:
+		if obj.x >= self.x2 and obj.y < self.y and obj.y2 >= self.y and obj.moving_to_x < obj.x:
 			obj.moving_to_x = self.x2
 			return True
 

@@ -1,18 +1,18 @@
 import pyglet
 from pyglet.window import key
 from ..settings import general_settings
-from physical_object import PhysicalObject
+from hitbox_physical_object import HitboxPhysicalObject
 
-class Player(PhysicalObject):
+class Player(HitboxPhysicalObject):
 
 	def __init__(self, *args, **kwargs):
 		super(Player, self).__init__(*args, **kwargs)
 
 		self.enabled = True
 
-		self.hitbox.rel_x = general_settings.TILE_SIZE / 2
-		self.hitbox.set_dimensions(general_settings.TILE_SIZE, general_settings.TILE_SIZE * 2)
-		super(Player, self).update_positioning()
+		self.hitbox_offset_x = general_settings.TILE_SIZE / 2
+		self.hitbox.width = general_settings.TILE_SIZE
+		self.hitbox.height = general_settings.TILE_SIZE * 2
 
 		self.max_dash_time = 0.5
 		self.time_dashed = 0

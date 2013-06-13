@@ -67,7 +67,7 @@ class LayerManager(object):
 		if hasattr(layer, 'update'):
 			# TODO This viewport target check is awful. Stop checking for a hitbox once physical_object is refactored to retun its x as its hitbox's x
 			if hasattr(self.viewport, 'target'):
-				if hasattr(layer.graphic, 'hitbox') and layer.graphic.hitbox is self.viewport.target:
+				if layer.graphic is self.viewport.target:
 					self._viewport_target_layer = layer
 					return
 

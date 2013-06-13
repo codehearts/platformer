@@ -8,7 +8,7 @@ from ..util import coordinate_to_tile
 
 def resolve_collisions(obj):
 	# Don't resolve horizontal collisions if the object has no horizontal velocity
-	if obj.moving_to_x is not obj.hitbox.x:
+	if obj.moving_to_x != obj.x:
 		# Handle horizontal component first in case of slopes
 		_resolve_collision_x(obj, obj.stage)
 
@@ -18,12 +18,13 @@ def _resolve_collision_x(obj, tile_map):
 	x_range = _get_axis_range(obj, 'x', obj.moving_to_x)
 
 	tile_found = False
-	for y in obj.y_tile_span:
+	for y in obj.get_y_tile_span():
 		if tile_found:
 			break
 
 		for x in x_range:
 			collision_tile = tile_map[y][x]
+
 			if collision_tile and collision_tile.is_collidable:
 				# TODO Implement hooks for custom tiles to determine exceptions and say whether tiles should be ignored
 				if x != 0:
@@ -33,9 +34,9 @@ def _resolve_collision_x(obj, tile_map):
 					 ◢□■
 					◢□■■
 					"""
-					# TODO obj.hitbox.x + obj.hitbox.half_width should be obj.bottom_center or something similar
+					# TODO obj.x + obj.half_width should be obj.mid_x or something similar
 					# TODO This check used to end with ` and obj.y >= left_tile.y`. I should test if that was really necessary or not.
-					if left_tile and left_tile.type is 'slope' and left_tile.faces_left and obj.hitbox.x + obj.hitbox.half_width <= collision_tile.x:
+					if left_tile and left_tile.type == 'slope' and left_tile.faces_left and obj.x + obj.half_width < collision_tile.x:
 						continue
 
 					if y != 0:
@@ -48,7 +49,7 @@ def _resolve_collision_x(obj, tile_map):
 						1:  ◿■■    2:   ◢
 						   ◢■■■
 						"""
-						if collision_tile.type is 'slope' and bottom_left and bottom_left.type is 'slope' and not collision_tile.is_ceiling and collision_tile.faces_left and bottom_left.faces_left:
+						if collision_tile.type == 'slope' and bottom_left and bottom_left.type == 'slope' and not collision_tile.is_ceiling and collision_tile.faces_left and bottom_left.faces_left:
 							continue
 
 				if x+1 < len(tile_map[0]):
@@ -60,7 +61,7 @@ def _resolve_collision_x(obj, tile_map):
 					■■□◣
 					"""
 					# TODO This check used to end with ` and obj.y >= right_tile.y`. I should test if that was really necessary or not.
-					if right_tile and right_tile.type is 'slope' and right_tile.faces_right and obj.hitbox.x + obj.hitbox.half_width >= collision_tile.x2:
+					if right_tile and right_tile.type == 'slope' and right_tile.faces_right and obj.x + obj.half_width >= collision_tile.x2:
 						continue
 
 					if y != 0:
@@ -75,7 +76,7 @@ def _resolve_collision_x(obj, tile_map):
 						1:  ■■◺    2:   ◣
 						    ■■■◣
 						"""
-						if collision_tile.type is 'slope' and bottom_right and bottom_right.type is 'slope' and not collision_tile.is_ceiling and collision_tile.faces_right and bottom_right.faces_right:
+						if collision_tile.type == 'slope' and bottom_right and bottom_right.type == 'slope' and not collision_tile.is_ceiling and collision_tile.faces_right and bottom_right.faces_right:
 							continue
 
 				tile_found = collision_tile.resolve_collision_x(obj)
@@ -85,36 +86,83 @@ def _resolve_collision_x(obj, tile_map):
 
 	new_x = int(obj.moving_to_x)
 
-	obj.facing_right = new_x > obj.hitbox.x
+	# TODO This isn't a good way to determine this
+	obj.facing_right = new_x > obj.x
 
-	obj.hitbox.set_x(new_x)
-	obj.x = obj.hitbox.x - obj.hitbox.rel_x
-	obj.tile_x = obj.hitbox.x / general_settings.TILE_SIZE
-	obj.sub_tile_x = obj.hitbox.x % general_settings.TILE_SIZE / general_settings.TILE_SIZE_FLOAT
-	obj.x_tile_span = obj.get_x_tile_span()
+	obj.x = obj.moving_to_x
 
 def _resolve_collision_y(obj, tile_map):
 	y_range = _get_axis_range(obj, 'y', obj.moving_to_y)
 
 	tile_found = False
 
-	# TODO Make this pre-check more efficient
+	# TODO There's a bug with at least 2-tile wide objects snapping for a split second when transitioning over a peak /\ or going from a slope to the top of a solid tile
+	# TODO Make this pre-check more efficient.
 	for y in y_range:
 		# If the object is centered over a slope, always use the slope
 		# Tile that the object's center is over
-		centered_tile = tile_map[y][coordinate_to_tile(obj.hitbox.x + obj.hitbox.half_width)]
-		if centered_tile and centered_tile.is_collidable and centered_tile.type is 'slope':
+		x = coordinate_to_tile(obj.x + obj.half_width)
+		centered_tile = tile_map[y][x]
+		if centered_tile and centered_tile.is_collidable and centered_tile.type == 'slope':
+			"""
+			Account for an issue where resolving the y axis after the x
+			axis could cause the object to be moved down into the side of
+			a tile. For example, an object might be moved down onto the
+			slope but overlap the full tile in this scenario:
+
+			◣■
+			"""
+			# TODO This check should really be along the x-range of the object
+			if centered_tile.faces_right and x+1 < len(tile_map[0]):
+				right_tile = tile_map[y][x+1]
+				if right_tile and right_tile.type != 'slope' and right_tile.is_collidable:
+					tile_found = right_tile.resolve_collision_y(obj)
+					if tile_found:
+						break
+			elif centered_tile.faces_left and x > 0:
+				left_tile = tile_map[y][x-1]
+				if left_tile and left_tile.type != 'slope' and left_tile.is_collidable:
+					tile_found = left_tile.resolve_collision_y(obj)
+					if tile_found:
+						break
+
 			tile_found = centered_tile.resolve_collision_y(obj)
-			if tile_found: break
+			if tile_found:
+				break
 
 	for y in y_range:
 		if tile_found:
 			break
 
-		for x in obj.x_tile_span:
+		for x in obj.get_x_tile_span():
 			collision_tile = tile_map[y][x]
 
 			if collision_tile and collision_tile.is_collidable:
+				"""
+				Account for an issue where resolving the y axis after the x
+				axis could cause the object to be moved down into the side
+				of a tile. For example, an object might be moved down onto
+				the slope but overlap the full tile in this scenario:
+
+				◣■
+				"""
+				# TODO This check should really be along the x-range of the object
+				if collision_tile.type == 'slope':
+					if collision_tile.faces_right:
+						if x+1 < len(tile_map[0]):
+							right_tile = tile_map[y][x+1]
+							if right_tile and right_tile.type != 'slope' and right_tile.is_collidable:
+								tile_found = right_tile.resolve_collision_y(obj)
+								if tile_found:
+									break
+					elif collision_tile.faces_left:
+						if x > 0:
+							left_tile = tile_map[y][x-1]
+							if left_tile and left_tile.type != 'slope' and left_tile.is_collidable:
+								tile_found = left_tile.resolve_collision_y(obj)
+								if tile_found:
+									break
+
 				tile_found = collision_tile.resolve_collision_y(obj)
 
 				if tile_found:
@@ -124,25 +172,21 @@ def _resolve_collision_y(obj, tile_map):
 	if not (tile_found or obj.in_air):
 		obj.in_air = True
 
-	obj.hitbox.set_y(obj.moving_to_y)
-	obj.y = obj.hitbox.y - obj.hitbox.rel_y
-	obj.tile_y = obj.hitbox.y / general_settings.TILE_SIZE
-	obj.sub_tile_y = obj.hitbox.y % general_settings.TILE_SIZE / general_settings.TILE_SIZE_FLOAT
-	obj.y_tile_span = obj.get_y_tile_span()
+	obj.y = obj.moving_to_y
 
 
 # Returns the tiles covered by single-dimensional movement on the specified axis
 def _get_axis_range(obj, axis, new_position):
 	# Initiate our values based on the axis we're checking
 	if axis == 'x':
-		current_position = obj.hitbox.x
-		current_tile = obj.tile_x
-		axis_dimension = obj.tile_width
+		current_position = obj.x
+		current_tile = obj.x_tile
+		axis_dimension = obj.tile_width_span
 		axis_tile_boundary = obj.max_stage_x - 1
 	else: # Y axis
-		current_position = obj.hitbox.y
-		current_tile = obj.tile_y
-		axis_dimension = obj.tile_height
+		current_position = obj.y
+		current_tile = obj.y_tile
+		axis_dimension = obj.tile_height_span
 		axis_tile_boundary = obj.max_stage_y - 1
 
 	new_tile = new_position / general_settings.TILE_SIZE
