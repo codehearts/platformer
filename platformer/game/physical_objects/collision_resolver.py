@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from ..settings import general_settings
-from ..util import coordinate_to_tile
 
 # TODO If you dash up multiple rightward slopes and jump, you hit a solid tile and jitter
 # TODO Float equality should be checked with util.floats_equal
@@ -36,7 +35,7 @@ def _resolve_collision_x(obj, tile_map):
 					"""
 					# TODO obj.x + obj.half_width should be obj.mid_x or something similar
 					# TODO This check used to end with ` and obj.y >= left_tile.y`. I should test if that was really necessary or not.
-					if left_tile and left_tile.type == 'slope' and left_tile.faces_left and obj.x + obj.half_width < collision_tile.x:
+					if left_tile and left_tile.type == 'slope' and left_tile.faces_left and obj.mid_x < collision_tile.x:
 						continue
 
 					if y != 0:
@@ -61,7 +60,7 @@ def _resolve_collision_x(obj, tile_map):
 					■■□◣
 					"""
 					# TODO This check used to end with ` and obj.y >= right_tile.y`. I should test if that was really necessary or not.
-					if right_tile and right_tile.type == 'slope' and right_tile.faces_right and obj.x + obj.half_width >= collision_tile.x2:
+					if right_tile and right_tile.type == 'slope' and right_tile.faces_right and obj.mid_x >= collision_tile.x2:
 						continue
 
 					if y != 0:
@@ -101,7 +100,7 @@ def _resolve_collision_y(obj, tile_map):
 	for y in y_range:
 		# If the object is centered over a slope, always use the slope
 		# Tile that the object's center is over
-		x = coordinate_to_tile(obj.x + obj.half_width)
+		x = obj.mid_x_tile
 		centered_tile = tile_map[y][x]
 		if centered_tile and centered_tile.is_collidable and centered_tile.type == 'slope':
 			"""

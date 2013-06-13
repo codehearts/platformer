@@ -195,6 +195,14 @@ def run_positioning_tests(self):
 
 	assert_coordinates(self, 'Moved via x and y attributes.')
 
+	# Change the tile's middle coordinates
+	self.expected_x = self.expected_width
+	self.expected_y = self.expected_height
+	self.test_box.mid_x = self.expected_x + int(expected_half_width(self))
+	self.test_box.mid_y = self.expected_y + int(expected_half_height(self))
+
+	assert_coordinates(self, 'Moved via mid_x and mid_y attributes.')
+
 	# Change the tile's upper right coordinates
 	self.expected_x = self.expected_width * 2
 	self.expected_y = self.expected_height * 2
@@ -210,6 +218,14 @@ def run_positioning_tests(self):
 	self.test_box.y_tile = 4.1
 
 	assert_coordinates(self, 'Moved via x_tile and y_tile attributes.')
+
+	# Change the tile's middle tile index
+	self.expected_x = (int(4.1) - int(expected_half_tile_width(self))) * TILE_SIZE
+	self.expected_y = (int(3.25) - int(expected_half_tile_height(self))) * TILE_SIZE
+	self.test_box.mid_x_tile = 4.1
+	self.test_box.mid_y_tile = 3.25
+
+	assert_coordinates(self, 'Moved via mid_x_tile and mid_y_tile attributes.')
 
 	# Change the tile's upper right tile index
 	self.expected_x = 5 * TILE_SIZE - self.expected_width
@@ -304,12 +320,10 @@ def run_dimension_tests(self):
 	assert_coordinates(self, 'Box was shrunk via tile_width and tile_height attributes.')
 
 	# Resize the box via half_width and half_height
-	self.expected_width += self.expected_width * 1.618
-	self.expected_height -= self.expected_height / 1.618
-	self.test_box.half_width = expected_half_width(self)
-	self.test_box.half_height = expected_half_height(self)
-	self.expected_width = expected_half_width(self) * 2
-	self.expected_height = expected_half_height(self) * 2
+	self.test_box.half_width = 31.5
+	self.test_box.half_height = 127.25
+	self.expected_width = int(31.5 * 2)
+	self.expected_height = int(127.25 * 2)
 
 	# Ensure that the dimensions and any coordinates depending on the dimensions were updated
 	assert_dimensions(self, 'Box was resized via half_width and half_height attributes.')
@@ -354,6 +368,12 @@ def assert_coordinates(self, condition=''):
 	self.assertEqual(self.test_box.y, self.expected_y,
 		"Box has incorrect y coordinate." + condition)
 
+	# Test middle coordinates
+	self.assertEqual(self.test_box.mid_x, expected_mid_x(self),
+		"Box has incorrect mid-x coordinate." + condition)
+	self.assertEqual(self.test_box.mid_y, expected_mid_y(self),
+		"Box has incorrect mid-y coordinate." + condition)
+
 	# Test upper right coordinates
 	self.assertEqual(self.test_box.x2, expected_x2(self),
 		"Box has incorrect x2 coordinate." + condition)
@@ -365,6 +385,12 @@ def assert_coordinates(self, condition=''):
 		"Box has incorrect x_tile index." + condition)
 	self.assertEqual(self.test_box.y_tile, expected_y_tile(self),
 		"Box has incorrect y_tile index." + condition)
+
+	# Test tile of middle coordinates
+	self.assertEqual(self.test_box.mid_x_tile, expected_mid_x_tile(self),
+		"Box has incorrect mid_x_tile index." + condition)
+	self.assertEqual(self.test_box.mid_y_tile, expected_mid_y_tile(self),
+		"Box has incorrect mid_y_tile index." + condition)
 
 	# Test tile of upper right coordinates
 	self.assertEqual(self.test_box.x2_tile, expected_x2_tile(self),
@@ -427,6 +453,14 @@ def reset_test_box(self):
 	"""Resets the test box to a 32x32 pixel box at (0,0)"""
 	self.test_box = self.create_box(0, 0, 32, 32)
 
+def expected_mid_x(self):
+	"""Returns mid_x for the current test coordinate values."""
+	return self.expected_x + int(expected_half_width(self))
+
+def expected_mid_y(self):
+	"""Returns mid_y for the current test coordinate values."""
+	return self.expected_y + int(expected_half_height(self))
+
 def expected_x2(self):
 	"""Returns x2 for the current test coordinate values."""
 	return self.expected_x + self.expected_width
@@ -442,6 +476,14 @@ def expected_x_tile(self):
 def expected_y_tile(self):
 	"""Returns y_tile for the current test coordinate values."""
 	return int(expected_tile_y(self))
+
+def expected_mid_x_tile(self):
+	"""Returns mid_x_tile for the current test coordinate values."""
+	return expected_x_tile(self) + int(expected_half_tile_width(self))
+
+def expected_mid_y_tile(self):
+	"""Returns mid_y_tile for the current test coordinate values."""
+	return expected_y_tile(self) + int(expected_half_tile_height(self))
 
 def expected_x2_tile(self):
 	"""Returns x2_tile for the current test coordinate values."""
@@ -469,11 +511,11 @@ def expected_tile_y2(self):
 
 def expected_half_width(self):
 	"""Returns half_width for the current test coordinate values."""
-	return int(self.expected_width / 2.0)
+	return self.expected_width / 2.0
 
 def expected_half_height(self):
 	"""Returns half_height for the current test coordinate values."""
-	return int(self.expected_height / 2.0)
+	return self.expected_height / 2.0
 
 def expected_tile_width(self):
 	"""Returns tile_width for the current test coordinate values."""

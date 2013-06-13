@@ -1,9 +1,6 @@
 from settings.general_settings import TILE_SIZE, TILE_SIZE_FLOAT
 from math import ceil
 
-# TODO half_width/height should be floats
-# TODO implement mid_x and mid_y as x/y + int(half_width/half_height), where half_width/height are floats
-# TODO implement mid_x_tile and mid_y_tile
 # TODO Split this into BoundedPixelBox and BoundedTileBox
 class BoundedBox(object):
 	"""A box which keeps track of its dimensions in terms of pixels and tiles.
@@ -11,10 +8,14 @@ class BoundedBox(object):
 	Attributes:
 		x (int): The x coordinate of the box's anchor point (usually the bottom left corner)
 		y (int): The y coordinate of the box's anchor point (usually the bottom left corner)
+		mid_x (int): The x coordinate of the middle of the box.
+		mid_y (int): The y coordinate of the middle of the box.
 		x2 (int): The x coordinate of a point opposite the box's anchor point (usually the bottom left corner).
 		y2 (int): The y coordinate of a point opposite the box's anchor point (usually the bottom left corner).
 		x_tile (int): The x index of the tile that the box's x coordinate is over.
 		y_tile (int): The y index of the tile that the box's y coordinate is over.
+		mid_x_tile (int): The x index of the tile that the middle of the box is over.
+		mid_y_tile (int): The y index of the tile that the middle of the box is over.
 		x2_tile (int): The x index of the tile that the box's x2 coordinate is over.
 		y2_tile (int): The y index of the tile that the box's y2 coordinate is over.
 		tile_x (float): The x coordinate of the box in terms of tiles (as opposed to pixels).
@@ -23,8 +24,8 @@ class BoundedBox(object):
 		tile_y2 (float): The y2 coordinate of the box in terms of tiles (as opposed to pixels).
 		width (int): The width of the box in pixels.
 		height (int): The height of the box in pixels.
-		half_width (int): Half of the box's width in pixels.
-		half_height (int): Half of the box's height in pixels.
+		half_width (float): Half of the box's width in pixels.
+		half_height (float): Half of the box's height in pixels.
 		tile_width (float): The width of the box in terms of tiles.
 		tile_height (float): The height of the box in terms of tiles.
 		half_tile_width (float): Half of the box's width in terms of tiles.
@@ -44,13 +45,13 @@ class BoundedBox(object):
 		"""
 		# Set the initial dimensions before setting coordinates
 		self._height = int(height)
-		self._half_height = int(self._height / 2.0)
+		self._half_height = self._height / 2.0
 		self._tile_height = self._height / TILE_SIZE_FLOAT
 		self._half_tile_height = self._tile_height / 2.0
 		self._tile_height_span = int(ceil(self._tile_height))
 
 		self._width = int(width)
-		self._half_width = int(self._width / 2.0)
+		self._half_width = self._width / 2.0
 		self._tile_width = self._width / TILE_SIZE_FLOAT
 		self._half_tile_width = self._tile_width / 2.0
 		self._tile_width_span = int(ceil(self._tile_width))
@@ -92,10 +93,12 @@ class BoundedBox(object):
 	def x(self, x):
 		x = int(x)
 		self._x = x
+		self._mid_x = x + int(self._half_width)
 		self._x2 = x + self._width
 		self._tile_x = x / TILE_SIZE_FLOAT
 		self._tile_x2 = self._tile_x + self._tile_width
 		self._x_tile = int(self._tile_x)
+		self._mid_x_tile = self._x_tile + int(self._half_tile_width)
 		# TODO Why is self._x_tile + self._tile_width_span not right? Which calculation is wrong?
 		self._x2_tile = int(ceil(self._tile_x2))
 
@@ -108,11 +111,31 @@ class BoundedBox(object):
 		"""Updates coordinates whenever ``y`` is set."""
 		y = int(y)
 		self._y = y
+		self._mid_y = y + int(self._half_height)
 		self._y2 = y + self._height
 		self._tile_y = y / TILE_SIZE_FLOAT
 		self._tile_y2 = self._tile_y + self._tile_height
 		self._y_tile = int(self._tile_y)
+		self._mid_y_tile = self._y_tile + int(self._half_tile_height)
 		self._y2_tile = int(ceil(self._tile_y2))
+
+	@property
+	def mid_x(self):
+		"""Gets mid_x."""
+		return self._mid_x
+	@mid_x.setter
+	def mid_x(self, mid_x):
+		"""Updates coordinates whenever ``mid_x`` is set."""
+		self.x = int(mid_x) - int(self._half_width)
+
+	@property
+	def mid_y(self):
+		"""Gets mid_y."""
+		return self._mid_y
+	@mid_y.setter
+	def mid_y(self, mid_y):
+		"""Updates coordinates whenever ``mid_y`` is set."""
+		self.y = int(mid_y) - int(self._half_height)
 
 	@property
 	def x2(self):
@@ -149,6 +172,24 @@ class BoundedBox(object):
 	def y_tile(self, y_tile):
 		"""Updates coordinates whenever ``y_tile`` is set."""
 		self.y = y_tile * TILE_SIZE
+
+	@property
+	def mid_x_tile(self):
+		"""Gets mid_x_tile."""
+		return self._mid_x_tile
+	@mid_x_tile.setter
+	def mid_x_tile(self, mid_x_tile):
+		"""Updates coordinates whenever ``mid_x_tile`` is set."""
+		self.x = (int(mid_x_tile) - int(self._half_tile_width)) * TILE_SIZE
+
+	@property
+	def mid_y_tile(self):
+		"""Gets mid_y_tile."""
+		return self._mid_y_tile
+	@mid_y_tile.setter
+	def mid_y_tile(self, mid_y_tile):
+		"""Updates coordinates whenever ``mid_y_tile`` is set."""
+		self.y = (int(mid_y_tile) - int(self._half_tile_height)) * TILE_SIZE
 
 	@property
 	def x2_tile(self):
@@ -212,12 +253,14 @@ class BoundedBox(object):
 	def width(self, width):
 		"""Updates dimensions whenever ``width`` is set."""
 		self._width = int(width)
-		self._half_width = int(self._width / 2.0)
+		self._half_width = self._width / 2.0
 		self._tile_width = self._width / TILE_SIZE_FLOAT
 		self._half_tile_width = self._tile_width / 2.0
 		self._tile_width_span = int(ceil(self._tile_width))
+		self._mid_x = self._x + int(self._half_width)
 		self._x2 = self._x + self._width
 		self._tile_x2 = self._tile_x + self._tile_width
+		self._mid_x_tile = self._x_tile + int(self._half_tile_width)
 		self._x2_tile = int(ceil(self._tile_x2))
 
 	@property
@@ -228,12 +271,14 @@ class BoundedBox(object):
 	def height(self, height):
 		"""Updates dimensions whenever ``height`` is set."""
 		self._height = int(height)
-		self._half_height = int(self._height / 2.0)
+		self._half_height = self._height / 2.0
 		self._tile_height = self._height / TILE_SIZE_FLOAT
 		self._half_tile_height = self._tile_height / 2.0
 		self._tile_height_span = int(ceil(self._tile_height))
+		self._mid_y = self._y + int(self._half_height)
 		self._y2 = self._y + self._height
 		self._tile_y2 = self._tile_y + self._tile_height
+		self._mid_y_tile = self._y_tile + int(self._half_tile_height)
 		self._y2_tile = int(ceil(self._tile_y2))
 
 	@property

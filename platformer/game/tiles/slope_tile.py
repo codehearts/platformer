@@ -38,7 +38,7 @@ class _SlopeTile(Tile):
 		if obj.moving_to_y < obj.y:
 			# TODO Clean up this method!
 			# Position on the tile, from the center of this object (0 is left, 1 is right)
-			position_on_tile = float(obj.x + obj.half_width - self.x) / self.width
+			position_on_tile = float(obj.mid_x - self.x) / self.width
 
 			if position_on_tile <= 0:
 				slope_y = self.left_height

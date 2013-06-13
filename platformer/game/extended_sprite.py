@@ -1,7 +1,6 @@
 from bounded_box import BoundedBox
 from pyglet.sprite import Sprite
 
-# TODO Support mid_x/mid_y, mid_x_tile/mid_y_tile
 # TODO Write tests to check the position of the sprite object
 class ExtendedSprite(Sprite):
 	""":class:`pgylet.sprite.Sprite` which tracks its dimensions in terms of pixels and tiles.
@@ -9,10 +8,14 @@ class ExtendedSprite(Sprite):
 	Attributes:
 		x (int): The x coordinate of the sprite's anchor point (usually the bottom left corner)
 		y (int): The y coordinate of the sprite's anchor point (usually the bottom left corner)
+		mid_x (int): The x coordinate of the middle of the box.
+		mid_y (int): The y coordinate of the middle of the box.
 		x2 (int): The x coordinate of a point opposite the sprite's anchor point (usually the bottom left corner).
 		y2 (int): The y coordinate of a point opposite the sprite's anchor point (usually the bottom left corner).
 		x_tile (int): The x index of the tile that the sprite's x coordinate is over.
 		y_tile (int): The y index of the tile that the sprite's y coordinate is over.
+		mid_x_tile (int): The x index of the tile that the middle of the box is over.
+		mid_y_tile (int): The y index of the tile that the middle of the box is over.
 		x2_tile (int): The x index of the tile that the sprite's x2 coordinate is over.
 		y2_tile (int): The y index of the tile that the sprite's y2 coordinate is over.
 		tile_x (float): The x coordinate of the sprite in terms of tiles (as opposed to pixels).
@@ -43,12 +46,20 @@ class ExtendedSprite(Sprite):
 		self.box.x = x
 		self._set_x(self.box.x)
 
+	def _set_sprite_mid_x(self, mid_x):
+		self.box.mid_x = mid_x
+		self._set_x(self.box.x)
+
 	def _set_sprite_x2(self, x2):
 		self.box.x2 = x2
 		self._set_x(self.box.x)
 
 	def _set_sprite_x_tile(self, x_tile):
 		self.box.x_tile = x_tile
+		self._set_x(self.box.x)
+
+	def _set_sprite_mid_x_tile(self, mid_x_tile):
+		self.box.mid_x_tile = mid_x_tile
 		self._set_x(self.box.x)
 
 	def _set_sprite_x2_tile(self, x2_tile):
@@ -64,8 +75,10 @@ class ExtendedSprite(Sprite):
 		self._set_x(self.box.x)
 
 	x = property(lambda self: self.box.x, _set_sprite_x)
+	mid_x = property(lambda self: self.box.mid_x, _set_sprite_mid_x)
 	x2 = property(lambda self: self.box.x2, _set_sprite_x2)
 	x_tile = property(lambda self: self.box.x_tile, _set_sprite_x_tile)
+	mid_x_tile = property(lambda self: self.box.mid_x_tile, _set_sprite_mid_x_tile)
 	x2_tile = property(lambda self: self.box.x2_tile, _set_sprite_x2_tile)
 	tile_x = property(lambda self: self.box.tile_x, _set_sprite_tile_x)
 	tile_x2 = property(lambda self: self.box.tile_x2, _set_sprite_tile_x2)
@@ -75,12 +88,20 @@ class ExtendedSprite(Sprite):
 		self.box.y = y
 		self._set_y(self.box.y)
 
+	def _set_sprite_mid_y(self, mid_y):
+		self.box.mid_y = mid_y
+		self._set_y(self.box.y)
+
 	def _set_sprite_y2(self, y2):
 		self.box.y2 = y2
 		self._set_y(self.box.y)
 
 	def _set_sprite_y_tile(self, y_tile):
 		self.box.y_tile = y_tile
+		self._set_y(self.box.y)
+
+	def _set_sprite_mid_y_tile(self, mid_y_tile):
+		self.box.mid_y_tile = mid_y_tile
 		self._set_y(self.box.y)
 
 	def _set_sprite_y2_tile(self, y2_tile):
@@ -96,8 +117,10 @@ class ExtendedSprite(Sprite):
 		self._set_y(self.box.y)
 
 	y = property(lambda self: self.box.y, _set_sprite_y)
+	mid_y = property(lambda self: self.box.mid_y, _set_sprite_mid_y)
 	y2 = property(lambda self: self.box.y2, _set_sprite_y2)
 	y_tile = property(lambda self: self.box.y_tile, _set_sprite_y_tile)
+	mid_y_tile = property(lambda self: self.box.mid_y_tile, _set_sprite_mid_y_tile)
 	y2_tile = property(lambda self: self.box.y2_tile, _set_sprite_y2_tile)
 	tile_y = property(lambda self: self.box.tile_y, _set_sprite_tile_y)
 	tile_y2 = property(lambda self: self.box.tile_y2, _set_sprite_tile_y2)
