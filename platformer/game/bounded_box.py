@@ -101,6 +101,11 @@ class BoundedBox(object):
 		self._tile_x2 = self._tile_x + self._tile_width
 		self._x_tile = int(self._tile_x)
 		self._mid_x_tile = self._x_tile + int(self._half_tile_width)
+
+		# If the rightmost pixel is divisble by the tile size, our x2_tile
+		# will be off by a tile. For example, for a 64px wide object at (0,0)
+		# with a 32px tile size, the 64th pixel falls on the 2nd tile, but
+		# 64/32 = 2 gives the wrong tile index.
 		self._x2_tile = int(self._tile_x2)
 		if (self._tile_x2 % 1 == 0):
 			self._x2_tile -= 1
