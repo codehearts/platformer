@@ -14,8 +14,7 @@ class HitboxPhysicalObject(PhysicalObject):
 		self._hitbox_offset_y = 0
 
 
-	# TODO mid_x/mid_y/mid_x_tile/mid_y_tile propertie!
-	# TODO Test this class's hitbox coordinates!!
+	# TODO Test this class's hitbox coordinates
 	@property
 	def hitbox_offset_x(self):
 		return self._hitbox_offset_x
@@ -38,12 +37,20 @@ class HitboxPhysicalObject(PhysicalObject):
 		self.hitbox.x = x
 		self._set_sprite_x(self.hitbox.x - self._hitbox_offset_x)
 
+	def _set_object_mid_x(self, mid_x):
+		self.hitbox.mid_x = mid_x
+		self._set_sprite_x(self.hitbox.x - self._hitbox_offset_x)
+
 	def _set_object_x2(self, x2):
 		self.hitbox.x2 = x2
 		self._set_sprite_x(self.hitbox.x - self._hitbox_offset_x)
 
 	def _set_object_x_tile(self, x_tile):
 		self.hitbox.x_tile = x_tile
+		self._set_sprite_x(self.hitbox.x - self._hitbox_offset_x)
+
+	def _set_object_mid_x_tile(self, mid_x_tile):
+		self.hitbox.mid_x_tile = mid_x_tile
 		self._set_sprite_x(self.hitbox.x - self._hitbox_offset_x)
 
 	def _set_object_x2_tile(self, x2_tile):
@@ -59,8 +66,10 @@ class HitboxPhysicalObject(PhysicalObject):
 		self._set_sprite_x(self.hitbox.x - self._hitbox_offset_x)
 
 	x = property(lambda self: self.hitbox.x, _set_object_x)
+	mid_x = property(lambda self: self.hitbox.mid_x, _set_object_mid_x)
 	x2 = property(lambda self: self.hitbox.x2, _set_object_x2)
 	x_tile = property(lambda self: self.hitbox.x_tile, _set_object_x_tile)
+	mid_x_tile = property(lambda self: self.hitbox.mid_x_tile, _set_object_mid_x_tile)
 	x2_tile = property(lambda self: self.hitbox.x2_tile, _set_object_x2_tile)
 	tile_x = property(lambda self: self.hitbox.tile_x, _set_object_tile_x)
 	tile_x2 = property(lambda self: self.hitbox.tile_x2, _set_object_tile_x2)
@@ -70,12 +79,20 @@ class HitboxPhysicalObject(PhysicalObject):
 		self.hitbox.y = y
 		self._set_sprite_y(self.hitbox.y - self._hitbox_offset_y)
 
+	def _set_object_mid_y(self, mid_y):
+		self.hitbox.mid_y = mid_y
+		self._set_sprite_y(self.hitbox.y - self._hitbox_offset_y)
+
 	def _set_object_y2(self, y2):
 		self.hitbox.y2 = y2
 		self._set_sprite_y(self.hitbox.y - self._hitbox_offset_y)
 
 	def _set_object_y_tile(self, y_tile):
 		self.hitbox.y_tile = y_tile
+		self._set_sprite_y(self.hitbox.y - self._hitbox_offset_y)
+
+	def _set_object_mid_y_tile(self, mid_y_tile):
+		self.hitbox.mid_y_tile = mid_y_tile
 		self._set_sprite_y(self.hitbox.y - self._hitbox_offset_y)
 
 	def _set_object_y2_tile(self, y2_tile):
@@ -91,8 +108,10 @@ class HitboxPhysicalObject(PhysicalObject):
 		self._set_sprite_y(self.hitbox.y - self._hitbox_offset_y)
 
 	y = property(lambda self: self.hitbox.y, _set_object_y)
+	mid_y = property(lambda self: self.hitbox.mid_y, _set_object_mid_y)
 	y2 = property(lambda self: self.hitbox.y2, _set_object_y2)
 	y_tile = property(lambda self: self.hitbox.y_tile, _set_object_y_tile)
+	mid_y_tile = property(lambda self: self.hitbox.mid_y_tile, _set_object_mid_y_tile)
 	y2_tile = property(lambda self: self.hitbox.y2_tile, _set_object_y2_tile)
 	tile_y = property(lambda self: self.hitbox.tile_y, _set_object_tile_y)
 	tile_y2 = property(lambda self: self.hitbox.tile_y2, _set_object_tile_y2)

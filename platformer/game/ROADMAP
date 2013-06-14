@@ -1,12 +1,19 @@
-Layer refactoring
-Layer tests
+Improve BoundedBox unit tests with more explicit value checking
+Improve ExtendedSprite unit tests to check the location of the sprite
+Research performance of Pythonic getters/setters versus using method calls to get/set data
+Write PhysicalObject and HitboxPhysicalObject unit tests to test ExtendedSprite coordinates
+Refactor camera into Viewport, BoundedViewport, and Camera classes (BoundedViewport should accept coordinates to bound its motion)
+Layer manager refactoring
+Layer manager tests
+Testing framework for checking image eqaulity
+Testing framework for generating tileset images (could be taken from tile map tests)
 Level loader
 Level loader tests
 Level editor
-Camera refactoring (create viewport class, bounded viewport class, then camera)
+Refactor camera functionality code
 Stage events refactoring
 Physical object refactoring
 Physical object tests
 Collision resolver refactoring
 Tile tests
-Collision resolution
+Collision resolution tests

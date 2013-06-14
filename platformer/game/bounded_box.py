@@ -1,8 +1,7 @@
 from settings.general_settings import TILE_SIZE, TILE_SIZE_FLOAT
 from math import ceil
 
-# TODO Calling int() is slow! Use it sparingly
-# TODO Ensure that these values are correct when in negative quadrants
+# TODO When considering optimization, calling int() and ceil() are slow.
 # TODO Split this into BoundedPixelBox and BoundedTileBox
 class BoundedBox(object):
 	"""A box which keeps track of its dimensions in terms of pixels and tiles.
@@ -102,6 +101,7 @@ class BoundedBox(object):
 		self._x_tile = int(self._tile_x)
 		self._mid_x_tile = self._x_tile + int(self._half_tile_width)
 
+		# TODO This may need to be applied to mid_x_tile
 		# If the rightmost pixel is divisble by the tile size, our x2_tile
 		# will be off by a tile. For example, for a 64px wide object at (0,0)
 		# with a 32px tile size, the 64th pixel falls on the 2nd tile, but

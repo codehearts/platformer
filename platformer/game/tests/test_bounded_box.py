@@ -4,6 +4,7 @@ from game.settings.general_settings import TILE_SIZE
 from util import bounded_box
 
 # TODO Test bounded box attributes with fixed data (use hardcoded numbers instead of methods which predict the expected value)
+# TODO Ensure that these values are correct when in negative quadrants
 class TestBoundedBox(unittest.TestCase):
 	"""Tests the :class:`game.bounded_box.BoundedBox` class.
 
