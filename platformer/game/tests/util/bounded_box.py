@@ -487,11 +487,19 @@ def expected_mid_y_tile(self):
 
 def expected_x2_tile(self):
 	"""Returns x2_tile for the current test coordinate values."""
-	return int(ceil(expected_tile_x2(self)))
+	x2_tile = int(expected_tile_x2(self))
+	if (expected_tile_x2(self) % 1 == 0):
+		x2_tile -= 1
+
+	return x2_tile
 
 def expected_y2_tile(self):
 	"""Returns y2_tile for the current test coordinate values."""
-	return int(ceil(expected_tile_y2(self)))
+	y2_tile = int(expected_tile_y2(self))
+	if (expected_tile_y2(self) % 1 == 0):
+		y2_tile -= 1
+
+	return y2_tile
 
 def expected_tile_x(self):
 	"""Returns tile_x for the current test coordinate values."""

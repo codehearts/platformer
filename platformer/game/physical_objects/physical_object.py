@@ -4,11 +4,8 @@ from game.extended_sprite import ExtendedSprite
 from ..settings import general_settings
 from collision_resolver import resolve_collisions
 
-# TODO Could draw hitbox overlays using pyglet.image.SolidColorImagePattern
-
-# TODO Create a HitboxPhysicalObject class and a MultiHitboxPhysicalObject class
-
 # TODO This implementation of PhysicalObject should replace the other one
+# TODO Test this class's coordinates!
 class PhysicalObject(ExtendedSprite):
 
 	def __init__(self, stage, *args, **kwargs):
@@ -77,7 +74,7 @@ class PhysicalObject(ExtendedSprite):
 
 
 	def get_x_tile_span(self):
-		return range(max(0, self.x_tile), min(self.max_stage_x, self.x2_tile))
+		return range(max(0, self.x_tile), min(self.max_stage_x, self.x2_tile + 1))
 		#min_x = self.tile_x
 		#if min_x < 0:
 			#min_x = 0
@@ -88,7 +85,7 @@ class PhysicalObject(ExtendedSprite):
 		#return range(min_x, max_x)
 
 	def get_y_tile_span(self):
-		return range(max(0, self.y_tile), min(self.max_stage_y, self.y2_tile))
+		return range(max(0, self.y_tile), min(self.max_stage_y, self.y2_tile + 1))
 		#min_y = self.tile_y
 		#if min_y < 0:
 			#min_y = 0

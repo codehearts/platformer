@@ -1,6 +1,9 @@
 from physical_object import PhysicalObject
 from game.bounded_box import BoundedBox
 
+# TODO Could draw hitbox overlays using pyglet.image.SolidColorImagePattern
+# TODO Create a MultiHitboxPhysicalObject class
+
 class HitboxPhysicalObject(PhysicalObject):
 
 	def __init__(self, *args, **kwargs):
@@ -11,6 +14,8 @@ class HitboxPhysicalObject(PhysicalObject):
 		self._hitbox_offset_y = 0
 
 
+	# TODO mid_x/mid_y/mid_x_tile/mid_y_tile propertie!
+	# TODO Test this class's hitbox coordinates!!
 	@property
 	def hitbox_offset_x(self):
 		return self._hitbox_offset_x

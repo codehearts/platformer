@@ -115,8 +115,8 @@ class TileMap(object):
 
 		# Create a list of all tiles in the region
 		tiles_in_region = []
-		for y in xrange(region.y_tile, region.y2_tile):
-			for x in xrange(region.x_tile, region.x2_tile):
+		for y in xrange(region.y_tile, region.y2_tile+1):
+			for x in xrange(region.x_tile, region.x2_tile+1):
 				tile = self.tiles[y][x]
 				if tile:
 					tile.visible = True

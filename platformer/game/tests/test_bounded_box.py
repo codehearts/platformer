@@ -3,6 +3,7 @@ from game.bounded_box import BoundedBox
 from game.settings.general_settings import TILE_SIZE
 from util import bounded_box
 
+# TODO Test bounded box attributes with fixed data (use hardcoded numbers instead of methods which predict the expected value)
 class TestBoundedBox(unittest.TestCase):
 	"""Tests the :class:`game.bounded_box.BoundedBox` class.
 
@@ -46,6 +47,7 @@ class TestBoundedBox(unittest.TestCase):
 	def test_tall_box(self):
 		"""Tests a tall BoundedBox."""
 		self.expected_width = TILE_SIZE
+		# TODO Don't just use clean multiples of the tile size
 		self.expected_height = TILE_SIZE * 3
 		bounded_box.run_positioning_tests(self)
 		bounded_box.run_dimension_tests(self)
@@ -58,6 +60,31 @@ class TestBoundedBox(unittest.TestCase):
 		self.expected_height = TILE_SIZE
 		bounded_box.run_positioning_tests(self)
 		bounded_box.run_dimension_tests(self)
+
+
+
+	def test_x2_tile(self):
+		"""Tests the x2_tile property of a BoundedBox."""
+		# TODO Same thing on y-axis
+		self.test_box = self.create_box(0, 0, TILE_SIZE * 2, TILE_SIZE)
+		self.assertEqual(self.test_box.x2_tile, 1,
+			"x2_tile of 2-tile wide box at (0,0) is not on the second tile.")
+
+		self.test_box = self.create_box(1, 0, TILE_SIZE * 2, TILE_SIZE)
+		self.assertEqual(self.test_box.x2_tile, 2,
+			"x2_tile of 2-tile wide box at (1,0) is not on the third tile.")
+
+		self.test_box = self.create_box(0, 0, TILE_SIZE * 1.5, TILE_SIZE)
+		self.assertEqual(self.test_box.x2_tile, 1,
+			"x2_tile of 1.5-tile wide box at (0,0) is not on the second tile.")
+
+		self.test_box = self.create_box(TILE_SIZE/2, 0, TILE_SIZE * 1.5, TILE_SIZE)
+		self.assertEqual(self.test_box.x2_tile, 1,
+			"x2_tile of 1.5-tile wide box at (TILE_SIZE/2,0) is not on the second tile.")
+
+		self.test_box = self.create_box(TILE_SIZE/2 + 1, 0, TILE_SIZE * 1.5, TILE_SIZE)
+		self.assertEqual(self.test_box.x2_tile, 2,
+			"x2_tile of 1.5-tile wide box at (TILE_SIZE/2 + 1,0) is not on the third tile.")
 
 
 

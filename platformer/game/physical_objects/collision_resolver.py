@@ -33,7 +33,6 @@ def _resolve_collision_x(obj, tile_map):
 					 ◢□■
 					◢□■■
 					"""
-					# TODO obj.x + obj.half_width should be obj.mid_x or something similar
 					# TODO This check used to end with ` and obj.y >= left_tile.y`. I should test if that was really necessary or not.
 					if left_tile and left_tile.type == 'slope' and left_tile.faces_left and obj.mid_x < collision_tile.x:
 						continue

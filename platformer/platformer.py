@@ -21,7 +21,7 @@ key_handler = key.KeyStateHandler()
 level_data = load.LevelData('demo') # TODO Could this be a Level class which contains Stage and LevelEvents objects?
 
 stage_tileset = tiles.Tileset.load('demo')
-stage = tiles.TextureTileMap(level_data.get_stage_map(), stage_tileset)
+stage = tiles.TileMap(level_data.get_stage_map(), stage_tileset)
 
 #characters = load.Characters(stage_data.get_character_data(), stage.get_tiles())
 

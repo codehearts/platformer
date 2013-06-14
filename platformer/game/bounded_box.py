@@ -1,6 +1,8 @@
 from settings.general_settings import TILE_SIZE, TILE_SIZE_FLOAT
 from math import ceil
 
+# TODO Calling int() is slow! Use it sparingly
+# TODO Ensure that these values are correct when in negative quadrants
 # TODO Split this into BoundedPixelBox and BoundedTileBox
 class BoundedBox(object):
 	"""A box which keeps track of its dimensions in terms of pixels and tiles.
@@ -99,8 +101,9 @@ class BoundedBox(object):
 		self._tile_x2 = self._tile_x + self._tile_width
 		self._x_tile = int(self._tile_x)
 		self._mid_x_tile = self._x_tile + int(self._half_tile_width)
-		# TODO Why is self._x_tile + self._tile_width_span not right? Which calculation is wrong?
-		self._x2_tile = int(ceil(self._tile_x2))
+		self._x2_tile = int(self._tile_x2)
+		if (self._tile_x2 % 1 == 0):
+			self._x2_tile -= 1
 
 	@property
 	def y(self):
@@ -117,7 +120,9 @@ class BoundedBox(object):
 		self._tile_y2 = self._tile_y + self._tile_height
 		self._y_tile = int(self._tile_y)
 		self._mid_y_tile = self._y_tile + int(self._half_tile_height)
-		self._y2_tile = int(ceil(self._tile_y2))
+		self._y2_tile = int(self._tile_y2)
+		if (self._tile_y2 % 1 == 0):
+			self._y2_tile -= 1
 
 	@property
 	def mid_x(self):
@@ -261,7 +266,9 @@ class BoundedBox(object):
 		self._x2 = self._x + self._width
 		self._tile_x2 = self._tile_x + self._tile_width
 		self._mid_x_tile = self._x_tile + int(self._half_tile_width)
-		self._x2_tile = int(ceil(self._tile_x2))
+		self._x2_tile = int(self._tile_x2)
+		if (self._tile_x2 % 1 == 0):
+			self._x2_tile -= 1
 
 	@property
 	def height(self):
@@ -279,7 +286,9 @@ class BoundedBox(object):
 		self._y2 = self._y + self._height
 		self._tile_y2 = self._tile_y + self._tile_height
 		self._mid_y_tile = self._y_tile + int(self._half_tile_height)
-		self._y2_tile = int(ceil(self._tile_y2))
+		self._y2_tile = int(self._tile_y2)
+		if (self._tile_y2 % 1 == 0):
+			self._y2_tile -= 1
 
 	@property
 	def half_width(self):
