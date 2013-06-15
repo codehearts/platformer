@@ -67,9 +67,9 @@ class TestBoundedBox(unittest.TestCase):
 
 
 
-	def test_bounding_within(self):
+	def test_intersection(self):
 		"""Tests bounding a BoundedBox within another BoundedBox."""
-		bounded_box.run_bounding_within_tests(self)
+		bounded_box.run_intersection_tests(self)
 
 
 

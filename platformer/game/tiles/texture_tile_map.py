@@ -86,7 +86,7 @@ class TextureTileMap(object):
 			A :class:`game.extended_texture.ExtendedTextureRegion` object.
 		"""
 		region = BoundedBox(x - self.texture.anchor_x, y - self.texture.anchor_y, width, height)
-		region.bound_within(self.texture)
+		region = region.get_intersection(self.texture)
 
 		return self.texture.get_region(
 			region.x, region.y, region.width, region.height

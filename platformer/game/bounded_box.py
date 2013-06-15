@@ -63,27 +63,31 @@ class BoundedBox(object):
 
 
 
-	def bound_within(self, box):
-		"""Adjusts the dimensions and coordinates of the box to fit within
-		the dimensions of another box.
-
-		This is the same as converting this box into the intersection of
-		this box and the given box.
+	# TODO Test this when the boxes don't overlap
+	def get_intersection(self, box):
+		"""Returns the intersection of this box and another box.
 
 		Args:
-			box (:class:`game.bounded_box.BoundedBox`): The bounded box to bind this box within.
-		"""
-		if self._x2 > box.x2:
-			self.width = box.x2 - self._x
-		if self._x < box.x:
-			self.width = self._x2 - box.x
-			self.x = box.x
+			box (:class:`game.bounded_box.BoundedBox`): The bounded box to intersect with.
 
-		if self._y2 > box.y2:
-			self.height = box.y2 - self._y
+		Returns:
+			A :class:`game.bounded_box.BoundedBox` of the intersection region.
+		"""
+		intersection = BoundedBox(self._x, self._y, self._width, self._height)
+
+		if intersection._x2 > box.x2:
+			intersection.width = box.x2 - intersection._x
+		if intersection._x < box.x:
+			intersection.width = intersection._x2 - box.x
+			intersection.x = box.x
+
+		if intersection._y2 > box.y2:
+			intersection.height = box.y2 - intersection._y
 		if self._y < box.y:
-			self.height = self._y2 - box.y
-			self.y = box.y
+			intersection.height = intersection._y2 - box.y
+			intersection.y = box.y
+
+		return intersection
 
 
 

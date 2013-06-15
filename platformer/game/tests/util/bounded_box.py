@@ -11,14 +11,14 @@ method should return a BoundedBox object or an object of one of its
 subclasses.
 
 Methods provided by this class include:
-	``run_bounding_within_tests`` to test bounding boxes within boxes.
+	``run_intersection_tests`` to test bounding boxes within boxes.
 	``run_box_equality_tests`` to test boxes for equality.
 	``run_positioning_tests`` to test box positioning.
 	``run_dimension_tests`` to test box dimensions.
 """
 
-def run_bounding_within_tests(self):
-	"""Runs tests on bounding a BoundedBox within another BoundedBox."""
+def run_intersection_tests(self):
+	"""Runs tests on intersecting a BoundedBox with another BoundedBox."""
 	# Larger than test box by 10 pixels on every side
 	larger_box = self.create_box(-10, -10, 52, 52)
 
@@ -29,7 +29,7 @@ def run_bounding_within_tests(self):
 	self.expected_width = self.test_box.width
 	self.expected_height = self.test_box.height
 
-	self.test_box.bound_within(larger_box)
+	self.test_box = self.test_box.get_intersection(larger_box)
 	assert_coordinates(self, 'Bounded within a larger box.')
 	assert_dimensions(self, 'Bounded within a larger box.')
 
@@ -42,7 +42,7 @@ def run_bounding_within_tests(self):
 	self.expected_width = self.test_box.width - 20
 	self.expected_height = self.test_box.height - 20
 
-	self.test_box.bound_within(smaller_box)
+	self.test_box = self.test_box.get_intersection(smaller_box)
 	assert_coordinates(self, 'Bounded within a smaller box.')
 	assert_dimensions(self, 'Bounded within a smaller box.')
 
@@ -55,7 +55,7 @@ def run_bounding_within_tests(self):
 	self.expected_width = self.test_box.width - 10
 	self.expected_height = self.test_box.height - 10
 
-	self.test_box.bound_within(upper_right_overlap_box)
+	self.test_box = self.test_box.get_intersection(upper_right_overlap_box)
 	assert_coordinates(self, 'Bounded within a box which overlaps upper right corner.')
 	assert_dimensions(self, 'Bounded within a box which overlaps upper right corner.')
 
@@ -68,7 +68,7 @@ def run_bounding_within_tests(self):
 	self.expected_width = self.test_box.width - 10
 	self.expected_height = self.test_box.height - 10
 
-	self.test_box.bound_within(upper_left_overlap_box)
+	self.test_box = self.test_box.get_intersection(upper_left_overlap_box)
 	assert_coordinates(self, 'Bounded within a box which overlaps upper left corner.')
 	assert_dimensions(self, 'Bounded within a box which overlaps upper left corner.')
 
@@ -81,7 +81,7 @@ def run_bounding_within_tests(self):
 	self.expected_width = self.test_box.width - 10
 	self.expected_height = self.test_box.height - 10
 
-	self.test_box.bound_within(lower_right_overlap_box)
+	self.test_box = self.test_box.get_intersection(lower_right_overlap_box)
 	assert_coordinates(self, 'Bounded within a box which overlaps lower right corner.')
 	assert_dimensions(self, 'Bounded within a box which overlaps lower right corner.')
 
@@ -94,7 +94,7 @@ def run_bounding_within_tests(self):
 	self.expected_width = self.test_box.width - 10
 	self.expected_height = self.test_box.height - 10
 
-	self.test_box.bound_within(lower_left_overlap_box)
+	self.test_box = self.test_box.get_intersection(lower_left_overlap_box)
 	assert_coordinates(self, 'Bounded within a box which overlaps lower left corner.')
 	assert_dimensions(self, 'Bounded within a box which overlaps lower left corner.')
 
@@ -107,7 +107,7 @@ def run_bounding_within_tests(self):
 	self.expected_width = self.test_box.width
 	self.expected_height = self.test_box.height - 16
 
-	self.test_box.bound_within(top_overlap_box)
+	self.test_box = self.test_box.get_intersection(top_overlap_box)
 	assert_coordinates(self, 'Bounded within a box which overlaps top side.')
 	assert_dimensions(self, 'Bounded within a box which overlaps top side.')
 
@@ -120,7 +120,7 @@ def run_bounding_within_tests(self):
 	self.expected_width = self.test_box.width
 	self.expected_height = self.test_box.height - 16
 
-	self.test_box.bound_within(bottom_overlap_box)
+	self.test_box = self.test_box.get_intersection(bottom_overlap_box)
 	assert_coordinates(self, 'Bounded within a box which overlaps bottom side.')
 	assert_dimensions(self, 'Bounded within a box which overlaps bottom side.')
 
@@ -133,7 +133,7 @@ def run_bounding_within_tests(self):
 	self.expected_width = self.test_box.width - 16
 	self.expected_height = self.test_box.height
 
-	self.test_box.bound_within(left_overlap_box)
+	self.test_box = self.test_box.get_intersection(left_overlap_box)
 	assert_coordinates(self, 'Bounded within a box which overlaps left side.')
 	assert_dimensions(self, 'Bounded within a box which overlaps left side.')
 
@@ -146,7 +146,7 @@ def run_bounding_within_tests(self):
 	self.expected_width = self.test_box.width - 16
 	self.expected_height = self.test_box.height
 
-	self.test_box.bound_within(right_overlap_box)
+	self.test_box = self.test_box.get_intersection(right_overlap_box)
 	assert_coordinates(self, 'Bounded within a box which overlaps right side.')
 	assert_dimensions(self, 'Bounded within a box which overlaps right side.')
 

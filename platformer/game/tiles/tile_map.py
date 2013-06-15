@@ -104,7 +104,7 @@ class TileMap(object):
 		"""
 		# Bound the region to the tile map's dimensions
 		region = BoundedBox(x, y, width, height)
-		region.bound_within(self._max_dimensions)
+		region = region.get_intersection(self._max_dimensions)
 
 		# Do nothing if the requested region is the current visible region
 		if region == self._visible_region:
