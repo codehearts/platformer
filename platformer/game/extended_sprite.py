@@ -1,7 +1,6 @@
 from bounded_box import BoundedBox
 from pyglet.sprite import Sprite
 
-# TODO Write tests to check the position of the sprite object
 class ExtendedSprite(Sprite):
 	""":class:`pgylet.sprite.Sprite` which tracks its dimensions in terms of pixels and tiles.
 

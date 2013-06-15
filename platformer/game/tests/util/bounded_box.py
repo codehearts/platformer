@@ -177,6 +177,257 @@ def run_box_equality_tests(self):
 
 
 
+def run_box_initialization_tests(self):
+	"""Tests the properties of a bounded box after intialization.
+
+	The values in these tests are hardcoded to check conditions around tile
+	boundaries, as well as values at negative coordinates.
+	"""
+	self.test_box = self.create_box(0, 0, TILE_SIZE * 2, TILE_SIZE * 2)
+	self.expected_values = {
+		'x': 0,
+		'y': 0,
+		'mid_x': TILE_SIZE,
+		'mid_y': TILE_SIZE,
+		'x2': TILE_SIZE * 2,
+		'y2': TILE_SIZE * 2,
+		'x_tile': 0,
+		'y_tile': 0,
+		'mid_x_tile': 0,
+		'mid_y_tile': 0,
+		'x2_tile': 1,
+		'y2_tile': 1,
+		'width': TILE_SIZE * 2,
+		'height': TILE_SIZE * 2,
+		'half_width': TILE_SIZE,
+		'half_height': TILE_SIZE,
+		'tile_width': 2,
+		'tile_height': 2,
+		'half_tile_width': 1,
+		'half_tile_height': 1,
+		'tile_width_span': 2,
+		'tile_height_span': 2,
+	}
+	assert_expected_values(self, '2x2-tile box at (0, 0)')
+
+	self.test_box = self.create_box(1, 1, TILE_SIZE * 2, TILE_SIZE * 2)
+	self.expected_values = {
+		'x': 1,
+		'y': 1,
+		'mid_x': TILE_SIZE + 1,
+		'mid_y': TILE_SIZE + 1,
+		'x2': TILE_SIZE * 2 + 1,
+		'y2': TILE_SIZE * 2 + 1,
+		'x_tile': 0,
+		'y_tile': 0,
+		'mid_x_tile': 1,
+		'mid_y_tile': 1,
+		'x2_tile': 2,
+		'y2_tile': 2,
+		'width': TILE_SIZE * 2,
+		'height': TILE_SIZE * 2,
+		'half_width': TILE_SIZE,
+		'half_height': TILE_SIZE,
+		'tile_width': 2,
+		'tile_height': 2,
+		'half_tile_width': 1,
+		'half_tile_height': 1,
+		'tile_width_span': 2,
+		'tile_height_span': 2,
+	}
+	assert_expected_values(self, '2x2-tile box at (1, 1)')
+
+	self.test_box = self.create_box(0, 0, TILE_SIZE * 1.5, TILE_SIZE * 1.5)
+	self.expected_values = {
+		'x': 0,
+		'y': 0,
+		'mid_x': TILE_SIZE * 0.75,
+		'mid_y': TILE_SIZE * 0.75,
+		'x2': TILE_SIZE * 1.5,
+		'y2': TILE_SIZE * 1.5,
+		'x_tile': 0,
+		'y_tile': 0,
+		'mid_x_tile': 0,
+		'mid_y_tile': 0,
+		'x2_tile': 1,
+		'y2_tile': 1,
+		'width': TILE_SIZE * 1.5,
+		'height': TILE_SIZE * 1.5,
+		'half_width': TILE_SIZE * 0.75,
+		'half_height': TILE_SIZE * 0.75,
+		'tile_width': 1.5,
+		'tile_height': 1.5,
+		'half_tile_width': 0.75,
+		'half_tile_height': 0.75,
+		'tile_width_span': 2,
+		'tile_height_span': 2,
+	}
+	assert_expected_values(self, '1.5x1.5-tile box at (0, 0)')
+
+	self.test_box = self.create_box(TILE_SIZE // 2, TILE_SIZE // 2, TILE_SIZE * 1.5, TILE_SIZE * 1.5)
+	self.expected_values = {
+		'x': TILE_SIZE // 2,
+		'y': TILE_SIZE // 2,
+		'mid_x': TILE_SIZE * 0.75 + TILE_SIZE // 2,
+		'mid_y': TILE_SIZE * 0.75 + TILE_SIZE // 2,
+		'x2': TILE_SIZE * 1.5 + TILE_SIZE // 2,
+		'y2': TILE_SIZE * 1.5 + TILE_SIZE // 2,
+		'x_tile': 0,
+		'y_tile': 0,
+		'mid_x_tile': 1,
+		'mid_y_tile': 1,
+		'x2_tile': 1,
+		'y2_tile': 1,
+		'width': TILE_SIZE * 1.5,
+		'height': TILE_SIZE * 1.5,
+		'half_width': TILE_SIZE * 0.75,
+		'half_height': TILE_SIZE * 0.75,
+		'tile_width': 1.5,
+		'tile_height': 1.5,
+		'half_tile_width': 0.75,
+		'half_tile_height': 0.75,
+		'tile_width_span': 2,
+		'tile_height_span': 2,
+	}
+	assert_expected_values(self, '1.5x1.5-tile box at (TILE_SIZE/2, TILE_SIZE/2)')
+
+	self.test_box = self.create_box(TILE_SIZE // 2 + 1, TILE_SIZE // 2 + 1, TILE_SIZE * 1.5, TILE_SIZE * 1.5)
+	self.expected_values = {
+		'x': TILE_SIZE // 2 + 1,
+		'y': TILE_SIZE // 2 + 1,
+		'mid_x': TILE_SIZE * 0.75 + TILE_SIZE // 2 + 1,
+		'mid_y': TILE_SIZE * 0.75 + TILE_SIZE // 2 + 1,
+		'x2': TILE_SIZE * 1.5 + TILE_SIZE // 2 + 1,
+		'y2': TILE_SIZE * 1.5 + TILE_SIZE // 2 + 1,
+		'x_tile': 0,
+		'y_tile': 0,
+		'mid_x_tile': 1,
+		'mid_y_tile': 1,
+		'x2_tile': 2,
+		'y2_tile': 2,
+		'width': TILE_SIZE * 1.5,
+		'height': TILE_SIZE * 1.5,
+		'half_width': TILE_SIZE * 0.75,
+		'half_height': TILE_SIZE * 0.75,
+		'tile_width': 1.5,
+		'tile_height': 1.5,
+		'half_tile_width': 0.75,
+		'half_tile_height': 0.75,
+		'tile_width_span': 2,
+		'tile_height_span': 2,
+	}
+	assert_expected_values(self, '1.5x1.5-tile box at (TILE_SIZE/2 + 1, TILE_SIZE/2 + 1)')
+
+	self.test_box = self.create_box(-TILE_SIZE, -TILE_SIZE, TILE_SIZE * 2, TILE_SIZE * 2)
+	self.expected_values = {
+		'x': -TILE_SIZE,
+		'y': -TILE_SIZE,
+		'mid_x': 0,
+		'mid_y': 0,
+		'x2': TILE_SIZE,
+		'y2': TILE_SIZE,
+		'x_tile': -1,
+		'y_tile': -1,
+		'mid_x_tile': 0,
+		'mid_y_tile': 0,
+		'x2_tile': 0,
+		'y2_tile': 0,
+		'width': TILE_SIZE * 2,
+		'height': TILE_SIZE * 2,
+		'half_width': TILE_SIZE,
+		'half_height': TILE_SIZE,
+		'tile_width': 2,
+		'tile_height': 2,
+		'half_tile_width': 1,
+		'half_tile_height': 1,
+		'tile_width_span': 2,
+		'tile_height_span': 2,
+	}
+	assert_expected_values(self, '2x2-tile box at (-TILE_SIZE, -TILE_SIZE)')
+
+	self.test_box = self.create_box(-TILE_SIZE - 1, -TILE_SIZE - 1, TILE_SIZE * 2, TILE_SIZE * 2)
+	self.expected_values = {
+		'x': -TILE_SIZE - 1,
+		'y': -TILE_SIZE - 1,
+		'mid_x': -1,
+		'mid_y': -1,
+		'x2': TILE_SIZE - 1,
+		'y2': TILE_SIZE - 1,
+		'x_tile': -2,
+		'y_tile': -2,
+		'mid_x_tile': -1,
+		'mid_y_tile': -1,
+		'x2_tile': 0,
+		'y2_tile': 0,
+		'width': TILE_SIZE * 2,
+		'height': TILE_SIZE * 2,
+		'half_width': TILE_SIZE,
+		'half_height': TILE_SIZE,
+		'tile_width': 2,
+		'tile_height': 2,
+		'half_tile_width': 1,
+		'half_tile_height': 1,
+		'tile_width_span': 2,
+		'tile_height_span': 2,
+	}
+	assert_expected_values(self, '2x2-tile box at (-TILE_SIZE - 1, -TILE_SIZE - 1)')
+
+	self.test_box = self.create_box(-TILE_SIZE * 2.5, -TILE_SIZE * 2.5, TILE_SIZE * 1.5, TILE_SIZE * 1.5)
+	self.expected_values = {
+		'x': -TILE_SIZE * 2.5,
+		'y': -TILE_SIZE * 2.5,
+		'mid_x': TILE_SIZE * 0.75 - TILE_SIZE * 2.5,
+		'mid_y': TILE_SIZE * 0.75 - TILE_SIZE * 2.5,
+		'x2': TILE_SIZE * 1.5 - TILE_SIZE * 2.5,
+		'y2': TILE_SIZE * 1.5 - TILE_SIZE * 2.5,
+		'x_tile': -3,
+		'y_tile': -3,
+		'mid_x_tile': -2,
+		'mid_y_tile': -2,
+		'x2_tile': -2,
+		'y2_tile': -2,
+		'width': TILE_SIZE * 1.5,
+		'height': TILE_SIZE * 1.5,
+		'half_width': TILE_SIZE * 0.75,
+		'half_height': TILE_SIZE * 0.75,
+		'tile_width': 1.5,
+		'tile_height': 1.5,
+		'half_tile_width': 0.75,
+		'half_tile_height': 0.75,
+		'tile_width_span': 2,
+		'tile_height_span': 2,
+	}
+	assert_expected_values(self, '1.5x1.5-tile box at (-TILE_SIZE*2.5, -TILE_SIZE*2.5)')
+
+	self.test_box = self.create_box(-TILE_SIZE * 2.5 + 1, -TILE_SIZE * 2.5 + 1, TILE_SIZE * 1.5, TILE_SIZE * 1.5)
+	self.expected_values = {
+		'x': -TILE_SIZE * 2.5 + 1,
+		'y': -TILE_SIZE * 2.5 + 1,
+		'mid_x': TILE_SIZE * 0.75 - TILE_SIZE * 2.5 + 1,
+		'mid_y': TILE_SIZE * 0.75 - TILE_SIZE * 2.5 + 1,
+		'x2': TILE_SIZE * 1.5 - TILE_SIZE * 2.5 + 1,
+		'y2': TILE_SIZE * 1.5 - TILE_SIZE * 2.5 + 1,
+		'x_tile': -3,
+		'y_tile': -3,
+		'mid_x_tile': -2,
+		'mid_y_tile': -2,
+		'x2_tile': -1,
+		'y2_tile': -1,
+		'width': TILE_SIZE * 1.5,
+		'height': TILE_SIZE * 1.5,
+		'half_width': TILE_SIZE * 0.75,
+		'half_height': TILE_SIZE * 0.75,
+		'tile_width': 1.5,
+		'tile_height': 1.5,
+		'half_tile_width': 0.75,
+		'half_tile_height': 0.75,
+		'tile_width_span': 2,
+		'tile_height_span': 2,
+	}
+	assert_expected_values(self, '1.5x1.5-tile box at (-TILE_SIZE*2.5 + 1, -TILE_SIZE*2.5 + 1)')
+
+
+
 def run_positioning_tests(self):
 	"""Tests the positioning of a BoundedBox object."""
 	self.expected_x = TILE_SIZE * 3
@@ -353,7 +604,16 @@ def run_dimension_tests(self):
 
 
 
-	# Helper methods
+# Helper methods
+
+
+
+def assert_expected_values(self, condition='box'):
+	"""Asserts that the box has the expected property values."""
+	for prop, value in self.expected_values.iteritems():
+		actual_value = getattr(self.test_box, prop)
+		self.assertEqual(actual_value, value,
+			"%s of %s is %d instead of %d." % (prop, condition, actual_value, value))
 
 
 
@@ -471,24 +731,45 @@ def expected_y2(self):
 
 def expected_x_tile(self):
 	"""Returns x_tile for the current test coordinate values."""
+	if self.expected_x < 0 and self.expected_x % TILE_SIZE != 0:
+		return int(expected_tile_x(self)) - 1
 	return int(expected_tile_x(self))
 
 def expected_y_tile(self):
 	"""Returns y_tile for the current test coordinate values."""
+	if self.expected_y < 0 and self.expected_y % TILE_SIZE != 0:
+		return int(expected_tile_y(self)) - 1
 	return int(expected_tile_y(self))
 
 def expected_mid_x_tile(self):
 	"""Returns mid_x_tile for the current test coordinate values."""
-	return expected_x_tile(self) + int(expected_half_tile_width(self))
+	x_tile = int(expected_tile_x(self) + expected_half_tile_width(self))
+	mid_x = expected_mid_x(self)
+	if (mid_x > 0 and mid_x % TILE_SIZE == 0):
+		x_tile -= 1
+	elif (mid_x < 0 and mid_x % TILE_SIZE != 0):
+		x_tile -= 1
+
+	return x_tile
 
 def expected_mid_y_tile(self):
 	"""Returns mid_y_tile for the current test coordinate values."""
-	return expected_y_tile(self) + int(expected_half_tile_height(self))
+	y_tile = int(expected_tile_y(self) + expected_half_tile_height(self))
+	mid_y = expected_mid_y(self)
+	if (mid_y > 0 and mid_y % TILE_SIZE == 0):
+		y_tile -= 1
+	elif (mid_y < 0 and mid_y % TILE_SIZE != 0):
+		y_tile -= 1
+
+	return y_tile
 
 def expected_x2_tile(self):
 	"""Returns x2_tile for the current test coordinate values."""
 	x2_tile = int(expected_tile_x2(self))
-	if (expected_tile_x2(self) % 1 == 0):
+	x2 = expected_x2(self)
+	if (x2 > 0 and x2 % TILE_SIZE == 0):
+		x2_tile -= 1
+	elif (x2 < 0):
 		x2_tile -= 1
 
 	return x2_tile
@@ -496,7 +777,10 @@ def expected_x2_tile(self):
 def expected_y2_tile(self):
 	"""Returns y2_tile for the current test coordinate values."""
 	y2_tile = int(expected_tile_y2(self))
-	if (expected_tile_y2(self) % 1 == 0):
+	y2 = expected_y2(self)
+	if (y2 > 0 and y2 % TILE_SIZE == 0):
+		y2_tile -= 1
+	elif (y2 < 0):
 		y2_tile -= 1
 
 	return y2_tile

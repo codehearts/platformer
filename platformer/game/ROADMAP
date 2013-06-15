@@ -1,5 +1,3 @@
-Improve BoundedBox unit tests with more explicit value checking
-Improve ExtendedSprite unit tests to check the location of the sprite
 Research performance of Pythonic getters/setters versus using method calls to get/set data
 Write PhysicalObject and HitboxPhysicalObject unit tests to test ExtendedSprite coordinates
 Refactor camera into Viewport, BoundedViewport, and Camera classes (BoundedViewport should accept coordinates to bound its motion)

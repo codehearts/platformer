@@ -31,9 +31,12 @@ class TestExtendedSprite(unittest.TestCase):
 
 	def create_box(self, x, y, width, height):
 		"""Creates an ExtendedSprite object for testing."""
-		return ExtendedSprite(dummy_image(width, height), x=x, y=y)
+		return ExtendedSprite(dummy_image(int(width), int(height)), x=x, y=y)
 
 
+	def test_sprite_properties(self):
+		"""Tests that the sprite's coordinate and dimension properties are correct."""
+		bounded_box.run_box_initialization_tests(self)
 
 	def test_square_sprite(self):
 		"""Tests a square ExtendedSprite."""
@@ -44,11 +47,11 @@ class TestExtendedSprite(unittest.TestCase):
 	def test_tall_sprite(self):
 		"""Tests a tall ExtendedSprite."""
 		self.expected_width = 1 * TILE_SIZE
-		self.expected_height = 3 * TILE_SIZE
+		self.expected_height = 2.5 * TILE_SIZE
 		bounded_box.run_positioning_tests(self)
 
 	def test_wide_sprite(self):
 		"""Tests a wide ExtendedSprite."""
-		self.expected_width = 3 * TILE_SIZE
+		self.expected_width = 4.125 * TILE_SIZE
 		self.expected_height = 1 * TILE_SIZE
 		bounded_box.run_positioning_tests(self)

@@ -2,7 +2,7 @@ from settings.general_settings import TILE_SIZE, TILE_SIZE_FLOAT
 from math import ceil
 
 # TODO When considering optimization, calling int() and ceil() are slow.
-# TODO Split this into BoundedPixelBox and BoundedTileBox
+# TODO Are the float tile values necessary?
 class BoundedBox(object):
 	"""A box which keeps track of its dimensions in terms of pixels and tiles.
 
@@ -98,16 +98,25 @@ class BoundedBox(object):
 		self._x2 = x + self._width
 		self._tile_x = x / TILE_SIZE_FLOAT
 		self._tile_x2 = self._tile_x + self._tile_width
-		self._x_tile = int(self._tile_x)
-		self._mid_x_tile = self._x_tile + int(self._half_tile_width)
 
-		# TODO This may need to be applied to mid_x_tile
+		self._x_tile = int(self._tile_x)
+		if (self._x < 0 and self._x % TILE_SIZE != 0):
+			self._x_tile -= 1
+
+		self._mid_x_tile = int(self._tile_x + self._half_tile_width)
+		if (self._mid_x > 0 and self._mid_x % TILE_SIZE == 0):
+			self._mid_x_tile -= 1
+		elif (self._mid_x < 0 and self._mid_x % TILE_SIZE != 0):
+			self._mid_x_tile -= 1
+
 		# If the rightmost pixel is divisble by the tile size, our x2_tile
 		# will be off by a tile. For example, for a 64px wide object at (0,0)
 		# with a 32px tile size, the 64th pixel falls on the 2nd tile, but
 		# 64/32 = 2 gives the wrong tile index.
 		self._x2_tile = int(self._tile_x2)
-		if (self._tile_x2 % 1 == 0):
+		if (self._x2 > 0 and self._x2 % TILE_SIZE == 0):
+			self._x2_tile -= 1
+		elif (self._x2 < 0):
 			self._x2_tile -= 1
 
 	@property
@@ -123,10 +132,21 @@ class BoundedBox(object):
 		self._y2 = y + self._height
 		self._tile_y = y / TILE_SIZE_FLOAT
 		self._tile_y2 = self._tile_y + self._tile_height
+
 		self._y_tile = int(self._tile_y)
-		self._mid_y_tile = self._y_tile + int(self._half_tile_height)
+		if (self._y < 0 and self._y % TILE_SIZE != 0):
+			self._y_tile -= 1
+
+		self._mid_y_tile = int(self._tile_y + self._half_tile_height)
+		if (self._mid_y > 0 and self._mid_y % TILE_SIZE == 0):
+			self._mid_y_tile -= 1
+		elif (self._mid_y < 0 and self._mid_y % TILE_SIZE != 0):
+			self._mid_y_tile -= 1
+
 		self._y2_tile = int(self._tile_y2)
-		if (self._tile_y2 % 1 == 0):
+		if (self._y2 != 0 and self._y2 % TILE_SIZE == 0):
+			self._y2_tile -= 1
+		elif (self._y2 < 0):
 			self._y2_tile -= 1
 
 	@property
@@ -270,9 +290,17 @@ class BoundedBox(object):
 		self._mid_x = self._x + int(self._half_width)
 		self._x2 = self._x + self._width
 		self._tile_x2 = self._tile_x + self._tile_width
-		self._mid_x_tile = self._x_tile + int(self._half_tile_width)
+
+		self._mid_x_tile = int(self._tile_x + self._half_tile_width)
+		if (self._mid_x > 0 and self._mid_x % TILE_SIZE == 0):
+			self._mid_x_tile -= 1
+		elif (self._mid_x < 0 and self._mid_x % TILE_SIZE != 0):
+			self._mid_x_tile -= 1
+
 		self._x2_tile = int(self._tile_x2)
-		if (self._tile_x2 % 1 == 0):
+		if (self._x2 > 0 and self._x2 % TILE_SIZE == 0):
+			self._x2_tile -= 1
+		elif (self._x2 < 0):
 			self._x2_tile -= 1
 
 	@property
@@ -290,9 +318,17 @@ class BoundedBox(object):
 		self._mid_y = self._y + int(self._half_height)
 		self._y2 = self._y + self._height
 		self._tile_y2 = self._tile_y + self._tile_height
-		self._mid_y_tile = self._y_tile + int(self._half_tile_height)
+
+		self._mid_y_tile = int(self._tile_y + self._half_tile_height)
+		if (self._mid_y > 0 and self._mid_y % TILE_SIZE == 0):
+			self._mid_y_tile -= 1
+		elif (self._mid_y < 0 and self._mid_y % TILE_SIZE != 0):
+			self._mid_y_tile -= 1
+
 		self._y2_tile = int(self._tile_y2)
-		if (self._tile_y2 % 1 == 0):
+		if (self._y2 > 0 and self._y2 % TILE_SIZE == 0):
+			self._y2_tile -= 1
+		elif (self._y2 < 0):
 			self._y2_tile -= 1
 
 	@property
