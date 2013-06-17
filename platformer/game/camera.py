@@ -83,8 +83,8 @@ class Camera(object):
 
 
 	def focus(self):
-		x = self.target.x + self.target.half_width
-		y = self.target.y + self.target.half_height
+		x = self.target.mid_x
+		y = self.target.mid_y
 
 		glMatrixMode(GL_PROJECTION)
 		glLoadIdentity()
@@ -145,8 +145,8 @@ class Camera(object):
 			self.focus_on_target()
 
 	def focus_on_target(self, time=0.4, old_easing=general_settings.EASE_IN):
-		x = self.target.x + self.target.half_width
-		y = self.target.y + self.target.half_height
+		x = self.target.mid_x
+		y = self.target.mid_y
 
 		# If we're already trying to focus on the target, just update our takeoff coordinates and desitination
 		if self.seeking_target:

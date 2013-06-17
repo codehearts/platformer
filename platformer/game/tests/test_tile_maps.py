@@ -341,11 +341,17 @@ class TestTileMap(unittest.TestCase):
 
 		# Assert that the expected region is always returned
 		for i in xrange(len(region_arguments)):
-			self.assertEqual(
-				self.tile_map.get_region(*region_arguments[i]),
-				self.tile_map.texture.get_region(*expected_regions[i]),
-				"Texture tile map did not create an appropriately sized region."
-			)
+			# Returned texture region
+			actual = self.tile_map.get_region(*region_arguments[i])
+
+			self.assertEqual(actual.x, expected_regions[i][0],
+				"Texture tile map did not create a region at the correct x coordinate.")
+			self.assertEqual(actual.y, expected_regions[i][1],
+				"Texture tile map did not create a region at the correct y coordinate.")
+			self.assertEqual(actual.width, expected_regions[i][2],
+				"Texture tile map did not create an appropriately wide region.")
+			self.assertEqual(actual.height, expected_regions[i][3],
+				"Texture tile map did not create an appropriately tall region.")
 
 
 

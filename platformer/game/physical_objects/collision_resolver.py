@@ -102,6 +102,7 @@ def _resolve_collision_y(obj, tile_map):
 		x = obj.mid_x_tile
 		centered_tile = tile_map[y][x]
 		if centered_tile and centered_tile.is_collidable and centered_tile.type == 'slope':
+			# TODO This is blocking a 1-tile player from being able to go partially down the slope and collide with the solid tile
 			"""
 			Account for an issue where resolving the y axis after the x
 			axis could cause the object to be moved down into the side of
@@ -179,12 +180,12 @@ def _get_axis_range(obj, axis, new_position):
 	if axis == 'x':
 		current_position = obj.x
 		current_tile = obj.x_tile
-		axis_dimension = obj.tile_width_span
+		axis_dimension = obj.tile_width
 		axis_tile_boundary = obj.max_stage_x - 1
 	else: # Y axis
 		current_position = obj.y
 		current_tile = obj.y_tile
-		axis_dimension = obj.tile_height_span
+		axis_dimension = obj.tile_height
 		axis_tile_boundary = obj.max_stage_y - 1
 
 	new_tile = new_position / general_settings.TILE_SIZE

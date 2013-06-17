@@ -1,6 +1,6 @@
 from game import util
 from game.bounded_box import BoundedBox
-from game.extended_texture import ExtendedTexture
+from pyglet.image import Texture
 from ..settings.general_settings import TILE_SIZE
 
 class TextureTileMap(object):
@@ -44,9 +44,7 @@ class TextureTileMap(object):
 		self.tiles = [[None] * self.cols for i in xrange(self.rows)]
 
 		# Create the texture for the tile map
-		self.texture = ExtendedTexture.create(
-			self._max_dimensions.width, self._max_dimensions.height
-		)
+		self.texture = Texture.create(self._max_dimensions.width, self._max_dimensions.height)
 
 		for y in xrange(self.rows):
 			for x in xrange(self.cols):
@@ -86,7 +84,7 @@ class TextureTileMap(object):
 			A :class:`game.extended_texture.ExtendedTextureRegion` object.
 		"""
 		region = BoundedBox(x - self.texture.anchor_x, y - self.texture.anchor_y, width, height)
-		region = region.get_intersection(self.texture)
+		region = region.get_intersection(self._max_dimensions)
 
 		return self.texture.get_region(
 			region.x, region.y, region.width, region.height
@@ -105,18 +103,16 @@ class TextureTileMap(object):
 		region = self.get_region(x, y, width, height)
 		region.blit(region.x + self.texture.anchor_x, region.y + self.texture.anchor_y)
 
-	@property
-	def x(self):
-		return self.texture.anchor_x
 
-	@x.setter
-	def x(self, x):
+	def _set_x(self, x):
 		self.texture.anchor_x = x
+		self._max_dimensions.set_x(x)
 
-	@property
-	def y(self):
-		return self.texture.anchor_y
+	x = property(lambda self: self.texture.anchor_x, _set_x)
 
-	@y.setter
-	def y(self, y):
+
+	def _set_y(self, y):
 		self.texture.anchor_y = y
+		self._max_dimensions.set_y(y)
+
+	y = property(lambda self: self.texture.anchor_y, _set_y)

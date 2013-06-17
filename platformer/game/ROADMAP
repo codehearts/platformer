@@ -1,5 +1,3 @@
-Refactor BoundedBox to use pure properties and implement setter methods for performance gains
-Refactor ExtendedSprite to store an internal reference to a sprite instead of to a BoundedBox
 Refactor camera into Viewport, BoundedViewport, and Camera classes (BoundedViewport should accept coordinates to bound its motion)
 Layer manager refactoring
 Layer manager tests
