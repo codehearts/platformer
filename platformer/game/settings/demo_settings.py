@@ -13,7 +13,7 @@ TILE_DATA = {
         'player_events': [
             {
                 'run': 'once',
-                'condition': lambda player: player.tile_x >= 25,
+                'condition': lambda player: player.x_tile >= 25,
                 'function': 'demo_stage_1'
             }
         ]
