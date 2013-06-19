@@ -55,3 +55,7 @@ class TestExtendedSprite(unittest.TestCase):
 		self.expected_width = 4.125 * TILE_SIZE
 		self.expected_height = 1 * TILE_SIZE
 		bounded_box.run_positioning_tests(self)
+
+	def test_bounding(self):
+		"""Tests bounding an ExtendedSprite within another ExtendedSprite."""
+		bounded_box.run_bounding_tests(self)

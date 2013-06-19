@@ -1,7 +1,6 @@
 from settings.general_settings import TILE_SIZE, TILE_SIZE_FLOAT
 from math import ceil
 
-# TODO When considering optimization, calling int() and ceil() are slow.
 class BoundedBox(object):
 	"""A box which keeps track of its position and dimensions in terms of pixels and tiles.
 
@@ -110,6 +109,27 @@ class BoundedBox(object):
 
 
 
+	def bound_within(self, bounding_box):
+		"""Bounds this box within the given bounding box.
+
+		This box's coordinates will be adjusted to remain inside the bounding box.
+		It is the programmer's job to ensure that the bounding box is not smaller than this box.
+
+		Args:
+			bounding_box (:class:`game.bounded_box.BoundedBox`): The box to bound within.
+		"""
+		if self._x < bounding_box.x:
+			self._set_x(bounding_box.x)
+		elif self._x2 > bounding_box.x2:
+			self._set_x(bounding_box.x2 - self._width)
+
+		if self._y < bounding_box.y:
+			self._set_y(bounding_box.y)
+		elif self._y2 > bounding_box.y2:
+			self._set_y(bounding_box.y2 - self._height)
+
+
+
 	def _set_x(self, x):
 		"""Positions the box to have its lower left corner on the specified coordinate."""
 		x = int(x)
@@ -178,7 +198,6 @@ class BoundedBox(object):
 	y = property(lambda self: self._y, _set_y)
 
 
-	# TODO Test if it's faster to call _set_x or to use self.x =
 	def _set_mid_x(self, mid_x):
 		self._set_x(int(mid_x) - self._half_width_int)
 	mid_x = property(lambda self: self._mid_x, _set_mid_x)

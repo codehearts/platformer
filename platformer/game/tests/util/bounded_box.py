@@ -11,19 +11,97 @@ method should return a BoundedBox object or an object of one of its
 subclasses.
 
 Methods provided by this class include:
-	``run_intersection_tests`` to test bounding boxes within boxes.
+	``run_bounding_tests`` to test bounding boxes within boxes.
+	``run_intersection_tests`` to test intersecting boxes with boxes.
 	``run_box_equality_tests`` to test boxes for equality.
 	``run_box_initialization_tests`` to test box property values.
 	``run_positioning_tests`` to test box positioning.
 	``run_dimension_tests`` to test box dimensions.
 """
 
+def run_bounding_tests(self):
+	"""Runs tests on bounding a BoundedBox within another BoundedBox."""
+	# Larger box to bound the test box within
+	bounding_box = self.create_box(-50, -50, 100, 100)
+
+	# Test bounding when the box is within the bounds of its bounding box
+	reset_test_box(self)
+	self.expected_x = self.test_box.x
+	self.expected_y = self.test_box.y
+	self.expected_width = self.test_box.width
+	self.expected_height = self.test_box.height
+
+	self.test_box.bound_within(bounding_box)
+	assert_coordinates(self, 'Test box is within bounds of bounding box.')
+
+	# Test bounding when the box passes over the left bound
+	self.test_box.x = bounding_box.x - self.test_box.width - 48
+	self.test_box.y = 0
+
+	self.expected_x = bounding_box.x
+	self.expected_y = 0
+
+	self.test_box.bound_within(bounding_box)
+	assert_coordinates(self, 'Test box extends past left bound of bounding box.')
+
+	# Test bounding when the box passes over the lower bound
+	self.test_box.x = 0
+	self.test_box.y = bounding_box.y - self.test_box.height - 48
+
+	self.expected_x = 0
+	self.expected_y = bounding_box.y
+
+	self.test_box.bound_within(bounding_box)
+	assert_coordinates(self, 'Test box extends past lower bound of bounding box.')
+
+	# Test bounding when the box passes over the left and bottom bounds
+	self.test_box.x = bounding_box.x - 16
+	self.test_box.y = bounding_box.y - 16
+
+	self.expected_x = bounding_box.x
+	self.expected_y = bounding_box.y
+
+	self.test_box.bound_within(bounding_box)
+	assert_coordinates(self, 'Test box extends past left and bottom bounds of bounding box.')
+
+	# Test bounding when the box passes over the right bound
+	self.test_box.x = bounding_box.x2 + self.test_box.width + 16
+	self.test_box.y = 0
+
+	self.expected_x = bounding_box.x2 - self.test_box.width
+	self.expected_y = 0
+
+	self.test_box.bound_within(bounding_box)
+	assert_coordinates(self, 'Test box extends past right bound of bounding box.')
+
+	# Test bounding when the box passes over the upper bound
+	self.test_box.x = 0
+	self.test_box.y = bounding_box.y2 + self.test_box.height + 16
+
+	self.expected_x = 0
+	self.expected_y = bounding_box.y2 - self.test_box.height
+
+	self.test_box.bound_within(bounding_box)
+	assert_coordinates(self, 'Test box extends past upper bound of bounding box.')
+
+	# Test bounding when the box passes over the right and upper bounds
+	self.test_box.x = bounding_box.x2 + self.test_box.width + 16
+	self.test_box.y = bounding_box.y2 + self.test_box.height + 16
+
+	self.expected_x = bounding_box.x2 - self.test_box.width
+	self.expected_y = bounding_box.y2 - self.test_box.height
+
+	self.test_box.bound_within(bounding_box)
+	assert_coordinates(self, 'Test box extends past right and upper bounds of bounding box.')
+
+
+
 def run_intersection_tests(self):
 	"""Runs tests on intersecting a BoundedBox with another BoundedBox."""
 	# Larger than test box by 10 pixels on every side
 	larger_box = self.create_box(-10, -10, 52, 52)
 
-	# Test bounding within a larger box
+	# Test intersecting with a larger box
 	reset_test_box(self)
 	self.expected_x = self.test_box.x
 	self.expected_y = self.test_box.y
@@ -34,7 +112,7 @@ def run_intersection_tests(self):
 	assert_coordinates(self, 'Intersected with a larger box.')
 	assert_dimensions(self, 'Intersected with a larger box.')
 
-	# Test bounding with a box that is entirely within the test box
+	# Test intersecting with a box that is entirely within the test box
 	smaller_box = self.create_box(10, 10, 12, 12)
 
 	reset_test_box(self)
