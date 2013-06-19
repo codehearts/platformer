@@ -1,13 +1,15 @@
 import pyglet
 from pyglet.window import key
 from pyglet.gl import glEnable, glBlendFunc, GL_BLEND, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-from game import load, camera, stageevents
+from game import load, viewport, stageevents
 from game import layers
 from game.settings import general_settings
 from game.animation import tiled_animation
 from game.text import heading, live_text
 from game.easing import EaseOut
+from game.bounded_box import BoundedBox
 from game import tiles
+from game.settings.general_settings import TILE_SIZE
 
 # Graphical output window
 game_window = pyglet.window.Window(800, 600, caption='Platformer Demo')
@@ -29,7 +31,8 @@ stage = tiles.TextureTileMap(level_data.get_stage_map(), stage_tileset)
 player = load.Player(level_data.get_player_data(), stage.tiles, key_handler)
 game_window.push_handlers(player.character.key_handler)
 
-cam = camera.Camera(player.character, game_window, stage.tiles)
+stage_boundary = BoundedBox(0, 0, stage.cols*TILE_SIZE, stage.rows*TILE_SIZE)
+cam = viewport.Camera(0, 0, 800, 600, bounds=stage_boundary, target=player.character)
 cam.focus() # TODO Should this be called on init?
 
 player_layer = layers.create_from(player.character)

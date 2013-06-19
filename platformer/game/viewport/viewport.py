@@ -8,7 +8,8 @@ class Viewport(BoundedBox):
 	"""
 
 	def __init__(self, *args, **kwargs):
-		"""
+		"""Creates a new viewport.
+
 		Kwargs:
 			bounds (BoundedBox): Limit the position of the viewport to within these bounds.
 		"""
@@ -35,5 +36,6 @@ class Viewport(BoundedBox):
 		"""
 		self._set_x(x)
 		self._set_y(y)
-
 		self._bound_viewport()
+
+		# TODO GL translations

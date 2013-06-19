@@ -1,4 +1,4 @@
-Refactor camera into Viewport, BoundedViewport, and Camera classes (BoundedViewport should accept coordinates to bound its motion)
+Layer tests
 Layer manager refactoring
 Layer manager tests
 Testing framework for checking image eqaulity
