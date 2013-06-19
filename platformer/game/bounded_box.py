@@ -145,7 +145,6 @@ class BoundedBox(object):
 		if (self._x < 0 and self._x % TILE_SIZE != 0):
 			self._x_tile -= 1
 
-		# TODO Can this expression be optimized?
 		self._mid_x_tile = int(self._x_tile_float + self._half_tile_width)
 		if (self._mid_x > 0 and self._mid_x % TILE_SIZE == 0):
 			self._mid_x_tile -= 1
@@ -156,11 +155,8 @@ class BoundedBox(object):
 		# will be off by a tile. For example, for a 64px wide object at (0,0)
 		# with a 32px tile size, the 64th pixel falls on the 2nd tile, but
 		# 64/32 = 2 gives the wrong tile index.
-		# TODO Can this expression be optimized?
 		self._x2_tile = int(self._x2_tile_float)
-		if (self._x2 > 0 and self._x2 % TILE_SIZE == 0):
-			self._x2_tile -= 1
-		elif (self._x2 < 0):
+		if ((self._x2 > 0 and self._x2 % TILE_SIZE == 0) or self._x2 < 0):
 			self._x2_tile -= 1
 
 	x = property(lambda self: self._x, _set_x)
@@ -181,18 +177,14 @@ class BoundedBox(object):
 		if (self._y < 0 and self._y % TILE_SIZE != 0):
 			self._y_tile -= 1
 
-		# TODO Can this expression be optimized?
 		self._mid_y_tile = int(self._y_tile_float + self._half_tile_height)
 		if (self._mid_y > 0 and self._mid_y % TILE_SIZE == 0):
 			self._mid_y_tile -= 1
 		elif (self._mid_y < 0 and self._mid_y % TILE_SIZE != 0):
 			self._mid_y_tile -= 1
 
-		# TODO Can this expression be optimized?
 		self._y2_tile = int(self._y2_tile_float)
-		if (self._y2 != 0 and self._y2 % TILE_SIZE == 0):
-			self._y2_tile -= 1
-		elif (self._y2 < 0):
+		if ((self._y2 != 0 and self._y2 % TILE_SIZE == 0) or self._y2 < 0):
 			self._y2_tile -= 1
 
 	y = property(lambda self: self._y, _set_y)
@@ -269,9 +261,7 @@ class BoundedBox(object):
 			self._mid_x_tile -= 1
 
 		self._x2_tile = int(self._x2_tile_float)
-		if (self._x2 > 0 and self._x2 % TILE_SIZE == 0):
-			self._x2_tile -= 1
-		elif (self._x2 < 0):
+		if ((self._x2 > 0 and self._x2 % TILE_SIZE == 0) or self._x2 < 0):
 			self._x2_tile -= 1
 
 	width = property(lambda self: self._width, _set_width)
@@ -301,9 +291,7 @@ class BoundedBox(object):
 			self._mid_y_tile -= 1
 
 		self._y2_tile = int(self._y2_tile_float)
-		if (self._y2 > 0 and self._y2 % TILE_SIZE == 0):
-			self._y2_tile -= 1
-		elif (self._y2 < 0):
+		if ((self._y2 > 0 and self._y2 % TILE_SIZE == 0) or self._y2 < 0):
 			self._y2_tile -= 1
 
 	height = property(lambda self: self._height, _set_height)
