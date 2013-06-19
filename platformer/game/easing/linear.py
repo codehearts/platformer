@@ -2,21 +2,21 @@ class Linear(object):
 	"""An easing transition which moves at a constant rate.
 
 	Attributes:
-		start (number): The starting value of the transition.
-		end (number): The final value of the transition.
-		duration (number): The amount of time (in seconds) that the transition will last for.
-		ease_power (number): Determines how steep the easing curve will be. Higher values create steeper curves.
-		elapsed_time (number): The amount of time that has elapsed since the easing transition began.
-		value (number): The current value of the easing transition.
+		start (float): The starting value of the transition.
+		end (float): The final value of the transition.
+		duration (float): The amount of time (in seconds) that the transition will last for.
+		ease_power (float): Determines how steep the easing curve will be. Higher values create steeper curves.
+		elapsed_time (float): The amount of time that has elapsed since the easing transition began.
+		value (float): The current value of the easing transition.
 	"""
 
 	def __init__(self, start, end, duration, ease_power=2):
 		"""Creates a new easing transition.
 
 		Args:
-			start (number): The starting value of the transition.
-			end (number): The final value of the transition.
-			duration (number): The amount of time (in seconds) that the transition will last for.
+			start (float): The starting value of the transition.
+			end (float): The final value of the transition.
+			duration (float): The number of seconds that the transition will last for.
 
 		Kwargs:
 			ease_power (number): Determines how steep the easing curve will be. Higher values create steeper curves.
@@ -39,7 +39,7 @@ class Linear(object):
 		the specified amount of time.
 
 		Args:
-			elapsed_time (number): The amount of time to get the value of the easing transition after.
+			elapsed_time (float): The number of seconds to get the value of the easing transition after.
 
 		Returns:
 			The value of the easing transition after the specified amount of time.
@@ -54,7 +54,7 @@ class Linear(object):
 		position in time.
 
 		Args:
-			dt (number): The time delta (in seconds) between the current frame and the previous frame.
+			dt (float): The number of seconds between the current frame and the previous frame.
 		"""
 		self.elapsed_time += dt
 		self.value = self.get_value_after_duration(self.elapsed_time)
@@ -63,7 +63,7 @@ class Linear(object):
 		"""Calls :func:`get_frame_durations` on the current instance of the class.
 
 		Args:
-			frame_count (number): The number of frames to calculate the durations for.
+			frame_count (int): The number of frames to calculate the durations for.
 
 		Returns:
 			A list of floats representing the durations (in seconds) for each frame.
@@ -77,11 +77,11 @@ class Linear(object):
 		"""Calculates the amount of time that each frame in an animation should be displayed with this easing transition.
 
 		Args:
-			frame_count (number): The number of frames to calculate the durations for.
-			duration (number): The total amount of time (in seconds) that the animation will last for.
+			frame_count (int): The number of frames to calculate the durations for.
+			duration (float): The total number of seconds that the animation will last for.
 
 		Kwargs:
-			ease_power (number): Determines how steep the easing curve will be. Higher values create steeper curves.
+			ease_power (float): Determines how steep the easing curve will be. Higher values create steeper curves.
 
 		Returns:
 			A list of floats representing the durations (in seconds) for each frame.

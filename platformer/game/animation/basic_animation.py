@@ -57,7 +57,11 @@ class BasicAnimation(EventDispatcher):
 
 
 	def update(self, dt):
-		"""Updates the animation."""
+		"""Updates the animation.
+
+		Args:
+			dt (float): The number of seconds between the current frame and the previous frame.
+		"""
 		self.elapsed_time += dt
 		self._frame_time += dt
 
