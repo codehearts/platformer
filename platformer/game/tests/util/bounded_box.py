@@ -31,8 +31,8 @@ def run_intersection_tests(self):
 	self.expected_height = self.test_box.height
 
 	self.test_box = self.test_box.get_intersection(larger_box)
-	assert_coordinates(self, 'Bounded within a larger box.')
-	assert_dimensions(self, 'Bounded within a larger box.')
+	assert_coordinates(self, 'Intersected with a larger box.')
+	assert_dimensions(self, 'Intersected with a larger box.')
 
 	# Test bounding with a box that is entirely within the test box
 	smaller_box = self.create_box(10, 10, 12, 12)
@@ -44,8 +44,8 @@ def run_intersection_tests(self):
 	self.expected_height = self.test_box.height - 20
 
 	self.test_box = self.test_box.get_intersection(smaller_box)
-	assert_coordinates(self, 'Bounded within a smaller box.')
-	assert_dimensions(self, 'Bounded within a smaller box.')
+	assert_coordinates(self, 'Intersected with a smaller box.')
+	assert_dimensions(self, 'Intersected with a smaller box.')
 
 	# Overlaps upper right corner of test box only
 	upper_right_overlap_box = self.create_box(10, 10, 32, 32)
@@ -57,8 +57,8 @@ def run_intersection_tests(self):
 	self.expected_height = self.test_box.height - 10
 
 	self.test_box = self.test_box.get_intersection(upper_right_overlap_box)
-	assert_coordinates(self, 'Bounded within a box which overlaps upper right corner.')
-	assert_dimensions(self, 'Bounded within a box which overlaps upper right corner.')
+	assert_coordinates(self, 'Intersected with a box which overlaps upper right corner.')
+	assert_dimensions(self, 'Intersected with a box which overlaps upper right corner.')
 
 	# Overlaps upper left corner of test box only
 	upper_left_overlap_box = self.create_box(-10, 10, 32, 32)
@@ -70,8 +70,8 @@ def run_intersection_tests(self):
 	self.expected_height = self.test_box.height - 10
 
 	self.test_box = self.test_box.get_intersection(upper_left_overlap_box)
-	assert_coordinates(self, 'Bounded within a box which overlaps upper left corner.')
-	assert_dimensions(self, 'Bounded within a box which overlaps upper left corner.')
+	assert_coordinates(self, 'Intersected with a box which overlaps upper left corner.')
+	assert_dimensions(self, 'Intersected with a box which overlaps upper left corner.')
 
 	# Overlaps lower right corner of test box only
 	lower_right_overlap_box = self.create_box(10, -10, 32, 32)
@@ -83,8 +83,8 @@ def run_intersection_tests(self):
 	self.expected_height = self.test_box.height - 10
 
 	self.test_box = self.test_box.get_intersection(lower_right_overlap_box)
-	assert_coordinates(self, 'Bounded within a box which overlaps lower right corner.')
-	assert_dimensions(self, 'Bounded within a box which overlaps lower right corner.')
+	assert_coordinates(self, 'Intersected with a box which overlaps lower right corner.')
+	assert_dimensions(self, 'Intersected with a box which overlaps lower right corner.')
 
 	# Overlaps lower left corner of test box only
 	lower_left_overlap_box = self.create_box(-10, -10, 32, 32)
@@ -96,8 +96,8 @@ def run_intersection_tests(self):
 	self.expected_height = self.test_box.height - 10
 
 	self.test_box = self.test_box.get_intersection(lower_left_overlap_box)
-	assert_coordinates(self, 'Bounded within a box which overlaps lower left corner.')
-	assert_dimensions(self, 'Bounded within a box which overlaps lower left corner.')
+	assert_coordinates(self, 'Intersected with a box which overlaps lower left corner.')
+	assert_dimensions(self, 'Intersected with a box which overlaps lower left corner.')
 
 	# Overlaps top of test box only
 	top_overlap_box = self.create_box(0, 16, 32, 32)
@@ -109,8 +109,8 @@ def run_intersection_tests(self):
 	self.expected_height = self.test_box.height - 16
 
 	self.test_box = self.test_box.get_intersection(top_overlap_box)
-	assert_coordinates(self, 'Bounded within a box which overlaps top side.')
-	assert_dimensions(self, 'Bounded within a box which overlaps top side.')
+	assert_coordinates(self, 'Intersected with a box which overlaps top side.')
+	assert_dimensions(self, 'Intersected with a box which overlaps top side.')
 
 	# Overlaps bottom of test box only
 	bottom_overlap_box = self.create_box(0, 0, 32, 16)
@@ -122,8 +122,8 @@ def run_intersection_tests(self):
 	self.expected_height = self.test_box.height - 16
 
 	self.test_box = self.test_box.get_intersection(bottom_overlap_box)
-	assert_coordinates(self, 'Bounded within a box which overlaps bottom side.')
-	assert_dimensions(self, 'Bounded within a box which overlaps bottom side.')
+	assert_coordinates(self, 'Intersected with a box which overlaps bottom side.')
+	assert_dimensions(self, 'Intersected with a box which overlaps bottom side.')
 
 	# Overlaps left of test box only
 	left_overlap_box = self.create_box(0, 0, 16, 32)
@@ -135,8 +135,8 @@ def run_intersection_tests(self):
 	self.expected_height = self.test_box.height
 
 	self.test_box = self.test_box.get_intersection(left_overlap_box)
-	assert_coordinates(self, 'Bounded within a box which overlaps left side.')
-	assert_dimensions(self, 'Bounded within a box which overlaps left side.')
+	assert_coordinates(self, 'Intersected with a box which overlaps left side.')
+	assert_dimensions(self, 'Intersected with a box which overlaps left side.')
 
 	# Overlaps right of test box only
 	right_overlap_box = self.create_box(16, 0, 16, 32)
@@ -148,8 +148,60 @@ def run_intersection_tests(self):
 	self.expected_height = self.test_box.height
 
 	self.test_box = self.test_box.get_intersection(right_overlap_box)
-	assert_coordinates(self, 'Bounded within a box which overlaps right side.')
-	assert_dimensions(self, 'Bounded within a box which overlaps right side.')
+	assert_coordinates(self, 'Intersected with a box which overlaps right side.')
+	assert_dimensions(self, 'Intersected with a box which overlaps right side.')
+
+	# Does not overlap test box
+	reset_test_box(self)
+	no_overlap_box = self.create_box(self.test_box.x2 + 16, 0, 32, 32)
+
+	self.expected_x = 0
+	self.expected_y = 0
+	self.expected_width = 0
+	self.expected_height = 0
+
+	self.test_box = self.test_box.get_intersection(no_overlap_box)
+	assert_coordinates(self, 'Intersected with a box which does no overlap. To right of test box.')
+	assert_dimensions(self, 'Intersected with a box which does no overlap. To right of test box.')
+
+	# Does not overlap test box
+	reset_test_box(self)
+	no_overlap_box = self.create_box(self.test_box.x - 48, 0, 32, 32)
+
+	self.expected_x = 0
+	self.expected_y = 0
+	self.expected_width = 0
+	self.expected_height = 0
+
+	self.test_box = self.test_box.get_intersection(no_overlap_box)
+	assert_coordinates(self, 'Intersected with a box which does no overlap. To left of test box.')
+	assert_dimensions(self, 'Intersected with a box which does no overlap. To left of test box.')
+
+	# Does not overlap test box
+	reset_test_box(self)
+	no_overlap_box = self.create_box(0, self.test_box.y2 + 16, 32, 32)
+
+	self.expected_x = 0
+	self.expected_y = 0
+	self.expected_width = 0
+	self.expected_height = 0
+
+	self.test_box = self.test_box.get_intersection(no_overlap_box)
+	assert_coordinates(self, 'Intersected with a box which does no overlap. Above test box.')
+	assert_dimensions(self, 'Intersected with a box which does no overlap. Above test box.')
+
+	# Does not overlap test box
+	reset_test_box(self)
+	no_overlap_box = self.create_box(0, self.test_box.y - 48, 32, 32)
+
+	self.expected_x = 0
+	self.expected_y = 0
+	self.expected_width = 0
+	self.expected_height = 0
+
+	self.test_box = self.test_box.get_intersection(no_overlap_box)
+	assert_coordinates(self, 'Intersected with a box which does no overlap. Below test box.')
+	assert_dimensions(self, 'Intersected with a box which does no overlap. Below test box.')
 
 
 

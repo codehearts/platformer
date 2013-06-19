@@ -68,9 +68,10 @@ class BoundedBox(object):
 
 
 
-	# TODO Test this when the boxes don't overlap
 	def get_intersection(self, box):
 		"""Returns the intersection of this box and another box.
+
+		If the boxes do not overlap, a 0x0 box at (0, 0) will be returned.
 
 		Args:
 			box (:class:`game.bounded_box.BoundedBox`): The bounded box to intersect with.
@@ -80,17 +81,30 @@ class BoundedBox(object):
 		"""
 		intersection = BoundedBox(self._x, self._y, self._width, self._height)
 
-		if intersection._x2 > box.x2:
-			intersection.width = box.x2 - intersection._x
+		if self._x2 > box.x2:
+			intersection._set_width(max(box.x2 - self._x, 0))
 		if intersection._x < box.x:
-			intersection.width = intersection._x2 - box.x
-			intersection.x = box.x
+			intersection._set_width(max(intersection._x2 - box.x, 0))
+			intersection._set_x(box.x)
 
-		if intersection._y2 > box.y2:
-			intersection.height = box.y2 - intersection._y
-		if self._y < box.y:
-			intersection.height = intersection._y2 - box.y
-			intersection.y = box.y
+		# No overlap in this case
+		if intersection._width == 0:
+			intersection._set_height(0)
+			intersection._set_x(0)
+			intersection._set_y(0)
+			return intersection
+
+		if self._y2 > box.y2:
+			intersection._set_height(max(box.y2 - self._y, 0))
+		if intersection._y < box.y:
+			intersection._set_height(max(intersection._y2 - box.y, 0))
+			intersection._set_y(box.y)
+
+		# No overlap in this case
+		if intersection._height == 0:
+			intersection._set_width(0)
+			intersection._set_x(0)
+			intersection._set_y(0)
 
 		return intersection
 
