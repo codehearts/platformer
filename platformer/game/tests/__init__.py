@@ -8,6 +8,7 @@ from test_tilesets import *
 from test_tile_maps import *
 from test_easing import *
 from test_animations import *
+from test_viewport import *
 from test_layer_factory import *
 from test_layers import *
 #from test_loaders import *
