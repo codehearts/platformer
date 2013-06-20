@@ -32,6 +32,10 @@ class TestBaseLayer(unittest.TestCase):
 	def run_layer_events_tests(self, dt):
 		"""Runs base layer event tests.
 
+		These tests run for a significant amount of time
+		in order to test for events being fired when the duration
+		of the layer expires.
+
 		Intended for use within a running pyglet app.
 		``pyglet.app.run()`` should be called before calling this.
 		"""
