@@ -107,13 +107,13 @@ class TextureTileMap(object):
 
 	def _set_x(self, x):
 		self.texture.anchor_x = x
-		self._max_dimensions.set_x(x)
+		self._max_dimensions._set_x(x)
 
 	x = property(lambda self: self.texture.anchor_x, _set_x)
 
 
 	def _set_y(self, y):
 		self.texture.anchor_y = y
-		self._max_dimensions.set_y(y)
+		self._max_dimensions._set_y(y)
 
 	y = property(lambda self: self.texture.anchor_y, _set_y)

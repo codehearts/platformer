@@ -29,7 +29,7 @@ class FixedTextureTileMapLayer(FixedLayer, TextureTileMapLayer):
 		Only the visible region of the tile map is drawn.
 		"""
 		self.fix_graphic()
-		self.graphic.draw_region(self.viewport.x + self.offset_x, self.viewport.y + self.offset_y, self.viewport.width, self.viewport.height)
+		self.graphic.blit_region(self.viewport.x + self.offset_x, self.viewport.y + self.offset_y, self.viewport.width, self.viewport.height)
 
 
 

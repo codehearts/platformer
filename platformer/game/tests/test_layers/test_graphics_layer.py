@@ -5,6 +5,7 @@ from ..util.layers import assert_layer_factory
 from ...layers import graphics_layer
 
 class TestGraphicsLayer(unittest.TestCase):
+	"""Tests the base layer class."""
 
 	def setUp(self):
 		self.graphic = None
