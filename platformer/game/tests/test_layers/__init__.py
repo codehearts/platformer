@@ -1,3 +1,4 @@
+from test_base_layer import *
 from test_graphics_layer import *
 from test_image_layer import *
 from test_animation_layer import *

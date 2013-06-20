@@ -11,6 +11,10 @@ class BaseLayer(EventDispatcher):
 	If a duration is given, the layer will delete itself after that
 	amount of time.
 
+	Callbacks can be registered for this class's ``on_delete`` event.
+	All registered ``on_delete`` callbacks should accept the layer
+	as their only argument.
+
 	Attributes:
 		graphic (object): The graphical content.
 		viewport (object): The viewport that this layer is drawn to.
@@ -36,6 +40,8 @@ class BaseLayer(EventDispatcher):
 		"""Deletes the layer.
 
 		An ``on_delete`` event is also fired.
+		All registered ``on_delete`` callbacks should accept
+		the layer as their only argument.
 		"""
 		self.graphic = None
 		self.viewport = None
