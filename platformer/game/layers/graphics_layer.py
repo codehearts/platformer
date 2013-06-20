@@ -17,13 +17,9 @@ class StaticGraphicsLayer(BaseLayer):
 	def __init__(self, *args, **kwargs):
 		super(StaticGraphicsLayer, self).__init__(*args, **kwargs)
 
-	@property
-	def batch(self):
-		"""Gets batch."""
-		return self.graphic.batch
 
-	@batch.setter
-	def batch(self, batch):
+
+	def _set_batch(self, batch):
 		"""Adds the layer's graphical content to the given batch.
 
 		Args:
@@ -31,19 +27,19 @@ class StaticGraphicsLayer(BaseLayer):
 		"""
 		self.graphic.batch = batch
 
-	@property
-	def group(self):
-		"""Gets group."""
-		return self.graphic.group
+	batch = property(lambda self: self.graphic.batch, _set_batch)
 
-	@group.setter
-	def group(self, group):
+	def _set_group(self, group):
 		"""Adds the layer's graphical content to the given group.
 
 		Args:
 			group (:class:`pyglet.graphics.Group`): The group to add the layer's graphical content to.
 		"""
 		self.graphic.group = group
+
+	group = property(lambda self: self.graphic.group, _set_group)
+
+
 
 	def delete(self, *args, **kwargs):
 		"""Deletes the layer.
