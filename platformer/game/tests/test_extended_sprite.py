@@ -2,6 +2,7 @@ import unittest
 from game.extended_sprite import ExtendedSprite
 from game.settings.general_settings import TILE_SIZE
 from util import bounded_box
+from util.bounded_box import assert_coordinates
 from util.image import dummy_image
 
 class TestExtendedSprite(unittest.TestCase):
@@ -55,6 +56,24 @@ class TestExtendedSprite(unittest.TestCase):
 		self.expected_width = 4.125 * TILE_SIZE
 		self.expected_height = 1 * TILE_SIZE
 		bounded_box.run_positioning_tests(self)
+
+	def test_position_property(self):
+		"""Tests setting the position property of an ExtendedSprite."""
+		self.expected_width = 64
+		self.expected_height = 32
+		self.test_box = self.create_box(0, 0, self.expected_width, self.expected_height)
+
+		self.expected_x = 10
+		self.expected_y = 39
+		self.test_box.position = (self.expected_x, self.expected_y)
+
+		assert_coordinates(self, 'Updated via position property.')
+
+		self.expected_x = -38
+		self.expected_y = 0
+		self.test_box.position = (self.expected_x, self.expected_y)
+
+		assert_coordinates(self, 'Updated via position property.')
 
 	def test_bounding(self):
 		"""Tests bounding an ExtendedSprite within another ExtendedSprite."""

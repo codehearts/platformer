@@ -29,7 +29,6 @@ class ExtendedSprite(BoundedBox, Sprite):
 
 
 
-	# TODO Unit tests
 	def set_position(self, x, y):
 		"""Set the x and y coordinates of the sprite simultaneously.
 
@@ -40,4 +39,7 @@ class ExtendedSprite(BoundedBox, Sprite):
 		self._set_x(x)
 		self._set_y(y)
 
-	position = property(lambda self: (self._x, self._y), set_position)
+	position = property(
+		lambda self: (self._x, self._y),
+		lambda self, pos: self.set_position(*pos)
+	)
