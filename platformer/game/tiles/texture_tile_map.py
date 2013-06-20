@@ -71,6 +71,7 @@ class TextureTileMap(object):
 		"""
 		self.texture.blit(x, y)
 
+	# TODO Accept a BoundedBox as the argument
 	def get_region(self, x, y, width, height):
 		"""Returns a region of the tile map.
 

@@ -233,53 +233,29 @@ def run_intersection_tests(self):
 	reset_test_box(self)
 	no_overlap_box = self.create_box(self.test_box.x2 + 16, 0, 32, 32)
 
-	self.expected_x = 0
-	self.expected_y = 0
-	self.expected_width = 0
-	self.expected_height = 0
-
 	self.test_box = self.test_box.get_intersection(no_overlap_box)
-	assert_coordinates(self, 'Intersected with a box which does no overlap. To right of test box.')
-	assert_dimensions(self, 'Intersected with a box which does no overlap. To right of test box.')
+	self.assertIsNone(self.test_box, 'Intersection region is not None. Intersected with a box which does no overlap, to right of test box.')
 
 	# Does not overlap test box
 	reset_test_box(self)
 	no_overlap_box = self.create_box(self.test_box.x - 48, 0, 32, 32)
 
-	self.expected_x = 0
-	self.expected_y = 0
-	self.expected_width = 0
-	self.expected_height = 0
-
 	self.test_box = self.test_box.get_intersection(no_overlap_box)
-	assert_coordinates(self, 'Intersected with a box which does no overlap. To left of test box.')
-	assert_dimensions(self, 'Intersected with a box which does no overlap. To left of test box.')
+	self.assertIsNone(self.test_box, 'Intersection region is not None. Intersected with a box which does no overlap, to left of test box.')
 
 	# Does not overlap test box
 	reset_test_box(self)
 	no_overlap_box = self.create_box(0, self.test_box.y2 + 16, 32, 32)
 
-	self.expected_x = 0
-	self.expected_y = 0
-	self.expected_width = 0
-	self.expected_height = 0
-
 	self.test_box = self.test_box.get_intersection(no_overlap_box)
-	assert_coordinates(self, 'Intersected with a box which does no overlap. Above test box.')
-	assert_dimensions(self, 'Intersected with a box which does no overlap. Above test box.')
+	self.assertIsNone(self.test_box, 'Intersection region is not None. Intersected with a box which does no overlap, above test box.')
 
 	# Does not overlap test box
 	reset_test_box(self)
 	no_overlap_box = self.create_box(0, self.test_box.y - 48, 32, 32)
 
-	self.expected_x = 0
-	self.expected_y = 0
-	self.expected_width = 0
-	self.expected_height = 0
-
 	self.test_box = self.test_box.get_intersection(no_overlap_box)
-	assert_coordinates(self, 'Intersected with a box which does no overlap. Below test box.')
-	assert_dimensions(self, 'Intersected with a box which does no overlap. Below test box.')
+	self.assertIsNone(self.test_box, 'Intersection region is not None. Intersected with a box which does no overlap, below test box.')
 
 
 
