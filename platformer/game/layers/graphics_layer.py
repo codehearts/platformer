@@ -81,6 +81,10 @@ class FixedStaticGraphicsLayer(FixedLayer, StaticGraphicsLayer):
 	def __init__(self, *args, **kwargs):
 		super(FixedStaticGraphicsLayer, self).__init__(*args, **kwargs)
 
+		# If a viewport was given, fix the graphic to it
+		if self.viewport:
+			self.update(0)
+
 	def update(self, dt):
 		"""Updates the layer's contents to be fixed to the viewport."""
 		self.fix_graphic()
@@ -92,6 +96,10 @@ class FixedGraphicsLayer(FixedLayer, GraphicsLayer):
 
 	def __init__(self, *args, **kwargs):
 		super(FixedGraphicsLayer, self).__init__(*args, **kwargs)
+
+		# If a viewport was given, fix the graphic to it
+		if self.viewport:
+			self.update(0)
 
 	def update(self, *args, **kwargs):
 		"""Updates the layer's contents to be fixed to the viewport."""
