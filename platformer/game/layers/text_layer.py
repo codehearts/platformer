@@ -11,25 +11,19 @@ class StaticTextLayer(StaticGraphicsLayer):
 	def __init__(self, *args, **kwargs):
 		super(StaticTextLayer, self).__init__(*args, **kwargs)
 
-	@property
-	def batch(self):
-		return self.graphic.batch
-
-	@batch.setter
-	def batch(self, batch):
+	def _set_batch(self, batch):
 		self.graphic.begin_update()
 		self.graphic.batch = batch
 		self.graphic.end_update()
 
-	@property
-	def group(self):
-		return self.graphic.group
+	batch = property(lambda self: self.graphic.batch, _set_batch)
 
-	@group.setter
-	def group(self, group):
+	def _set_group(self, group):
 		self.graphic.begin_update()
 		self.graphic.group = group
 		self.graphic.end_update()
+
+	group = property(lambda self: self.graphic.group, _set_group)
 
 
 
@@ -57,6 +51,10 @@ class FixedStaticTextLayer(FixedLayer, StaticTextLayer):
 	def __init__(self, *args, **kwargs):
 		super(FixedStaticTextLayer, self).__init__(*args, **kwargs)
 
+		# If a viewport was given, fix the graphic to it
+		if self.viewport:
+			self.update(0)
+
 	def update(self, dt):
 		self.fix_graphic()
 
@@ -67,6 +65,10 @@ class FixedTextLayer(FixedStaticTextLayer):
 
 	def __init__(self, *args, **kwargs):
 		super(FixedTextLayer, self).__init__(*args, **kwargs)
+
+		# If a viewport was given, fix the graphic to it
+		if self.viewport:
+			self.update(0)
 
 	def update(self, dt):
 		super(FixedTextLayer, self).update(dt)
