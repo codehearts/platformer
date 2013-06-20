@@ -44,6 +44,8 @@ class PhysicalObject(ExtendedSprite):
 		resolve_collisions(self)
 
 
+	# TODO set_state(str) method, which sets the state of the object and can be used for changing the displayed object sprite
+
 
 	def on_right_collision(self, collision_tile=None):
 		self.target_speed = 0
