@@ -5,6 +5,8 @@ from pyglet.graphics import Batch, OrderedGroup
 
 # TODO This should probably support the naming of layers so that layers can be added later relative to a pre-existing layer more easily.
 
+# TODO When the camera target changes, the target layer should be updated
+
 # TODO Write tests for this
 # TODO When writing tests, test coalescing and freeing of deleted layers, for ALL types of layers
 class LayerManager(object):
@@ -26,11 +28,14 @@ class LayerManager(object):
 		self._drawing_queue = []
 
 		self._update_queue = []
-		self._viewport_target_layer = None
+		self._update_first = None
 		self._depth = 0 # Used for setting draw order with OrderedGroups
 
 		# Begin managing the layers
 		map(self.manage_layer, layers)
+
+		if not self._update_first:
+			self._update_first = self._update_queue.pop(0)
 
 
 	def update(self, dt):
@@ -39,10 +44,7 @@ class LayerManager(object):
 		Args:
 			dt (float): The number of seconds since the last update.
 		"""
-		# TODO Ideally this would always be set regardless of whether the viewport has a target because that eliminates this IF every frame
-		if self._viewport_target_layer:
-			self._viewport_target_layer.update(dt)
-
+		self._update_first.update(dt)
 		self.viewport.update(dt)
 		map(lambda item: item.update(dt), self._update_queue)
 
@@ -65,10 +67,10 @@ class LayerManager(object):
 
 		# Add the layer to the update queue if it supports updating
 		if hasattr(layer, 'update'):
-			# TODO This viewport target check is awful. Stop checking for a hitbox once physical_object is refactored to retun its x as its hitbox's x
+			# If the viewport is targeting this layer, update it first
 			if hasattr(self.viewport, 'target'):
 				if layer.graphic is self.viewport.target:
-					self._viewport_target_layer = layer
+					self._update_first = layer
 					return
 
 			self._update_queue.append(layer)
@@ -141,9 +143,6 @@ class LayerManager(object):
 		"""
 		if layer in self._update_queue:
 			self._update_queue.remove(layer)
-
-		# TODO What if it was the viewport target?
-		# TODO What if there are no more layers? Should the viewport target layer then be set as a dummy lambda?
 
 		# TODO If this was the last thing in its batch/group, delete the group
 		if layer in self._drawing_queue:

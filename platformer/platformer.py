@@ -12,6 +12,7 @@ from game import tiles
 from game.settings.general_settings import TILE_SIZE
 
 # Graphical output window
+# TODO Better caption
 game_window = pyglet.window.Window(800, 600, caption='Platformer Demo')
 #game_window.set_icon(pyglet.resource.image('icon.png')) @TODO Load an icon
 
@@ -21,6 +22,46 @@ key_handler = key.KeyStateHandler()
 # TODO The stage to load shouldn't be passed like this, there should be some sort of saved data handler that passes this
 # TODO Stage data should be loaded by the stage loader
 level_data = load.LevelData('demo') # TODO Could this be a Level class which contains Stage and LevelEvents objects?
+
+# TODO Maybe this should just be done in Python
+sample_level_data = {
+	'name': 'Demo',
+	'tilesets': ['demo'],
+	'layers': {
+		'background': {
+			'type': 'image',
+			'graphic': 'sky.png',
+			'fixed': True,
+			'static': True
+		},
+		'stage': {
+			'type': 'tile map',
+			'graphic': 'demo'
+		},
+		'player': {
+			'type': 'player'
+		},
+		'dash': {
+			'type': 'live text',
+			'graphic': 'get_player_dash_percentage',
+			'offset_x': 40,
+			'offset_y': 10,
+			'fixed': True
+		},
+		# TODO Need a way to group common layers like this
+		'transition': {
+			'type': 'tiled animation',
+			'graphic': 'transition.png',
+			# TODO Need a better way to specify graphics like this
+			'fixed': True
+		},
+		'title': {
+			'type': 'heading',
+			'graphic': 'Demo Stage', # TODO Should be able to get this from the level config
+			# TODO Can't be centered by this config
+		}
+	}
+}
 
 stage_tileset = tiles.Tileset.load('demo')
 stage = tiles.TextureTileMap(level_data.get_stage_map(), stage_tileset)

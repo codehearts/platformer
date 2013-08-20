@@ -3,6 +3,8 @@ from pyglet.gl import *
 from ..settings import general_settings
 from viewport import Viewport
 
+# TODO on_target_change event
+
 # TODO Specify the type of `target` in the docstring
 class Camera(Viewport):
 	"""A camera which can be used to follow specific objects.

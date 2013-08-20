@@ -11,6 +11,7 @@ from test_animations import *
 from test_viewport import *
 from test_layer_factory import *
 from test_layers import *
+from test_layer_manager import *
 #from test_loaders import *
 #from test_camera import *
 #from test_layers import *
