@@ -1,3 +1,4 @@
+Determine how to allow Python code in level config files for dynamic text and level events
 Layer manager refactoring
 Layer manager tests
 Testing framework for checking image equality

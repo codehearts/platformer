@@ -23,9 +23,10 @@ key_handler = key.KeyStateHandler()
 # TODO Stage data should be loaded by the stage loader
 level_data = load.LevelData('demo') # TODO Could this be a Level class which contains Stage and LevelEvents objects?
 
-# TODO Maybe this should just be done in Python
+# TODO There should be a HUD class and loader which can handle commonly reused HUD objects
+# TODO Maybe this should just be done in Python (a better idea might be to write custom python code in a separate file from the level config)
 sample_level_data = {
-	'name': 'Demo',
+	'title': 'Demo',
 	'tilesets': ['demo'],
 	'layers': {
 		'background': {
@@ -49,6 +50,7 @@ sample_level_data = {
 			'fixed': True
 		},
 		# TODO Need a way to group common layers like this
+                # TODO Could use an underscore for reserved layer names, such as a special "_group" layer containing sublayers
 		'transition': {
 			'type': 'tiled animation',
 			'graphic': 'transition.png',
