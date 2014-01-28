@@ -38,7 +38,7 @@ sample_level_data = {
 		'stage': {
 			'type': 'tile map',
 			'tileset': 'demo'
-                        # TODO Each layer should have its own function to turn a string into the appropriate graphics object
+                        # TODO Need a way to have control over creating graphics objects from config, which layers can then be created for via factory
 		},
 		'player': {
 			'type': 'player'
