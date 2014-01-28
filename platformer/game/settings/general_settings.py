@@ -7,6 +7,8 @@ GRAVITY = 9.8
 TILESET_DIRECTORY = 'tilesets'
 LEVEL_DIRECTORY = 'stages'
 LEVEL_FORMAT = 'json'
+SCRIPT_DIRECTORY = 'scripts'
+SCRIPT_FORMAT = 'py'
 
 # TODO Why are these here? Should they be removed?
 EASE_IN  = 0

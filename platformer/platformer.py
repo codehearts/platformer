@@ -26,7 +26,7 @@ level_data = load.LevelData('demo') # TODO Could this be a Level class which con
 # TODO There should be a HUD class and loader which can handle commonly reused HUD objects
 # TODO Maybe this should just be done in Python (a better idea might be to write custom python code in a separate file from the level config)
 sample_level_data = {
-	'title': 'Demo',
+	'title': 'Demo Stage',
 	'tilesets': ['demo'],
 	'layers': {
 		'background': {
@@ -37,7 +37,8 @@ sample_level_data = {
 		},
 		'stage': {
 			'type': 'tile map',
-			'graphic': 'demo'
+			'tileset': 'demo'
+                        # TODO Each layer should have its own function to turn a string into the appropriate graphics object
 		},
 		'player': {
 			'type': 'player'
@@ -62,7 +63,12 @@ sample_level_data = {
 			'graphic': 'Demo Stage', # TODO Should be able to get this from the level config
 			# TODO Can't be centered by this config
 		}
-	}
+	},
+        'scripts': {
+            'level_demo',
+            'dash_meter',
+            'fps',
+        },
 }
 
 stage_tileset = tiles.Tileset.load('demo')

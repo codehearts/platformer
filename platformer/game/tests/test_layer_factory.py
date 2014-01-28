@@ -2,6 +2,7 @@ import unittest
 from ..layers import create_from
 from ..layers.base_layer import BaseLayer
 
+# TODO Add tests for different layer types
 class TestLayerFactory(unittest.TestCase):
 
 	def setUp(self):
