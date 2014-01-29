@@ -39,6 +39,7 @@ sample_level_data = {
 			'type': 'tile map',
 			'tileset': 'demo'
                         # TODO Need a way to have control over creating graphics objects from config, which layers can then be created for via factory
+                        # TODO Each graphical-related (animation, tile map) class should be able to register itself as a valid graphics class that can be created via a graphics factory
 		},
 		'player': {
 			'type': 'player'
