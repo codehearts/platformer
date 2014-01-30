@@ -1,0 +1,2 @@
+from graphics_factory import create_graphics_object
+from installed_graphics import install_graphics_module

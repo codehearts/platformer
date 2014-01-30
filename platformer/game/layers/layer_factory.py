@@ -26,8 +26,9 @@ def create_from(graphic, *args, **kwargs):
 
 	layer_type = BaseLayer
 	for layer in installed_layers:
-		if layer['recognizer'](graphic):
-			layer_type = layer['factory'](static=static, fixed=fixed)
-			break
+            if layer['recognizer'](graphic):
+                # TODO The factories should create the actual object
+                layer_type = layer['factory'](static=static, fixed=fixed)
+                break
 
 	return layer_type(graphic, *args, **kwargs)
