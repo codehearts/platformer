@@ -4,13 +4,9 @@ from ..graphics import install_graphics_module, create_graphics_object
 
 class TestGraphicsFactory(unittest.TestCase):
 
-	def setUp(self):
-		self.graphic = None
-
-	def test_graphics_installation(self):
-		"""Tests the installation of graphics modules."""
-
-		self.graphic = None
+	def test_graphics_instantiation(self):
+		"""Tests the installation graphics modules and instantiation
+                of graphics objects."""
 
                 name = 'Test Graphic'
                 desc = 'A graphic for tests.'
@@ -33,7 +29,7 @@ class TestGraphicsFactory(unittest.TestCase):
                     raise AssertionError('Failed to install dummy graphics module.')
 
                 try:
-                    self.graphic = create_graphics_object(
+                    graphic = create_graphics_object(
                         dummy_graphics_module.recognized_name,
                         name,
                         desc=desc
@@ -43,13 +39,13 @@ class TestGraphicsFactory(unittest.TestCase):
 
                 self.assertTrue(
                     isinstance(
-                        self.graphic,
+                        graphic,
                         dummy_graphics_module.DummyGraphics
                     ),
                     "Graphics factory failed to create object of the correct class.")
 
-		self.assertEqual(self.graphic.name, name,
+		self.assertEqual(graphic.name, name,
                     "Graphics factory failed to initialize the graphics object with the given arguments.")
 
-		self.assertEqual(self.graphic.desc, desc,
+		self.assertEqual(graphic.desc, desc,
                     "Graphics factory failed to initialize the graphics object with the given keyword arguments.")
