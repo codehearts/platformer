@@ -1,10 +1,14 @@
 from tileset_config import TilesetConfig
 from tileset_image import TilesetImage
 from tileset_loaders import get_tileset_config, get_tileset_image
+from game.graphics import install_graphics_module
 from .. import tile_factory
 
 class Tileset(object):
 	"""Manages the appearance and behavior of tiles in a tileset.
+
+        A Tileset object can be created by the graphics
+        factory by specifying "tileset" as the graphics type.
 
 	A tileset is an image file containing multiple tile artworks and an
 	optional config file specifying the behavior of those tiles. Tilesets
@@ -115,3 +119,15 @@ class Tileset(object):
 			)
 
 		return cls(tileset_name, cls._cached_tilesets[tileset_name]['image'], cls._cached_tilesets[tileset_name]['config'])
+
+
+
+def recognizer(graphics_type):
+	"""Recognizes whether this graphics type is handled by :class:`game.tiles.tileset.Tileset`."""
+	return graphics_type == 'tileset'
+
+def factory(*args, **kwargs):
+	"""Returns a :class:`game.tiles.tileset.Tileset` for the given arguments."""
+	return Tileset.load(*args, **kwargs)
+
+install_graphics_module(__name__)

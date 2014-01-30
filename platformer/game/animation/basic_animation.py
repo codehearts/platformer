@@ -1,10 +1,14 @@
 from animation_frame import AnimationFrame
+from game.graphics import install_graphics_module
 from pyglet.event import EventDispatcher
 from pyglet.image import ImageGrid
 from ..util import floats_equal
 
 class BasicAnimation(EventDispatcher):
 	"""A basic animation.
+
+        A BasicAnimation object can be created by the graphics
+        factory by specifying "tiled animation" as the graphics type.
 
 	Attributes:
 		frames (list of :class:`game.animation.AnimationFrame`): The frames that make up the animation.
@@ -205,3 +209,13 @@ class BasicAnimation(EventDispatcher):
 # Register animation events
 BasicAnimation.register_event_type('on_frame_change')
 BasicAnimation.register_event_type('on_animation_end')
+
+def recognizer(graphics_type):
+	"""Recognizes whether this graphics type is handled by :class:`game.animation.BasicAnimation`."""
+	return graphics_type == 'animation'
+
+def factory(*args, **kwargs):
+	"""Returns a :class:`game.animation.BasicAnimation` for the given arguments."""
+	return BasicAnimation(*args, **kwargs)
+
+install_graphics_module(__name__)
