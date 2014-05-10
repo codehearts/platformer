@@ -40,6 +40,6 @@ def recognizer(graphics_type):
 
 def factory(*args, **kwargs):
 	"""Returns a :class:`game.animation.TiledAnimation` for the given arguments."""
-	return TiledAnimation(*args, **kwargs)
+	return TiledAnimation.from_image(*args, **kwargs)
 
 install_graphics_module(__name__)

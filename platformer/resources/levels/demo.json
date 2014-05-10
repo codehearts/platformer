@@ -1,0 +1,105 @@
+{
+	"title": "Demo Stage",
+	"tilesets": [
+		"demo"
+	],
+	"camera_target": "player",
+	"layers": [
+		{
+			"title": "background",
+			"graphic_type": "image",
+			"graphic_data": {
+				"graphic": "sky.png"
+			},
+			"layer_data": {
+				"fixed": true,
+				"static": true
+			}
+		},
+		{
+			"title": "stage",
+			"graphic_type": "tile map",
+			"graphic_data": {
+				"tileset": "demo",
+				"value_map": "demo"
+			}
+		},
+		{
+			"title": "player",
+			"graphic_type": "player",
+			"graphic_data": {
+				"stage_layer": "stage",
+				"player_data": {
+					"x": 25,
+					"y": 16
+				},
+				"key_handler": true
+			}
+		},
+		{
+			"title": "dash",
+			"graphic_type": "live text",
+			"graphic_data": {
+				"text_source": "scripts.dash_meter.get_player_dash_percentage"
+			},
+			"layer_data": {
+				"offset_x": 40,
+				"offset_y": 10,
+				"fixed": true
+			}
+		},
+		{
+			"title": "transition",
+			"data_values": {
+				"graphic_data.image": "scripts.level_demo.transition_image",
+				"graphic_data.durations": "scripts.level_demo.transition_durations"
+			},
+			"graphic_type": "tiled animation",
+			"graphic_data": {
+				"image": "transition.png",
+				"rows": 1,
+				"cols": 31,
+				"durations": [],
+				"width": 800,
+				"height": 600,
+				"delay": 0.5
+			},
+			"layer_data": {
+				"fixed": true
+			}
+		},
+		{
+			"title": "title",
+			"graphic_type": "heading",
+			"graphic_data": {
+				"text": "Demo Stage",
+				"anchor_x": "center",
+				"anchor_y": "center"
+			},
+			"layer_data": {
+				"offset_x": 400,
+				"offset_y": 300,
+				"duration": 2.25,
+				"fixed": true,
+				"static": true
+			}
+		},
+		{
+			"title": "fps",
+			"graphic_type": "live text",
+			"graphic_data": {
+				"text_source": "scripts.fps.get_fps"
+			},
+			"layer_data": {
+				"offset_x": 10,
+				"offset_y": 10,
+				"fixed": true
+			}
+		}
+	],
+	"scripts": [
+		"level_demo",
+		"dash_meter",
+		"fps"
+	]
+}

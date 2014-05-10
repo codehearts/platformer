@@ -1,5 +1,6 @@
 from game import util
 from game.bounded_box import BoundedBox
+from game.graphics import install_graphics_module
 from pyglet.image import Texture
 from ..settings.general_settings import TILE_SIZE
 
@@ -117,3 +118,15 @@ class TextureTileMap(object):
 		self._max_dimensions._set_y(y)
 
 	y = property(lambda self: self.texture.anchor_y, _set_y)
+
+
+
+def recognizer(graphics_type):
+	"""Recognizes whether this graphics type is handled by :class:`game.tiles.TextureTileMap`."""
+	return graphics_type == 'tile map'
+
+def factory(*args, **kwargs):
+	"""Returns a :class:`game.tiles.TextureTileMap` for the given arguments."""
+	return TextureTileMap(*args, **kwargs)
+
+install_graphics_module(__name__)

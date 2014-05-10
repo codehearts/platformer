@@ -10,6 +10,8 @@ from game.easing import EaseOut
 from game.bounded_box import BoundedBox
 from game import tiles
 from game.settings.general_settings import TILE_SIZE
+from game.load import Level
+import game
 
 # Graphical output window
 # TODO Better caption
@@ -21,57 +23,74 @@ key_handler = key.KeyStateHandler()
 
 # TODO The stage to load shouldn't be passed like this, there should be some sort of saved data handler that passes this
 # TODO Stage data should be loaded by the stage loader
-level_data = load.LevelData('demo') # TODO Could this be a Level class which contains Stage and LevelEvents objects?
+#level_data = load.LevelData('demo') # TODO Could this be a Level class which contains Stage and LevelEvents objects?
 
 # TODO There should be a HUD class and loader which can handle commonly reused HUD objects
 # TODO Maybe this should just be done in Python (a better idea might be to write custom python code in a separate file from the level config)
 sample_level_data = {
 	'title': 'Demo Stage',
 	'tilesets': ['demo'],
+        'camera_target': 'player',
 	'layers': {
 		'background': {
-			'type': 'image',
-			'graphic': 'sky.png',
-			'fixed': True,
-			'static': True
+			'graphic_type': 'image',
+                        'graphic_data': {
+                            'graphic': 'sky.png'
+                        },
+                        'layer_data': {
+                            'fixed': True,
+                            'static': True
+                        }
 		},
 		'stage': {
-			'type': 'tile map',
-			'tileset': 'demo'
+			'graphic_type': 'tile map',
+                        'graphic_data': {
+                            'tileset': 'demo',
+                            'value_map': 'demo'
+                        }
                         # TODO Need a way to have control over creating graphics objects from config, which layers can then be created for via factory
-                        # TODO Each graphical-related (animation, tile map) class should be able to register itself as a valid graphics class that can be created via a graphics factory
 		},
 		'player': {
-			'type': 'player'
+			'graphic_type': 'player',
 		},
 		'dash': {
-			'type': 'live text',
-			'graphic': 'get_player_dash_percentage',
-			'offset_x': 40,
-			'offset_y': 10,
-			'fixed': True
+			'graphic_type': 'live text',
+                        'graphic_data': {
+                            'graphic': 'get_player_dash_percentage',
+                            'offset_x': 40,
+                            'offset_y': 10
+                        },
+                        'layer_data': {
+                            'fixed': True
+                        }
 		},
 		# TODO Need a way to group common layers like this
                 # TODO Could use an underscore for reserved layer names, such as a special "_group" layer containing sublayers
 		'transition': {
-			'type': 'tiled animation',
-			'graphic': 'transition.png',
-			# TODO Need a better way to specify graphics like this
-			'fixed': True
+			'graphic_type': 'tiled animation',
+                        'graphic_data': {
+                            'graphic': 'transition.png',
+                        },
+                        'layer_data': {
+                            'fixed': True
+                        }
 		},
 		'title': {
-			'type': 'heading',
-			'graphic': 'Demo Stage', # TODO Should be able to get this from the level config
-			# TODO Can't be centered by this config
+			'graphic_type': 'heading',
+                        'graphic_data': {
+                            'graphic': 'Demo Stage', # TODO Should be able to get this from the level config
+                            # TODO Can't be centered by this config
+                        }
 		}
 	},
         'scripts': {
             'level_demo',
             'dash_meter',
             'fps',
-        },
+        }
 }
 
+"""
 stage_tileset = tiles.Tileset.load('demo')
 stage = tiles.TextureTileMap(level_data.get_stage_map(), stage_tileset)
 
@@ -110,9 +129,24 @@ dash_text = live_text.LiveText(lambda: str(int((player.character.max_dash_time -
 dash_text.set_style('background_color', (0,0,0,255))
 dash_layer = layers.create_from(dash_text, offset_x=40, offset_y=10, fixed=True)
 layer_manager = layers.LayerManager(cam, [background, stage_layer, player_layer, dash_layer, transition_layer, title_layer, fps_layer])
+"""
+# TODO Add support for `on_animation_end=lambda animation, layer: layer.delete()` parameter for animation layer graphic
+
+game_window.push_handlers(key_handler)
+level = Level.load('demo', key_handler)
+game.level = level
 
 # TODO This should be a LevelEvents object inside a Level class
-stage_events = stageevents.StageEvents(player.character, cam, level_data.get_stage_events())
+events = {
+    'player_events': [
+        {
+            'run': 'once',
+            'condition': lambda player: player.x_tile >= 25,
+            'function': 'demo_stage_1'
+        }
+    ]
+}
+stage_events = stageevents.StageEvents(level.layer_dict['player'].graphic, level.camera, events)
 
 # TODO Make this work again
 #module_reloader = reloader.Reloader(stage, player, game_window, cam, background, stage_events, key_handler)
@@ -123,7 +157,7 @@ def on_draw():
 	game_window.clear()
 
 	#characters.draw()
-	layer_manager.draw()
+	level.layer_manager.draw()
 
 def update(dt):
 	# TODO Write a manager to handle updates and update order?
@@ -131,7 +165,7 @@ def update(dt):
 	stage_events.update()
 
 	#cam.update(dt)
-	layer_manager.update(dt)
+	level.layer_manager.update(dt)
 
 	#module_reloader.update()
 
