@@ -136,7 +136,7 @@ class Level(object):
             scripts (list): A list of the filenames of the scripts to load.
         """
         for script in scripts:
-            load_source('game.scripts.'+script, RESOURCE_PATH+SCRIPT_DIRECTORY+'/'+script+'.'+SCRIPT_FORMAT)
+            load_source('game.scripts.custom.'+script, RESOURCE_PATH+SCRIPT_DIRECTORY+'/'+script+'.'+SCRIPT_FORMAT)
             """Python 3
             loader = importlib.machinery.SourceFileLoader('scripts.'+script, RESOURCE_PATH+SCRIPT_DIRECTORY+'/'+script+'.'+SCRIPT_FORMAT)
             loader.load_module('scripts.'+script)"""

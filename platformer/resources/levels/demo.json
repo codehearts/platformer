@@ -40,7 +40,7 @@
 			"title": "dash",
 			"graphic_type": "live text",
 			"graphic_data": {
-				"text_source": "game.scripts.dash_meter.get_player_dash_percentage"
+				"text_source": "game.scripts.custom.dash_meter.get_player_dash_percentage"
 			},
 			"layer_data": {
 				"offset_x": 40,
@@ -51,8 +51,8 @@
 		{
 			"title": "transition",
 			"data_values": {
-				"graphic_data.image": "game.scripts.level_demo.transition_image",
-				"graphic_data.durations": "game.scripts.level_demo.transition_durations"
+				"graphic_data.image": "game.scripts.custom.level_demo.transition_image",
+				"graphic_data.durations": "game.scripts.custom.level_demo.transition_durations"
 			},
 			"graphic_type": "tiled animation",
 			"graphic_data": {
@@ -88,7 +88,7 @@
 			"title": "fps",
 			"graphic_type": "live text",
 			"graphic_data": {
-				"text_source": "game.scripts.fps.get_fps"
+				"text_source": "game.scripts.get_fps"
 			},
 			"layer_data": {
 				"offset_x": 10,
@@ -99,7 +99,6 @@
 	],
 	"scripts": [
 		"level_demo",
-		"dash_meter",
-		"fps"
+		"dash_meter"
 	]
 }
