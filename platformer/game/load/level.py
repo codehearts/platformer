@@ -6,8 +6,9 @@ from game import viewport
 from json import load as json_load
 from ..settings.general_settings import TILE_SIZE, RESOURCE_PATH, LEVEL_DIRECTORY, LEVEL_FORMAT, MAP_DIRECTORY, MAP_FORMAT, SCRIPT_DIRECTORY, SCRIPT_FORMAT
 from game import layers
-from imp import load_source
+from imp import load_source, new_module
 from sys import modules
+import game.scripts
 """Python 3
 import importlib.machinery"""
 
@@ -135,7 +136,7 @@ class Level(object):
             scripts (list): A list of the filenames of the scripts to load.
         """
         for script in scripts:
-            load_source('scripts.'+script, RESOURCE_PATH+SCRIPT_DIRECTORY+'/'+script+'.'+SCRIPT_FORMAT)
+            load_source('game.scripts.'+script, RESOURCE_PATH+SCRIPT_DIRECTORY+'/'+script+'.'+SCRIPT_FORMAT)
             """Python 3
             loader = importlib.machinery.SourceFileLoader('scripts.'+script, RESOURCE_PATH+SCRIPT_DIRECTORY+'/'+script+'.'+SCRIPT_FORMAT)
             loader.load_module('scripts.'+script)"""
