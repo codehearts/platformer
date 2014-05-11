@@ -67,10 +67,10 @@ class Level(object):
 
                 # If the boundaries of the map weren't specified, interpret them
                 if not size_specified:
-                    if len(graphic_data['value_map']) > cols:
-                        cols = len(graphic_data['value_map'])
-                    if len(graphic_data['value_map'][0]) > rows:
-                        rows = len(graphic_data['value_map'][0])
+                    if len(graphic_data['value_map']) > rows:
+                        rows = len(graphic_data['value_map'])
+                    if len(graphic_data['value_map'][0]) > cols:
+                        cols = len(graphic_data['value_map'][0])
 
             # TODO Remove the need for this hotfix
             # Get the tiles from the stage layer for the character

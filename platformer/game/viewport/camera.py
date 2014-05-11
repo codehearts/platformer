@@ -86,7 +86,6 @@ class Camera(Viewport):
         def focus(self):
                 x = self.target.mid_x
                 y = self.target.mid_y
-                print("Is at", x, self._x)
 
                 glMatrixMode(GL_PROJECTION)
                 glLoadIdentity()
@@ -101,14 +100,11 @@ class Camera(Viewport):
 
                 #x -= self._half_width
                 #y -= self._half_height
-                print("Updated", x, self._x)
 
-                if x < self._x + self._half_width:
+                if x < self.bounds.x + self._half_width:
                         x = self._x + self._half_width
-                        print("<", x)
-                elif x > self._x2 - self._half_width:
+                elif x > self.bounds.x2 - self._half_width:
                         x = self._x2 - self._half_width
-                        print("<", x)
 
                 if y < self._y + self._half_height:
                         y = self._y + self._half_height
@@ -116,7 +112,6 @@ class Camera(Viewport):
                 self.focus_x = x
                 self.focus_y = y
 
-                print("Look at", x, self._x)
                 gluLookAt(x, y, 1.0, x, y, -1.0, 0, 1, 0.0)
 
                 self._set_x(x - self._half_width)
