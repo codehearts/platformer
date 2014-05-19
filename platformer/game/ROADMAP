@@ -1,7 +1,3 @@
-Add a resources/scripts/ directory to store scripts for dynamic level components
-	Most levels could then have a level-{{level_title}}.py script and can load more general-use scripts like an icy-terrain.py script
-	Each level config can then specify which scripts need to be loaded
-Determine how to allow Python code in level config files for dynamic text and level events
 Layer manager refactoring
 Layer manager tests
 Testing framework for checking image equality
