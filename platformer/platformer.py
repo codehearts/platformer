@@ -21,120 +21,22 @@ game_window = pyglet.window.Window(800, 600, caption='Platformer Demo')
 # Handler for all keyboard events
 key_handler = key.KeyStateHandler()
 
-# TODO The stage to load shouldn't be passed like this, there should be some sort of saved data handler that passes this
-# TODO Stage data should be loaded by the stage loader
-#level_data = load.LevelData('demo') # TODO Could this be a Level class which contains Stage and LevelEvents objects?
-
 # TODO There should be a HUD class and loader which can handle commonly reused HUD objects
 # TODO Maybe this should just be done in Python (a better idea might be to write custom python code in a separate file from the level config)
-sample_level_data = {
-	'title': 'Demo Stage',
-	'tilesets': ['demo'],
-        'camera_target': 'player',
-	'layers': {
-		'background': {
-			'graphic_type': 'image',
-                        'graphic_data': {
-                            'graphic': 'sky.png'
-                        },
-                        'layer_data': {
-                            'fixed': True,
-                            'static': True
-                        }
-		},
-		'stage': {
-			'graphic_type': 'tile map',
-                        'graphic_data': {
-                            'tileset': 'demo',
-                            'value_map': 'demo'
-                        }
-                        # TODO Need a way to have control over creating graphics objects from config, which layers can then be created for via factory
-		},
-		'player': {
-			'graphic_type': 'player',
-		},
-		'dash': {
-			'graphic_type': 'live text',
-                        'graphic_data': {
-                            'graphic': 'get_player_dash_percentage',
-                            'offset_x': 40,
-                            'offset_y': 10
-                        },
-                        'layer_data': {
-                            'fixed': True
-                        }
-		},
-		# TODO Need a way to group common layers like this
-                # TODO Could use an underscore for reserved layer names, such as a special "_group" layer containing sublayers
-		'transition': {
-			'graphic_type': 'tiled animation',
-                        'graphic_data': {
-                            'graphic': 'transition.png',
-                        },
-                        'layer_data': {
-                            'fixed': True
-                        }
-		},
-		'title': {
-			'graphic_type': 'heading',
-                        'graphic_data': {
-                            'graphic': 'Demo Stage', # TODO Should be able to get this from the level config
-                            # TODO Can't be centered by this config
-                        }
-		}
-	},
-        'scripts': {
-            'level_demo',
-            'dash_meter',
-            'fps',
-        }
-}
+# TODO Need a way to group common layers like the transition and title layer (Could use an underscore for reserved layer names, such as a special "_group" layer containing sublayers)
+# TODO Allow the config files access to simple values like the window size so things like centering are possible and the level title can be reused instead of hardcoding it everywhere it's needed
 
-"""
-stage_tileset = tiles.Tileset.load('demo')
-stage = tiles.TextureTileMap(level_data.get_stage_map(), stage_tileset)
+# TODO Allow for setting the background color of these layers' graphics
+#fps_text.set_style('background_color', (0,0,0,255))
+#dash_text.set_style('background_color', (0,0,0,255))
 
 #characters = load.Characters(stage_data.get_character_data(), stage.get_tiles())
 
-# TODO Should probably just pass the reference to the stage here
-player = load.Player(level_data.get_player_data(), stage.tiles, key_handler)
-game_window.push_handlers(player.character.key_handler)
-
-stage_boundary = BoundedBox(0, 0, stage.cols*TILE_SIZE, stage.rows*TILE_SIZE)
-cam = viewport.Camera(0, 0, 800, 600, bounds=stage_boundary, target=player.character)
-cam.focus() # TODO Should this be called on init?
-
-player_layer = layers.create_from(player.character)
-
-# TODO Layer creation should be handled dynamically by the level loader. I'm creating these manually until I implement that ability
-background = layers.create_from(pyglet.sprite.Sprite(img=pyglet.resource.image(level_data.get_background_image_file())), fixed=True, static=True)
-#stage_layer = layers.TextureTileMapLayer(stage, cam)
-stage_layer = layers.create_from(stage)
-#stage_layer = tile_map_layer.TileMapLayer(stage, cam)
-transition_animation = tiled_animation.TiledAnimation.from_image(
-			pyglet.resource.image('transition.png'),
-			1,
-			31,
-			EaseOut.get_frame_durations(1*31, 1.25, ease_power=0.75),
-			cam.width,
-			cam.height,
-			delay=0.5
-		)
-transition_layer = layers.create_from(transition_animation, on_animation_end=lambda animation, layer: layer.delete(), fixed=True)
-title_layer = layers.create_from(heading.Heading(text=level_data.get_level_title(), font_size=18, anchor_x='center', anchor_y='center'), offset_x=cam.half_width, offset_y=cam.half_height, duration=2.25, fixed=True, static=True)
-fps_text = live_text.LiveText(lambda: str(int(pyglet.clock.get_fps())))
-fps_text.set_style('background_color', (0,0,0,255))
-fps_layer = layers.create_from(fps_text, offset_x=10, offset_y=10, fixed=True)
-dash_text = live_text.LiveText(lambda: str(int((player.character.max_dash_time - player.character.time_dashed) / player.character.max_dash_time * 100)))
-dash_text.set_style('background_color', (0,0,0,255))
-dash_layer = layers.create_from(dash_text, offset_x=40, offset_y=10, fixed=True)
-layer_manager = layers.LayerManager(cam, [background, stage_layer, player_layer, dash_layer, transition_layer, title_layer, fps_layer])
-"""
-# TODO Add support for `on_animation_end=lambda animation, layer: layer.delete()` parameter for animation layer graphic
-
 game_window.push_handlers(key_handler)
+
+# TODO The stage to load shouldn't be passed like this, there should be some sort of saved data handler that passes the level to load
 level = Level.load('demo', key_handler)
-game.level = level
+game.level = level # Make it globally available
 
 # TODO This should be a LevelEvents object inside a Level class
 events = {
@@ -156,22 +58,15 @@ def on_draw():
 	# TODO It's possible that this could be removed if it's a significant performance bottleneck
 	game_window.clear()
 
-	#characters.draw()
 	level.layer_manager.draw()
 
 def update(dt):
-	# TODO Write a manager to handle updates and update order?
-	#player.update(dt)
 	stage_events.update()
 
-	#cam.update(dt)
+        # TODO The level object should have its own update method
 	level.layer_manager.update(dt)
 
 	#module_reloader.update()
-
-	# @TODO characters.update() method
-	"""for character in characters.get_characters():
-		character.update(dt)"""
 
 if __name__ == '__main__':
 	glEnable(GL_BLEND)

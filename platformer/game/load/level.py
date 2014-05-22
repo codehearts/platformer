@@ -76,6 +76,7 @@ class Level(object):
             # TODO Remove the need for this hotfix
             # Get the tiles from the stage layer for the character
             if 'stage_layer' in graphic_data:
+                # TODO Should just pass a reference to the stage or something here instead of having this class be aware of what to do
                 graphic_data['stage'] = self.layer_dict[graphic_data['stage_layer']].graphic.tiles
                 del graphic_data['stage_layer']
 

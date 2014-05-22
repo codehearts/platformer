@@ -15,6 +15,6 @@ MAP_FORMAT = 'json'
 SCRIPT_DIRECTORY = 'scripts'
 SCRIPT_FORMAT = 'py'
 
-# TODO Why are these here? Should they be removed?
+# TODO These should be removed once camera easing is updated to use classes
 EASE_IN  = 0
 EASE_OUT = 1
