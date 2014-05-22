@@ -65,27 +65,6 @@ class TestTileMap(unittest.TestCase):
 				self.assertIsNone(self.tile_map.tiles[i][j],
 					"2x2 empty tile map is not actually empty.")
 
-
-		# Test for bottom-left aligned anchor point
-		# [0][1] in this list should map out to [2][1] in the tile array
-		test_map = [
-			[0,1,0],
-			[0,0,0],
-			[0,0,0],
-			[0,0,0],
-		]
-
-		self.tile_map = self.tile_map_class(test_map, self.tileset)
-
-		self.assertEqual(4, self.tile_map.rows,
-			"Tile map has incorrect number of rows.")
-		self.assertEqual(3, self.tile_map.cols,
-			"Tile map has incorrect number of columns.")
-
-		# 0 indexing on the y axis should now be inverted
-		self.assertIsNotNone(self.tile_map.tiles[3][1], "Tile map does not have anchor point at bottom left.")
-
-
 		# Test for bottom-left aligned anchor point by checking where various empty tiles end up
 		test_map = [
 			[ 1, 2, 1, 0],
@@ -102,25 +81,25 @@ class TestTileMap(unittest.TestCase):
 			"Tile map has incorrect number of columns.")
 
 		# Check if the empty tiles are where they should be
-		self.assertIsNone(self.tile_map.tiles[0][1],
+		self.assertIsNone(self.tile_map.tiles[3][1],
 			"Tile map was created incorrectly.")
-		self.assertIsNone(self.tile_map.tiles[1][2],
+		self.assertIsNone(self.tile_map.tiles[2][2],
 			"Tile map was created incorrectly.")
-		self.assertIsNone(self.tile_map.tiles[3][3],
+		self.assertIsNone(self.tile_map.tiles[0][3],
 			"Tile map was created incorrectly.")
 
 		# Check if the other tiles were created properly in the right place
-		self.assertFalse(self.tile_map.tiles[1][0].is_collidable,
+		self.assertFalse(self.tile_map.tiles[2][0].is_collidable,
 			"Tile map failed to correctly place non-collidable tile.")
-		self.assertEqual(self.tile_map.tiles[3][0].type, 'custom',
+		self.assertEqual(self.tile_map.tiles[0][0].type, 'custom',
 			"Tile map failed to correctly place custom tile.")
-		self.assertEqual(self.tile_map.tiles[0][2].type, 'basic',
+		self.assertEqual(self.tile_map.tiles[3][2].type, 'basic',
 			"Tile map failed to correctly place basic tile.")
-		self.assertEqual(self.tile_map.tiles[0][3].x, 32,
+		self.assertEqual(self.tile_map.tiles[3][3].x, 32,
 			"Tile map failed to correctly initialize basic tile.")
-		self.assertEqual(self.tile_map.tiles[0][3].y, 128,
+		self.assertEqual(self.tile_map.tiles[3][3].y, 128,
 			"Tile map failed to correctly initialize basic tile.")
-		self.assertEqual(self.tile_map.tiles[2][2].type, 'custom2',
+		self.assertEqual(self.tile_map.tiles[1][2].type, 'custom2',
 			"Tile map failed to correctly place custom2 tile.")
 
 
@@ -176,12 +155,12 @@ class TestTileMap(unittest.TestCase):
 
 		# Expected tile images and the coordinates where they should be
 		expected_images = {
-			1: [(3,0), (1,1), (0,2), (2,3)],
-			2: [(3,1), (1,3)],
-			3: [(2,1)],
-			4: [(2,0)],
-			5: [(1,0), (2,2)],
-			6: [(0,0), (0,3)],
+			1: [(0,0), (2,1), (3,2), (1,3)],
+			2: [(0,1), (2,3)],
+			3: [(1,1)],
+			4: [(1,0)],
+			5: [(2,0), (1,2)],
+			6: [(3,0), (3,3)],
 		}
 
 		# Assert that each region of the texture has the correct tile image
@@ -201,7 +180,7 @@ class TestTileMap(unittest.TestCase):
 			# which we know must be false
 			if tile_value != 1:
 				self.assertNotEqual(
-					tile_map_grid[3,0].get_image_data().get_data(data_format, pitch),
+					tile_map_grid[0,0].get_image_data().get_data(data_format, pitch),
 					expected_image_data,
 					"Texture tile map claims to have drawn a tile image where it claimed to have already drawn another tile image."
 				)

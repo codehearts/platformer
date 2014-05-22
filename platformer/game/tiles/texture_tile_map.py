@@ -52,12 +52,10 @@ class TextureTileMap(object):
 				tile_value = value_map[y][x]
 
 				if tile_value != 0: # Ignore empty tiles
-					# Adjust the y coordinate because the anchor point is at the bottom left
-					adjusted_y = self.rows - y - 1
-					coords = util.tile_to_coordinate(x, adjusted_y)
+					coords = util.tile_to_coordinate(x, y)
 
 					# Create the tile and add it to the map
-					self.tiles[adjusted_y][x] = tileset.create_tile(tile_value, x=coords[0], y=coords[1])
+					self.tiles[y][x] = tileset.create_tile(tile_value, x=coords[0], y=coords[1])
 
 					# Blit the tile image to the map texture
 					self.texture.blit_into(tileset.image.get_tile_image_data(tile_value), coords[0], coords[1], 0)

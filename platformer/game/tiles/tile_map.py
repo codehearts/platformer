@@ -61,14 +61,12 @@ class TileMap(object):
 				tile_value = value_map[y][x]
 
 				if tile_value != 0: # Ignore empty tiles
-					# Adjust the y coordinate for an anchor at the bottom left
-					adjusted_y = self.rows - y - 1
-					coordinates = util.tile_to_coordinate(x, adjusted_y)
+					coordinates = util.tile_to_coordinate(x, y)
 
-					self.tiles[adjusted_y][x] = tileset.create_tile(tile_value, x=coordinates[0], y=coordinates[1], batch=self._batch, group=self._group)
+					self.tiles[y][x] = tileset.create_tile(tile_value, x=coordinates[0], y=coordinates[1], batch=self._batch, group=self._group)
 
-					self._tile_objects.append(self.tiles[adjusted_y][x])
-					self._visible_tiles.add(self.tiles[adjusted_y][x])
+					self._tile_objects.append(self.tiles[y][x])
+					self._visible_tiles.add(self.tiles[y][x])
 
 	def draw(self):
 		"""Draws the entire tile map."""

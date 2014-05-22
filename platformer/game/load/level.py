@@ -4,10 +4,11 @@ from game.graphics import create_graphics_object
 from game.tiles import Tileset
 from game import viewport
 from json import load as json_load
-from ..settings.general_settings import TILE_SIZE, RESOURCE_PATH, LEVEL_DIRECTORY, LEVEL_FORMAT, MAP_DIRECTORY, MAP_FORMAT, SCRIPT_DIRECTORY, SCRIPT_FORMAT
+from ..settings.general_settings import TILE_SIZE, RESOURCE_PATH, LEVEL_DIRECTORY, LEVEL_FORMAT, SCRIPT_DIRECTORY, SCRIPT_FORMAT
 from game import layers
 from imp import load_source, new_module
 from sys import modules
+from tile_map import load_tile_map
 import game.scripts
 """Python 3
 import importlib.machinery"""
@@ -64,7 +65,7 @@ class Level(object):
             # Load the value map if necessary
             if 'value_map' in graphic_data:
                 # TODO _load_map Should rearrange the stage array instead of making other classes do it
-                graphic_data['value_map'] = self._load_map(graphic_data['value_map'])
+                graphic_data['value_map'] = load_tile_map(graphic_data['value_map'])
 
                 # If the boundaries of the map weren't specified, interpret them
                 if not size_specified:
@@ -103,22 +104,6 @@ class Level(object):
         self.camera.focus() # TODO Should this be called on init?
 
         self.layer_manager = layers.LayerManager(self.camera, level_layers)
-
-    def _load_map(self, map_name):
-        """Loads the given level map from disk.
-
-        Args:
-            map_name (str): The name of the map to load.
-
-        Returns:
-            A 2d list of tile values.
-        """
-        # TODO Cache these files while initially loading the level, then clear the cache
-        map_file = open_resource_file(MAP_DIRECTORY+'/'+map_name+'.'+MAP_FORMAT)
-        map_data = json_load(map_file)
-        map_file.close()
-
-        return map_data
 
     def _apply_data_value(self, layer_data, data_property, data_value):
         layer_property = layer_data

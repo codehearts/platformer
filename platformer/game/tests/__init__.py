@@ -5,6 +5,7 @@ from test_bounded_box import *
 from test_extended_sprite import *
 from test_tile_factory import *
 from test_tilesets import *
+from test_load_tile_map import *
 from test_tile_maps import *
 from test_easing import *
 from test_animations import *
