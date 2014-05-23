@@ -123,8 +123,8 @@ class Level(object):
         for script in scripts:
             load_source('game.scripts.custom.'+script, RESOURCE_PATH+SCRIPT_DIRECTORY+'/'+script+'.'+SCRIPT_FORMAT)
             """Python 3
-            loader = importlib.machinery.SourceFileLoader('scripts.'+script, RESOURCE_PATH+SCRIPT_DIRECTORY+'/'+script+'.'+SCRIPT_FORMAT)
-            loader.load_module('scripts.'+script)"""
+            loader = importlib.machinery.SourceFileLoader('games.scripts.custom.'+script, RESOURCE_PATH+SCRIPT_DIRECTORY+'/'+script+'.'+SCRIPT_FORMAT)
+            loader.load_module('game.scripts.custom.'+script)"""
 
     @classmethod
     def load(cls, level_title, key_handler):
