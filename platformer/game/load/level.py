@@ -64,7 +64,6 @@ class Level(object):
 
             # Load the value map if necessary
             if 'value_map' in graphic_data:
-                # TODO _load_map Should rearrange the stage array instead of making other classes do it
                 graphic_data['value_map'] = load_tile_map(graphic_data['value_map'])
 
                 # If the boundaries of the map weren't specified, interpret them
