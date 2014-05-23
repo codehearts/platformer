@@ -108,13 +108,13 @@ class TestTilesetLoaders(unittest.TestCase):
 	def test_image_loader(self):
 		"""Ensures that a tileset image will be loaded if it is in any
 		of the acceptable formats."""
-		# FIXME (Broken on Linux) Test loading a from a tileset which only has a gif
+		# TODO FIXME (Broken on Linux) Test loading a from a tileset which only has a gif
 		#tileset_loaders.get_tileset_image('gif-only')
 		# Test loading a from a tileset which only has a png
 		tileset_loaders.get_tileset_image('png-only')
-		# FIXME (Broken on Linux) Test loading a from a tileset which only has a jpg
+		# TODO FIXME (Broken on Linux) Test loading a from a tileset which only has a jpg
 		#tileset_loaders.get_tileset_image('jpg-only')
-		# FIXME (Broken on Linux) Test loading a from a tileset which only has a jpeg
+		# TODO FIXME (Broken on Linux) Test loading a from a tileset which only has a jpeg
 		#tileset_loaders.get_tileset_image('jpeg-only')
 
 		# Test that an exception is raised when attempting to open a
