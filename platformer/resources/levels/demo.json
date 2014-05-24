@@ -50,23 +50,18 @@
 		},
 		{
 			"title": "transition",
-			"data_values": {
-				"graphic_data.image": "game.scripts.custom.level_demo.transition_image",
-				"graphic_data.durations": "game.scripts.custom.level_demo.transition_durations",
-				"layer_data.on_animation_end": "game.scripts.custom.level_demo.transition_on_animation_end"
-			},
 			"graphic_type": "tiled animation",
 			"graphic_data": {
-				"image": -1,
+				"image": "data::game.scripts.custom.level_demo.transition_image",
 				"rows": 1,
 				"cols": 31,
-				"durations": -1,
+				"durations": "data::game.scripts.custom.level_demo.transition_durations",
 				"width": 800,
 				"height": 600,
 				"delay": 0.5
 			},
 			"layer_data": {
-				"on_animation_end": -1,
+				"on_animation_end": "data::game.scripts.custom.level_demo.transition_on_animation_end",
 				"fixed": true
 			}
 		},

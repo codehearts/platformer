@@ -24,24 +24,25 @@ class Level(object):
                 level_data (dict): A dictionary of level parameters.
                 key_handler (pyglet.window.key.KeyStateHandler): The key handler for the game.
         """
-        self.title = level_data['title']
+        # Scripts must be loaded first because they provide dynamic values which may be used
+        self._load_scripts(level_data['scripts'])
+
+        self.title = self._parse_data_value(level_data['title'])
 
         camera_target = None
 
         # Load tilesets
         tilesets = {}
         for tileset in level_data['tilesets']:
-            tilesets[tileset] = Tileset.load(tileset)
+            tilesets[tileset] = Tileset.load(self._parse_data_value(tileset))
 
         # Check if the boundaries of the map were specified
         size_specified = 'size' in level_data
         if size_specified:
-            rows = level_data['size'][1]
-            cols = level_data['size'][0]
+            rows = self._parse_data_value(level_data['size'][1])
+            cols = self._parse_data_value(level_data['size'][0])
         else:
             rows = cols = 0
-
-        self._load_scripts(level_data['scripts'])
 
         # Load layers
         level_layers = []
@@ -49,10 +50,14 @@ class Level(object):
         for layer_data in level_data['layers']:
             graphic_data = layer_data['graphic_data']
 
-            # Apply data values to the level data
-            if 'data_values' in layer_data:
-                for data_property, data_value in layer_data['data_values'].iteritems():
-                    self._apply_data_value(layer_data, data_property, data_value)
+            # TODO Try using map() for this
+            for data_property, data_value in graphic_data.iteritems():
+                graphic_data[data_property] = self._parse_data_value(data_value)
+
+            if 'layer_data' in layer_data:
+                # TODO Try using map() for this
+                for data_property, data_value in layer_data['layer_data'].iteritems():
+                    layer_data['layer_data'][data_property] = self._parse_data_value(data_value)
 
             # Drop in the tileset object if necessary
             if 'tileset' in graphic_data:
@@ -80,10 +85,10 @@ class Level(object):
                 graphic_data['stage'] = self.layer_dict[graphic_data['stage_layer']].graphic.tiles
                 del graphic_data['stage_layer']
 
-            layer_graphic = create_graphics_object(layer_data['graphic_type'], **graphic_data)
+            layer_graphic = create_graphics_object(self._parse_data_value(layer_data['graphic_type']), **graphic_data)
 
             # TODO Remove the need for this hotfix
-            if layer_data['title'] == 'player':
+            if self._parse_data_value(layer_data['title']) == 'player':
                 layer_graphic = layer_graphic.character
 
             if 'layer_data' in layer_data:
@@ -91,11 +96,11 @@ class Level(object):
             else:
                 layer = layers.create_from(layer_graphic)
 
-            if level_data['camera_target'] == layer_data['title']:
+            if self._parse_data_value(level_data['camera_target']) == layer_data['title']:
                 camera_target = layer.graphic
 
             level_layers.append(layer)
-            self.layer_dict[layer_data['title']] = layer
+            self.layer_dict[self._parse_data_value(layer_data['title'])] = layer
 
         stage_boundary = BoundedBox(0, 0, cols*TILE_SIZE, rows*TILE_SIZE)
         # TODO Don't hardcode window size, make it a global setting
@@ -103,6 +108,18 @@ class Level(object):
         self.camera.focus() # TODO Should this be called on init?
 
         self.layer_manager = layers.LayerManager(self.camera, level_layers)
+
+    def _parse_data_value(self, data_value):
+        """Parses out data value from config values begining with 'data::'."""
+        # TODO Should support more versatile tags like "tileset::" or "tilemap::"
+        tag = 'data::'
+        if isinstance(data_value, basestring) and  data_value[0:len(tag)] == tag:
+            data_value = data_value[len(tag):]
+            module_name = data_value[ : data_value.rfind('.')]
+            property_name = data_value[data_value.rfind('.')+1 : ]
+            data_value = getattr(modules[module_name], property_name)
+
+        return data_value
 
     def _apply_data_value(self, layer_data, data_property, data_value):
         layer_property = layer_data
