@@ -36,12 +36,6 @@ def recognizer(graphics_type):
 
 def factory(*args, **kwargs):
         """Returns a :class:`game.text.live_text.LiveText` for the given arguments."""
-        # TODO The actual function creation should not occur in this function
-        text_source = kwargs.pop('text_source')
-        module_name = text_source[ : text_source.rfind('.')]
-        function_name = text_source[text_source.rfind('.')+1 : ]
-        text_source_function = getattr(modules[module_name], function_name)
-
-        return LiveText(text_source_function, *args, **kwargs)
+        return LiveText(kwargs.pop('text_source'), *args, **kwargs)
 
 install_graphics_module(__name__)

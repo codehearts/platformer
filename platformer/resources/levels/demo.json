@@ -40,7 +40,7 @@
 			"title": "dash",
 			"graphic_type": "live text",
 			"graphic_data": {
-				"text_source": "game.scripts.custom.dash_meter.get_player_dash_percentage"
+				"text_source": "data::game.scripts.custom.dash_meter.get_player_dash_percentage"
 			},
 			"layer_data": {
 				"offset_x": 40,
@@ -85,7 +85,7 @@
 			"title": "fps",
 			"graphic_type": "live text",
 			"graphic_data": {
-				"text_source": "game.scripts.get_fps"
+				"text_source": "data::game.scripts.get_fps"
 			},
 			"layer_data": {
 				"offset_x": 10,
