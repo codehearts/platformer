@@ -34,18 +34,6 @@
 			}
 		},
 		{
-			"title": "dash",
-			"graphic_type": "live text",
-			"graphic_data": {
-				"text_source": "property::game.scripts.custom.dash_meter.get_player_dash_percentage"
-			},
-			"layer_data": {
-				"offset_x": 40,
-				"offset_y": 10,
-				"fixed": true
-			}
-		},
-		{
 			"title": "transition",
 			"graphic_type": "tiled animation",
 			"graphic_data": {
@@ -76,6 +64,18 @@
 				"duration": 2.25,
 				"fixed": true,
 				"static": true
+			}
+		},
+		{
+			"title": "dash",
+			"graphic_type": "live text",
+			"graphic_data": {
+				"text_source": "property::game.scripts.custom.dash_meter.get_player_dash_percentage"
+			},
+			"layer_data": {
+				"offset_x": 40,
+				"offset_y": 10,
+				"fixed": true
 			}
 		},
 		{
