@@ -95,6 +95,7 @@ class Level(object):
         """Translates tagged data value strings to their intended values."""
         # TODO Allow tag support to be installed instead of being entirely hardcoded
         # TODO Prepend and append these when tag is installed
+        # TODO Process these from right to left to allow for chaining
         tag_prefix = ''
         tag_suffix = '::'
         tags = {
