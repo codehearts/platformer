@@ -1,6 +1,7 @@
 from json import load as json_load
 from pyglet.resource import file as open_resource_file
 from ..settings.general_settings import MAP_DIRECTORY, MAP_FORMAT
+from installed_level_config_translators import install_level_config_translator
 
 def load_tile_map(map_name):
     """Loads the given level map from disk.
@@ -31,3 +32,5 @@ def arrange_tile_map(tile_map):
             tile_map[y][x] = temp_value
 
     return tile_map
+
+install_level_config_translator('tilemap', load_tile_map)

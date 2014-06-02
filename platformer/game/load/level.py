@@ -9,6 +9,7 @@ from game import layers
 from imp import load_source, new_module
 from sys import modules
 from tile_map import load_tile_map
+from installed_level_config_translators import install_level_config_translator, installed_translators
 import game.scripts
 """Python 3
 import importlib.machinery"""
@@ -24,13 +25,8 @@ class Level(object):
                 level_data (dict): A dictionary of level parameters.
                 key_handler (pyglet.window.key.KeyStateHandler): The key handler for the game.
         """
-        # Dictionary of tags and translation functions to apply to config data values
-        self._installed_translators = {}
-        self._data_value_tag_prefix = ''
-        self._data_value_tag_suffix = '::'
-
         # Add support for translating config strings to property values
-        self.add_config_data_translator('property', self._get_property_from_string)
+        install_level_config_translator('property', self._get_property_from_string)
 
         # Scripts must be loaded first because they provide dynamic values which may be used
         self._load_scripts(level_data['scripts'])
@@ -99,21 +95,16 @@ class Level(object):
 
         self.layer_manager = layers.LayerManager(self.camera, level_layers)
 
-    def _translate_data_value(self, data_value):
+    def translate_data_value(self, data_value):
         """Translates tagged data value strings to their intended values."""
         # TODO Process tags from right to left to allow for chaining
-        # TODO Move these tags to the appropriate classes
-        tags = {
-            tag_prefix+'tileset'+tag_suffix: Tileset.load,
-            tag_prefix+'tilemap'+tag_suffix: load_tile_map,
-        }
 
         # If the data value is a string, it could contain a tag
         if isinstance(data_value, basestring):
-            for tag, translation in tags.iteritems():
+            for tag, translator in installed_translators.iteritems():
                 if data_value[0:len(tag)] == tag:
                     # Translate the data value without the tag prepended
-                    return translation(data_value[len(tag):])
+                    return translator(data_value[len(tag):])
 
         return data_value
 
@@ -134,20 +125,6 @@ class Level(object):
             """Python 3
             loader = importlib.machinery.SourceFileLoader('games.scripts.custom.'+script, RESOURCE_PATH+SCRIPT_DIRECTORY+'/'+script+'.'+SCRIPT_FORMAT)
             loader.load_module('game.scripts.custom.'+script)"""
-
-    @classmethod
-    def add_config_data_translator(cls, data_type, translator):
-        """Adds a support for translating data strings of the given data type when
-        loading a level config. All string values tagged with this data type will be
-        run through the translator.
-
-        Args:
-            data_type (string): The name of the data type to add translation support for.
-                                This will be the tag to signify that a string should have
-                                the translator applied to it.
-            translator (function): The function to apply to all tagged data values.
-        """
-        self._installed_translators[self._data_value_tag_prefix+data_type+self._data_value_tag_suffix] = translator
 
     @classmethod
     def load(cls, level_title, key_handler):

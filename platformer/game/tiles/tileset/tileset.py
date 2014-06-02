@@ -2,6 +2,7 @@ from tileset_config import TilesetConfig
 from tileset_image import TilesetImage
 from tileset_loaders import get_tileset_config, get_tileset_image
 from game.graphics import install_graphics_module
+from game.load.installed_level_config_translators import install_level_config_translator
 from .. import tile_factory
 
 class Tileset(object):
@@ -122,6 +123,7 @@ class Tileset(object):
 
 
 
+# TODO Should this be moved to __init__?
 def recognizer(graphics_type):
 	"""Recognizes whether this graphics type is handled by :class:`game.tiles.tileset.Tileset`."""
 	return graphics_type == 'tileset'
@@ -131,3 +133,5 @@ def factory(*args, **kwargs):
 	return Tileset.load(*args, **kwargs)
 
 install_graphics_module(__name__)
+
+install_level_config_translator('tileset', Tileset.load)
