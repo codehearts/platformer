@@ -1,7 +1,6 @@
 from pyglet.resource import file as open_resource_file
 from game.bounded_box import BoundedBox
 from game.graphics import create_graphics_object
-from game.tiles import Tileset
 from game import viewport
 from json import load as json_load
 from ..settings.general_settings import TILE_SIZE, RESOURCE_PATH, LEVEL_DIRECTORY, LEVEL_FORMAT, SCRIPT_DIRECTORY, SCRIPT_FORMAT
@@ -9,7 +8,7 @@ from game import layers
 from imp import load_source, new_module
 from sys import modules
 from tile_map import load_tile_map
-from installed_level_config_translators import install_level_config_translator, installed_translators
+from installed_level_config_translators import install_level_config_translator, translate_data_value
 import game.scripts
 """Python 3
 import importlib.machinery"""
@@ -31,15 +30,15 @@ class Level(object):
         # Scripts must be loaded first because they provide dynamic values which may be used
         self._load_scripts(level_data['scripts'])
 
-        self.title = self._translate_data_value(level_data['title'])
+        self.title = translate_data_value(level_data['title'])
 
         camera_target = None
 
         # Check if the boundaries of the map were specified
         size_specified = 'size' in level_data
         if size_specified:
-            rows = self._translate_data_value(level_data['size'][1])
-            cols = self._translate_data_value(level_data['size'][0])
+            rows = translate_data_value(level_data['size'][1])
+            cols = translate_data_value(level_data['size'][0])
 
         # Load layers
         level_layers = []
@@ -49,12 +48,12 @@ class Level(object):
 
             # TODO Try using map() for this
             for data_property, data_value in graphic_data.iteritems():
-                graphic_data[data_property] = self._translate_data_value(data_value)
+                graphic_data[data_property] = translate_data_value(data_value)
 
             if 'layer_data' in layer_data:
                 # TODO Try using map() for this
                 for data_property, data_value in layer_data['layer_data'].iteritems():
-                    layer_data['layer_data'][data_property] = self._translate_data_value(data_value)
+                    layer_data['layer_data'][data_property] = translate_data_value(data_value)
 
             # Drop in the key_handler object if necessary
             if 'key_handler' in graphic_data:
@@ -67,10 +66,10 @@ class Level(object):
                 graphic_data['stage'] = self.layer_dict[graphic_data['stage_layer']].graphic.tiles
                 del graphic_data['stage_layer']
 
-            layer_graphic = create_graphics_object(self._translate_data_value(layer_data['graphic_type']), **graphic_data)
+            layer_graphic = create_graphics_object(translate_data_value(layer_data['graphic_type']), **graphic_data)
 
             # TODO Remove the need for this hotfix
-            if self._translate_data_value(layer_data['title']) == 'player':
+            if translate_data_value(layer_data['title']) == 'player':
                 layer_graphic = layer_graphic.character
 
             if 'layer_data' in layer_data:
@@ -78,11 +77,11 @@ class Level(object):
             else:
                 layer = layers.create_from(layer_graphic)
 
-            if self._translate_data_value(level_data['camera_target']) == layer_data['title']:
+            if translate_data_value(level_data['camera_target']) == layer_data['title']:
                 camera_target = layer.graphic
 
             level_layers.append(layer)
-            self.layer_dict[self._translate_data_value(layer_data['title'])] = layer
+            self.layer_dict[translate_data_value(layer_data['title'])] = layer
 
         # TODO If the size isn't specified, an unbounded camera should be used in place of this hotfix
         if not size_specified:
@@ -94,19 +93,6 @@ class Level(object):
         self.camera.focus() # TODO Should this be called on init?
 
         self.layer_manager = layers.LayerManager(self.camera, level_layers)
-
-    def translate_data_value(self, data_value):
-        """Translates tagged data value strings to their intended values."""
-        # TODO Process tags from right to left to allow for chaining
-
-        # If the data value is a string, it could contain a tag
-        if isinstance(data_value, basestring):
-            for tag, translator in installed_translators.iteritems():
-                if data_value[0:len(tag)] == tag:
-                    # Translate the data value without the tag prepended
-                    return translator(data_value[len(tag):])
-
-        return data_value
 
     def _get_property_from_string(self, property_value):
         split = property_value.rfind('.')
