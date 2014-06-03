@@ -17,12 +17,11 @@ import importlib.machinery"""
 class Level(object):
     # TODO Documentation
 
-    def __init__(self, level_data, key_handler):
+    def __init__(self, level_data):
         """Loads a level from disk.
 
         Args:
                 level_data (dict): A dictionary of level parameters.
-                key_handler (pyglet.window.key.KeyStateHandler): The key handler for the game.
         """
         # Add support for translating config strings to property values
         install_level_config_translator('property', self._get_property_from_string)
@@ -54,10 +53,6 @@ class Level(object):
                 # TODO Try using map() for this
                 for data_property, data_value in layer_data['layer_data'].iteritems():
                     layer_data['layer_data'][data_property] = translate_data_value(data_value)
-
-            # Drop in the key_handler object if necessary
-            if 'key_handler' in graphic_data:
-                graphic_data['key_handler'] = key_handler
 
             # TODO Remove the need for this hotfix
             # Get the tiles from the stage layer for the character
@@ -113,13 +108,12 @@ class Level(object):
             loader.load_module('game.scripts.custom.'+script)"""
 
     @classmethod
-    def load(cls, level_title, key_handler):
+    def load(cls, level_title):
         # TODO The game.level.Level class in the doc should be updated once this class is finalized
         """Loads a level from a given level title.
 
         Args:
                 level_title (str): The title of the level to load.
-                key_handler (pyglet.window.key.KeyStateHandler): The key handler for the game.
 
         Returns:
                 A :class:`game.level.Level` object.
@@ -128,4 +122,4 @@ class Level(object):
         level_data = json_load(level_file)
         level_file.close()
 
-        return cls(level_data, key_handler)
+        return cls(level_data)

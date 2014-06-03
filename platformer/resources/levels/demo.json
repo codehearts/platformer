@@ -30,7 +30,7 @@
 					"x": 25,
 					"y": 16
 				},
-				"key_handler": true
+				"key_handler": "::key_handler::"
 			}
 		},
 		{

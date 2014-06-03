@@ -10,7 +10,7 @@ from game.easing import EaseOut
 from game.bounded_box import BoundedBox
 from game import tiles
 from game.settings.general_settings import TILE_SIZE
-from game.load import Level
+from game.load import Level, install_level_config_translator
 import game
 
 # Graphical output window
@@ -34,8 +34,11 @@ key_handler = key.KeyStateHandler()
 
 game_window.push_handlers(key_handler)
 
+# Add support for obtaining the key handler in level config files
+install_level_config_translator('key_handler', lambda x: key_handler)
+
 # TODO The stage to load shouldn't be passed like this, there should be some sort of saved data handler that passes the level to load
-level = Level.load('demo', key_handler)
+level = Level.load('demo')
 game.level = level # Make it globally available
 
 # TODO This should be a LevelEvents object inside a Level class
