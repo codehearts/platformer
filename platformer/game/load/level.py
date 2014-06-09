@@ -52,6 +52,7 @@ class Level(object):
                 layer_data['layer_data'] = dict(map(lambda (k,v) : (k, translate_data_value(v)), layer_data['layer_data'].iteritems()))
 
             # TODO Remove the need for this hotfix
+            # TODO This could probably be solved by having a ::layer_property:: tag and using it to mark values which should be computed once all layers have been created to ensure that the requested layer has been initialized
             # Get the tiles from the stage layer for the character
             if 'stage_layer' in graphic_data:
                 # TODO Should just pass a reference to the stage or something here instead of having this class be aware of what to do
