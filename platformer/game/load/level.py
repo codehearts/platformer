@@ -21,7 +21,7 @@ class Level(object):
         """Loads a level from disk.
 
         Args:
-                level_data (dict): A dictionary of level parameters.
+            level_data (dict): A dictionary of level parameters.
         """
         # Add support for translating config strings to property values
         install_level_config_translator('property', self._get_property_from_string)
@@ -43,16 +43,13 @@ class Level(object):
         level_layers = []
         self.layer_dict = {} # TODO Temporary method of accessing layers by title
         for layer_data in level_data['layers']:
+            # Translate all graphics data values
+            layer_data['graphic_data'] = dict(map(lambda (k,v) : (k, translate_data_value(v)), layer_data['graphic_data'].iteritems()))
             graphic_data = layer_data['graphic_data']
 
-            # TODO Try using map() for this
-            for data_property, data_value in graphic_data.iteritems():
-                graphic_data[data_property] = translate_data_value(data_value)
-
+            # Translate all layer data values
             if 'layer_data' in layer_data:
-                # TODO Try using map() for this
-                for data_property, data_value in layer_data['layer_data'].iteritems():
-                    layer_data['layer_data'][data_property] = translate_data_value(data_value)
+                layer_data['layer_data'] = dict(map(lambda (k,v) : (k, translate_data_value(v)), layer_data['layer_data'].iteritems()))
 
             # TODO Remove the need for this hotfix
             # Get the tiles from the stage layer for the character
@@ -113,10 +110,10 @@ class Level(object):
         """Loads a level from a given level title.
 
         Args:
-                level_title (str): The title of the level to load.
+            level_title (str): The title of the level to load.
 
         Returns:
-                A :class:`game.level.Level` object.
+            A :class:`game.level.Level` object.
         """
         level_file = open_resource_file(LEVEL_DIRECTORY+'/'+level_title+'.'+LEVEL_FORMAT)
         level_data = json_load(level_file)
