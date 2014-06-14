@@ -25,7 +25,7 @@
 			"title": "player",
 			"graphic_type": "player",
 			"graphic_data": {
-				"stage_layer": "stage",
+				"stage": "::layer_graphic_property::stage.tiles",
 				"player_data": {
 					"x": 25,
 					"y": 16

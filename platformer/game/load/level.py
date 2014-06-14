@@ -33,6 +33,10 @@ class Level(object):
 
         camera_target = None
 
+        # TODO translate_data_value should be recursive on lists and dicts
+        # Translate all level data values
+        level_data = dict(map(lambda (k,v) : (k, translate_data_value(v)), level_data.iteritems()))
+
         # Check if the boundaries of the map were specified
         size_specified = 'size' in level_data
         if size_specified:
@@ -41,40 +45,65 @@ class Level(object):
 
         # Load layers
         level_layers = []
+        self.layer_graphics = {}
+        self.layer_properties = {}
+        self._layer_requirements = {}
+        initialized_layer_graphics = []
+        install_level_config_translator('layer_graphic_property', self._register_layer_graphic_dependency)
         self.layer_dict = {} # TODO Temporary method of accessing layers by title
         for layer_data in level_data['layers']:
-            # Translate all graphics data values
+            # Translate all layer data values
+            layer_data = dict(map(lambda (k,v) : (k, translate_data_value(v)), layer_data.iteritems()))
+
+            self._current_layer = layer_data['title']
+
+            # Translate all graphic data values
             layer_data['graphic_data'] = dict(map(lambda (k,v) : (k, translate_data_value(v)), layer_data['graphic_data'].iteritems()))
-            graphic_data = layer_data['graphic_data']
 
             # Translate all layer data values
             if 'layer_data' in layer_data:
                 layer_data['layer_data'] = dict(map(lambda (k,v) : (k, translate_data_value(v)), layer_data['layer_data'].iteritems()))
 
-            # TODO Remove the need for this hotfix
-            # TODO This could probably be solved by having a ::layer_property:: tag and using it to mark values which should be computed once all layers have been created to ensure that the requested layer has been initialized
-            # Get the tiles from the stage layer for the character
-            if 'stage_layer' in graphic_data:
-                # TODO Should just pass a reference to the stage or something here instead of having this class be aware of what to do
-                graphic_data['stage'] = self.layer_dict[graphic_data['stage_layer']].graphic.tiles
-                del graphic_data['stage_layer']
+        install_level_config_translator('resolve_layer_graphic_dependency', self._get_layer_graphic_property)
 
-            layer_graphic = create_graphics_object(translate_data_value(layer_data['graphic_type']), **graphic_data)
+        # Post-process
+        unitialized_layers = level_data['layers']
+        for layer_data in unitialized_layers:
+            # Skip layers that still have unmet dependencies
+            if layer_data['title'] in self._layer_requirements:
+                for required_layer in self._layer_requirements[layer_data['title']]:
+                    if required_layer not in initialized_layer_graphics:
+                        continue
+
+            # Translate all layer data values
+            layer_data = dict(map(lambda (k,v) : (k, translate_data_value(v)), layer_data.iteritems()))
+
+            self._current_layer = layer_data['title']
+
+            # Translate all graphic data values
+            layer_data['graphic_data'] = dict(map(lambda (k,v) : (k, translate_data_value(v)), layer_data['graphic_data'].iteritems()))
+
+            # Translate all layer data values
+            if 'layer_data' in layer_data:
+                layer_data['layer_data'] = dict(map(lambda (k,v) : (k, translate_data_value(v)), layer_data['layer_data'].iteritems()))
+
+            layer_graphic = create_graphics_object(translate_data_value(layer_data['graphic_type']), **layer_data['graphic_data'])
 
             # TODO Remove the need for this hotfix
-            if translate_data_value(layer_data['title']) == 'player':
+            if layer_data['title'] == 'player':
                 layer_graphic = layer_graphic.character
+
+            if level_data['camera_target'] == layer_data['title']:
+                camera_target = layer_graphic
 
             if 'layer_data' in layer_data:
                 layer = layers.create_from(layer_graphic, **layer_data['layer_data'])
             else:
                 layer = layers.create_from(layer_graphic)
 
-            if translate_data_value(level_data['camera_target']) == layer_data['title']:
-                camera_target = layer.graphic
-
             level_layers.append(layer)
             self.layer_dict[translate_data_value(layer_data['title'])] = layer
+            initialized_layer_graphics.append(layer_data['title'])
 
         # TODO If the size isn't specified, an unbounded camera should be used in place of this hotfix
         if not size_specified:
@@ -90,8 +119,24 @@ class Level(object):
     def _get_property_from_string(self, property_value):
         split = property_value.rfind('.')
         module_name = property_value[ : split]
-        property_name = property_value[split +1 : ]
+        property_name = property_value[split + 1 : ]
         return getattr(modules[module_name], property_name)
+
+    def _register_layer_graphic_dependency(self, property_name):
+        split = property_name.find('.')
+        dependecy_layer_name = property_name[ : split]
+        if not self._current_layer in self._layer_requirements:
+            self._layer_requirements[self._current_layer] = [dependecy_layer_name]
+        else:
+            self._layer_requirements[self._current_layer].append(dependecy_layer_name)
+
+        # TODO There should be a way for this method to tell the translator to stop translating tags for this property after this one
+        return '::resolve_layer_graphic_dependency::' + property_name
+
+    def _get_layer_graphic_property(self, property_name):
+        split = property_name.find('.')
+        layer_name = property_name[ : split]
+        return getattr(self.layer_dict[layer_name].graphic, property_name[split + 1 : ])
 
     def _load_scripts(self, scripts):
         """Dynamically loads the given scripts. The scripts are loaded from the scripts directory.
