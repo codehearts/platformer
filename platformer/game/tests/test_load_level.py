@@ -92,3 +92,5 @@ class TestLoadLevel(unittest.TestCase):
 
         self.assertEqual(data_value, expected_data_value,
             "Failed to recursively translate data value with iteratable contents.")
+
+        # TODO Test that recursive data translation does not create new dicts, lists, objects in memory
