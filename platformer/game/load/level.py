@@ -23,8 +23,9 @@ class Level(object):
         Args:
             level_data (dict): A dictionary of level parameters.
         """
-        # Add support for translating config strings to property values
+        # Add support for translating config strings to property values and marking layer graphic dependencies
         install_level_config_translator('property', self._get_property_from_string)
+        install_level_config_translator('layer_graphic_property', self._register_layer_graphic_dependency)
 
         # Scripts must be loaded first because they provide dynamic values which may be used
         self._load_scripts(level_data['scripts'])
@@ -33,15 +34,15 @@ class Level(object):
 
         camera_target = None
 
-        # TODO translate_data_value should be recursive on lists and dicts
         # Translate all level data values
-        level_data = dict(map(lambda (k,v) : (k, translate_data_value(v)), level_data.iteritems()))
+        level_data = translate_data_value(level_data, recurse=False)
 
         # Check if the boundaries of the map were specified
         size_specified = 'size' in level_data
         if size_specified:
-            rows = translate_data_value(level_data['size'][1])
-            cols = translate_data_value(level_data['size'][0])
+            level_data['size'] = translate_data_value(level_data['size'])
+            rows = level_data['size'][1]
+            cols = level_data['size'][0]
 
         # Load layers
         level_layers = []
@@ -49,51 +50,36 @@ class Level(object):
         self.layer_properties = {}
         self._layer_requirements = {}
         initialized_layer_graphics = []
-        install_level_config_translator('layer_graphic_property', self._register_layer_graphic_dependency)
         self.layer_dict = {} # TODO Temporary method of accessing layers by title
-        for layer_data in level_data['layers']:
-            # Translate all layer data values
-            layer_data = dict(map(lambda (k,v) : (k, translate_data_value(v)), layer_data.iteritems()))
-
-            self._current_layer = layer_data['title']
-
-            # Translate all graphic data values
-            layer_data['graphic_data'] = dict(map(lambda (k,v) : (k, translate_data_value(v)), layer_data['graphic_data'].iteritems()))
+        for layer_index, layer_data in enumerate(level_data['layers']):
+            self._current_layer = translate_data_value(layer_data['title'])
 
             # Translate all layer data values
-            if 'layer_data' in layer_data:
-                layer_data['layer_data'] = dict(map(lambda (k,v) : (k, translate_data_value(v)), layer_data['layer_data'].iteritems()))
+            level_data['layers'][layer_index] = translate_data_value(layer_data)
 
         install_level_config_translator('resolve_layer_graphic_dependency', self._get_layer_graphic_property)
 
         # Post-process
-        unitialized_layers = level_data['layers']
-        for layer_data in unitialized_layers:
+        for layer_index, layer_data in enumerate(level_data['layers']):
+            self._current_layer = translate_data_value(layer_data['title'])
+
             # Skip layers that still have unmet dependencies
-            if layer_data['title'] in self._layer_requirements:
-                for required_layer in self._layer_requirements[layer_data['title']]:
+            if self._current_layer in self._layer_requirements:
+                for required_layer in self._layer_requirements[self._current_layer]:
                     if required_layer not in initialized_layer_graphics:
                         continue
 
             # Translate all layer data values
-            layer_data = dict(map(lambda (k,v) : (k, translate_data_value(v)), layer_data.iteritems()))
+            layer_data = translate_data_value(layer_data)
+            level_data['layers'][layer_index] = layer_data
 
-            self._current_layer = layer_data['title']
-
-            # Translate all graphic data values
-            layer_data['graphic_data'] = dict(map(lambda (k,v) : (k, translate_data_value(v)), layer_data['graphic_data'].iteritems()))
-
-            # Translate all layer data values
-            if 'layer_data' in layer_data:
-                layer_data['layer_data'] = dict(map(lambda (k,v) : (k, translate_data_value(v)), layer_data['layer_data'].iteritems()))
-
-            layer_graphic = create_graphics_object(translate_data_value(layer_data['graphic_type']), **layer_data['graphic_data'])
+            layer_graphic = create_graphics_object(layer_data['graphic_type'], **layer_data['graphic_data'])
 
             # TODO Remove the need for this hotfix
-            if layer_data['title'] == 'player':
+            if self._current_layer == 'player':
                 layer_graphic = layer_graphic.character
 
-            if level_data['camera_target'] == layer_data['title']:
+            if level_data['camera_target'] == self._current_layer:
                 camera_target = layer_graphic
 
             if 'layer_data' in layer_data:
@@ -102,8 +88,8 @@ class Level(object):
                 layer = layers.create_from(layer_graphic)
 
             level_layers.append(layer)
-            self.layer_dict[translate_data_value(layer_data['title'])] = layer
-            initialized_layer_graphics.append(layer_data['title'])
+            self.layer_dict[self._current_layer] = layer
+            initialized_layer_graphics.append(self._current_layer)
 
         # TODO If the size isn't specified, an unbounded camera should be used in place of this hotfix
         if not size_specified:

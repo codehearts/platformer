@@ -17,7 +17,7 @@ def install_level_config_translator(data_type, translator):
     global installed_translators, _data_value_tag_prefix, _data_value_tag_suffix
     installed_translators[data_type] = translator
 
-def translate_data_value(data_value):
+def translate_data_value(data_value, recurse=True):
     """Translates tagged data values to other data types as specified by the tag.
     For example, '::property::a.b.c' will be translated into the `a.b.c` Python property.
     Tags are parsed from right to left to allow chaining, which is useful in cases such as
@@ -26,6 +26,9 @@ def translate_data_value(data_value):
     Args:
         data_value (string): The data value string to translate. If the string contains no
                              tags, translation will not be performed.
+
+    Kwargs:
+        recurse (bool): Whether or not to recurse through the data value.
 
     Returns:
         The translated data value, which is of whatever type the translator returns.
@@ -55,5 +58,19 @@ def translate_data_value(data_value):
 
             rightmost_tag_suffix = data_value.rfind(_data_value_tag_suffix, 0, right_bound)
             rightmost_tag_prefix = data_value.rfind(_data_value_tag_prefix, 0, rightmost_tag_suffix)
+    elif recurse:
+        if isinstance(data_value, list) or isinstance(data_value, tuple):
+            return map(translate_data_value, data_value)
+        elif 'iteritems' in dir(data_value):
+            # Using a for loop instead of map() to keep the object at the same place in memory
+            for k, v in data_value.iteritems():
+                translated_k = translate_data_value(k)
+
+                data_value[translated_k] = translate_data_value(v)
+
+                if translated_k != k:
+                    del data_value[k]
+
+            return data_value
 
     return data_value
