@@ -23,10 +23,11 @@ class Level(object):
         Args:
             level_data (dict): A dictionary of level parameters.
         """
-        # Add support for translating config strings to property values and marking layer graphic dependencies
+        # Add support for translating config strings to property values and registering layer graphic dependencies
         install_level_config_translator('property', self._get_property_from_string)
         install_level_config_translator('layer_graphic_property', self._register_layer_graphic_dependency)
 
+        # TODO Implement ability to specify whether to load a script before the level is loaded or after
         # Scripts must be loaded first because they provide dynamic values which may be used
         self._load_scripts(level_data['scripts'])
 
