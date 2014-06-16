@@ -59,8 +59,9 @@ def translate_data_value(data_value, recurse=True):
             rightmost_tag_suffix = data_value.rfind(_data_value_tag_suffix, 0, right_bound)
             rightmost_tag_prefix = data_value.rfind(_data_value_tag_prefix, 0, rightmost_tag_suffix)
     elif recurse:
-        if isinstance(data_value, list) or isinstance(data_value, tuple):
-            return map(translate_data_value, data_value)
+        if isinstance(data_value, list):
+            # Using [:] will update the contents of the list without creating a new list
+            data_value[:] = map(translate_data_value, data_value)
         elif 'iteritems' in dir(data_value):
             # Using a for loop instead of map() to keep the object at the same place in memory
             for k, v in data_value.iteritems():
@@ -70,7 +71,5 @@ def translate_data_value(data_value, recurse=True):
 
                 if translated_k != k:
                     del data_value[k]
-
-            return data_value
 
     return data_value
