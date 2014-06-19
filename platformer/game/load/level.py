@@ -6,7 +6,6 @@ from json import load as json_load
 from ..settings.general_settings import TILE_SIZE, RESOURCE_PATH, LEVEL_DIRECTORY, LEVEL_FORMAT, SCRIPT_DIRECTORY, SCRIPT_FORMAT
 from game import layers
 from imp import load_source, new_module
-from sys import modules
 from tile_map import load_tile_map
 from installed_level_config_translators import install_level_config_translator, translate_data_value
 import game.scripts
@@ -23,8 +22,7 @@ class Level(object):
 		Args:
 			level_data (dict): A dictionary of level parameters.
 		"""
-		# Add support for translating config strings to property values and registering layer graphic dependencies
-		install_level_config_translator('property', self._get_property_from_string)
+		# Add support for registering layer graphic dependencies
 		install_level_config_translator('layer_graphic_property', self._register_layer_graphic_dependency)
 
 		# Dictionary of layers and their layer graphic dependencies
@@ -60,17 +58,14 @@ class Level(object):
 
 		# Post-process the level config and create the layers
 		level_layers = []
-		initialized_layer_graphics = []
+		self._initialized_layer_graphics = []
 		while len(level_layers) != len(level_data['layers']):
 			for layer_index, layer_config in enumerate(level_data['layers']):
 				self._current_layer = translate_data_value(layer_config['title'])
 
 				# Skip layers that still have unmet dependencies
-				if self._current_layer in self._layer_graphic_dependencies:
-					# If not all layer dependencies for this layer have been met
-					# TODO Make this code look less unintuitive
-					if not reduce(lambda x,y: x and (y in initialized_layer_graphics), self._layer_graphic_dependencies[self._current_layer], True):
-						continue
+				if self._current_layer in self._layer_graphic_dependencies and not self._layer_dependencies_met(self._current_layer):
+					continue
 
 				# Translate all layer data values
 				layer_config = translate_data_value(level_data['layers'][layer_index])
@@ -96,7 +91,7 @@ class Level(object):
 				self.layer_dict[self._current_layer] = layer
 
 				# Register this layer graphic is being initialized
-				initialized_layer_graphics.append(self._current_layer)
+				self._initialized_layer_graphics.append(self._current_layer)
 
 		# Clean up
 		self._layer_graphic_dependencies = self._current_layer = None
@@ -108,11 +103,15 @@ class Level(object):
 
 		self.layer_manager = layers.LayerManager(self.camera, level_layers)
 
-	def _get_property_from_string(self, property_value):
-		split = property_value.rfind('.')
-		module_name = property_value[ : split]
-		property_name = property_value[split + 1 : ]
-		return getattr(modules[module_name], property_name)
+
+
+	def _layer_dependencies_met(self, layer_title):
+		"""Returns True if the given layer has had its dependencies met, or False otherwise.
+
+		Args:
+			layer_title (str): The name of the layer to check the dependencies of.
+		"""
+		return reduce(lambda x,y: x and (y in self._initialized_layer_graphics), self._layer_graphic_dependencies[layer_title], True)
 
 	def _register_layer_graphic_dependency(self, property_name):
 		split = property_name.find('.')
