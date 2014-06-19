@@ -7,7 +7,7 @@ from ..settings.general_settings import TILE_SIZE, RESOURCE_PATH, LEVEL_DIRECTOR
 from game import layers
 from imp import load_source, new_module
 from tile_map import load_tile_map
-from installed_level_config_translators import install_level_config_translator, translate_data_value
+from installed_level_config_translators import install_level_config_translator, translate_data_value, enable_level_config_post_processing
 import game.scripts
 """Python 3
 import importlib.machinery"""
@@ -24,6 +24,9 @@ class Level(object):
 		"""
 		# Add support for registering layer graphic dependencies
 		install_level_config_translator('layer_graphic_property', self._register_layer_graphic_dependency)
+
+		# Resolve layer graphic dependencies during post-processing
+		install_level_config_translator('resolve_layer_graphic_dependency', self._get_layer_graphic_property, post=True)
 
 		# Dictionary of layers and their layer graphic dependencies
 		self._layer_graphic_dependencies = {}
@@ -53,8 +56,8 @@ class Level(object):
 			self._current_layer = translate_data_value(layer_config['title'])
 			level_data['layers'][layer_index] = translate_data_value(layer_config)
 
-		# Resolve layer graphic dependencies during post-processing
-		install_level_config_translator('resolve_layer_graphic_dependency', self._get_layer_graphic_property)
+		# Enable post processing of level config data
+		enable_level_config_post_processing()
 
 		# Post-process the level config and create the layers
 		level_layers = []
