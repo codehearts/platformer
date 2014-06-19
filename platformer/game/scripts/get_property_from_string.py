@@ -6,6 +6,9 @@ def get_property_from_string(property_value):
 
 	Args:
 		property_value (str): The string representation of the property value to return.
+
+	Returns:
+		The value of the property represented by the string.
 	"""
 	split = property_value.rfind('.')
 	module_name = property_value[ : split]
