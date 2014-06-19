@@ -1,5 +1,6 @@
 # Dictionary of tags and translation functions to apply to config data values
 installed_translators = {}
+# TODO Test that post-processing is working
 installed_translators_post = {} # For post-processing
 
 _data_value_tag_prefix = '::'
