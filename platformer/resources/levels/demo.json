@@ -41,8 +41,8 @@
 				"rows": 1,
 				"cols": 31,
 				"durations": "::property::game.scripts.custom.level_demo.transition_durations",
-				"width": 800,
-				"height": 600,
+				"width": "::window_width::",
+				"height": "::window_height::",
 				"delay": 0.5
 			},
 			"layer": {
