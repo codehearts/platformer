@@ -1,2 +1,3 @@
 def delete_animation_layer(animation, layer):
-    layer.delete()
+	"""Deletes the given animation layer."""
+	layer.delete()

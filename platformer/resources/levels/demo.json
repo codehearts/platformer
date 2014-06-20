@@ -1,84 +1,64 @@
 {
 	"title": "Demo Stage",
-	"tilesets": [
-		"demo"
-	],
 	"camera_target": "player",
 	"layers": [
 		{
 			"title": "background",
-			"graphic_type": "image",
-			"graphic_data": {
+			"graphic": {
+				"type": "image",
 				"graphic": "sky.png"
 			},
-			"layer_data": {
+			"layer": {
 				"fixed": true,
 				"static": true
 			}
 		},
 		{
 			"title": "stage",
-			"graphic_type": "tile map",
-			"graphic_data": {
-				"tileset": "demo",
-				"value_map": "demo"
+			"graphic": {
+				"type": "tile map",
+				"tileset": "::tileset::demo",
+				"value_map": "::tilemap::demo"
 			}
 		},
 		{
 			"title": "player",
-			"graphic_type": "player",
-			"graphic_data": {
-				"stage_layer": "stage",
+			"graphic": {
+				"type": "player",
+				"stage": "::layer_graphic_property::stage.tiles",
 				"player_data": {
 					"x": 25,
 					"y": 16
 				},
-				"key_handler": true
-			}
-		},
-		{
-			"title": "dash",
-			"graphic_type": "live text",
-			"graphic_data": {
-				"text_source": "game.scripts.custom.dash_meter.get_player_dash_percentage"
-			},
-			"layer_data": {
-				"offset_x": 40,
-				"offset_y": 10,
-				"fixed": true
+				"key_handler": "::key_handler::"
 			}
 		},
 		{
 			"title": "transition",
-			"data_values": {
-				"graphic_data.image": "game.scripts.custom.level_demo.transition_image",
-				"graphic_data.durations": "game.scripts.custom.level_demo.transition_durations",
-				"layer_data.on_animation_end": "game.scripts.custom.level_demo.transition_on_animation_end"
-			},
-			"graphic_type": "tiled animation",
-			"graphic_data": {
-				"image": -1,
+			"graphic": {
+				"type": "tiled animation",
+				"image": "::property::game.scripts.custom.level_demo.transition_image",
 				"rows": 1,
 				"cols": 31,
-				"durations": -1,
-				"width": 800,
-				"height": 600,
+				"durations": "::property::game.scripts.custom.level_demo.transition_durations",
+				"width": "::window_width::",
+				"height": "::window_height::",
 				"delay": 0.5
 			},
-			"layer_data": {
-				"on_animation_end": -1,
+			"layer": {
+				"on_animation_end": "::property::game.scripts.custom.level_demo.transition_on_animation_end",
 				"fixed": true
 			}
 		},
 		{
 			"title": "title",
-			"graphic_type": "heading",
-			"graphic_data": {
+			"graphic": {
+				"type": "heading",
 				"text": "Demo Stage",
 				"anchor_x": "center",
 				"anchor_y": "center"
 			},
-			"layer_data": {
+			"layer": {
 				"offset_x": 400,
 				"offset_y": 300,
 				"duration": 2.25,
@@ -87,12 +67,24 @@
 			}
 		},
 		{
-			"title": "fps",
-			"graphic_type": "live text",
-			"graphic_data": {
-				"text_source": "game.scripts.get_fps"
+			"title": "dash",
+			"graphic": {
+				"type": "live text",
+				"text_source": "::property::game.scripts.custom.dash_meter.get_player_dash_percentage"
 			},
-			"layer_data": {
+			"layer": {
+				"offset_x": 40,
+				"offset_y": 10,
+				"fixed": true
+			}
+		},
+		{
+			"title": "fps",
+			"graphic": {
+				"type": "live text",
+				"text_source": "::property::game.scripts.get_fps"
+			},
+			"layer": {
 				"offset_x": 10,
 				"offset_y": 10,
 				"fixed": true
