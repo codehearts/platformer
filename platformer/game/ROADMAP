@@ -3,7 +3,6 @@ Layer manager tests
 Testing framework for checking image equality
 Testing framework for generating tileset images (could be taken from tile map tests)
 Name table of object names and their objects (for easily looking up specific game objects through config code)
-Level loader
 Level loader tests
 Level editor
 Refactor camera functionality code
