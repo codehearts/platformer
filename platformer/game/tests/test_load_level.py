@@ -1,5 +1,5 @@
 import unittest
-from ..load.installed_level_config_translators import installed_translators, install_level_config_translator, translate_data_value, enable_level_config_post_processing
+from ..load.installed_level_config_translators import installed_translators, install_level_config_translator, translate_data_value, enable_level_config_post_processing, disable_level_config_post_processing
 from ..load.level import Level
 from util import custom_tile_types, resource
 from util.tileset import get_testing_tileset
@@ -240,6 +240,8 @@ class TestLoadLevel(unittest.TestCase):
 		self.assertEqual(data_value, expected_data_value,
 			"Post-processing tag was not translated during post-processing.")
 
+		disable_level_config_post_processing()
+
 	def test_level_loader(self):
 		"""Tests the level loader to assure that values are loaded correctly."""
 
@@ -276,10 +278,12 @@ class TestLoadLevel(unittest.TestCase):
 
 		level = Level(level_data)
 
-		self.assertEqual(level.layer_dict['stage'].graphic.tiles, level.layer_dict['player'].graphic.stage,
+		# TODO Use the layer manager to access layers by name once that's implemented
+		self.assertEqual(level.layers[0].graphic.tiles, level.layers[1].graphic.stage,
 			"Level loader failed to give player layer the tiles from stage layer when stage layer was defined first.")
 
-		self.assertIs(level.layer_dict['stage'].graphic.tiles, level.layer_dict['player'].graphic.stage,
+		# TODO Use the layer manager to access layers by name once that's implemented
+		self.assertIs(level.layers[0].graphic.tiles, level.layers[1].graphic.stage,
 			"Layer graphic property was cloned when giving player layer tiles from stage layer when stage layer was defined first.")
 
 		# Test layer graphic dependency testing when dependency is defined second
@@ -310,10 +314,13 @@ class TestLoadLevel(unittest.TestCase):
 		}
 
 		level = Level(level_data)
-		self.assertEqual(level.layer_dict['stage'].graphic.tiles, level.layer_dict['player'].graphic.stage,
+
+		# TODO Use the layer manager to access layers by name once that's implemented
+		self.assertEqual(level.layers[0].graphic.tiles, level.layers[1].graphic.stage,
 			"Level loader failed to give player layer the tiles from stage layer when stage layer was defined last.")
 
-		self.assertIs(level.layer_dict['stage'].graphic.tiles, level.layer_dict['player'].graphic.stage,
+		# TODO Use the layer manager to access layers by name once that's implemented
+		self.assertIs(level.layers[0].graphic.tiles, level.layers[1].graphic.stage,
 			"Layer graphic property was cloned when giving player layer tiles from stage layer when stage layer was defined last.")
 
 		# TODO Test script loading
