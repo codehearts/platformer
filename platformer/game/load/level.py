@@ -7,7 +7,7 @@ from ..settings.general_settings import TILE_SIZE, RESOURCE_PATH, LEVEL_DIRECTOR
 from game import layers
 from imp import load_source, new_module
 from tile_map import load_tile_map
-from installed_level_config_translators import install_level_config_translator, translate_data_value, enable_level_config_post_processing
+from installed_level_config_translators import install_level_config_translator, translate_data_value, enable_level_config_post_processing, disable_level_config_post_processing
 import game.scripts
 """Python 3
 import importlib.machinery"""
@@ -71,6 +71,10 @@ class Level(object):
 				if self._current_layer in self._layer_graphic_dependencies and not self._layer_dependencies_met(self._current_layer):
 					continue
 
+				# Skip layers that have already been created
+				if self._current_layer in self._initialized_layer_graphics:
+					continue
+
 				# Translate all layer data values
 				layer_config = translate_data_value(level_data['layers'][layer_index])
 
@@ -96,6 +100,9 @@ class Level(object):
 
 				# Register this layer graphic is being initialized
 				self._initialized_layer_graphics.append(self._current_layer)
+
+		# Disable post processing of level config data so more levels can be loaded
+		disable_level_config_post_processing()
 
 		# Clean up
 		self._layer_graphic_dependencies = self._current_layer = None

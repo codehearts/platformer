@@ -37,6 +37,13 @@ def enable_level_config_post_processing():
 	installed_translators = dict(installed_translators.items() + installed_translators_post.items())
 	"""
 
+def disable_level_config_post_processing():
+	"""Disables post-processing translators."""
+	global installed_translators
+
+	for translator in installed_translators_post.keys():
+		del installed_translators[translator]
+
 def translate_data_value(data_value, recurse=True):
 	"""Translates tagged data values to other data types as specified by the tag.
 	For example, '::property::a.b.c' will be translated into the `a.b.c` Python property.
