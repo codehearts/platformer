@@ -1,9 +1,24 @@
 import unittest
-from ..load.installed_level_config_translators import install_level_config_translator, translate_data_value, enable_level_config_post_processing
+from ..load.installed_level_config_translators import installed_translators, install_level_config_translator, translate_data_value, enable_level_config_post_processing
 from ..load.level import Level
+from util import custom_tile_types, resource
+from util.tileset import get_testing_tileset
 
 class TestLoadLevel(unittest.TestCase):
 	"""Tests loading a level from a config file."""
+
+	@classmethod
+	def setUpClass(cls):
+		resource.setUp()
+
+	@classmethod
+	def tearDownClass(cls):
+		resource.tearDown()
+
+	def setUp(self):
+		# Clear installed level config translators
+		global installed_translators
+		installed_translators = {}
 
 	def test_level_config_translators(self):
 		"""Tests translators for level config data to ensure that data strings are being translated to the correct values."""
@@ -224,3 +239,81 @@ class TestLoadLevel(unittest.TestCase):
 
 		self.assertEqual(data_value, expected_data_value,
 			"Post-processing tag was not translated during post-processing.")
+
+	def test_level_loader(self):
+		"""Tests the level loader to assure that values are loaded correctly."""
+
+		# Install test translators
+		install_level_config_translator('testing_tileset', lambda x: get_testing_tileset(2,2))
+		install_level_config_translator('testing_tilemap', lambda x: [[0,3,2],[2,3,0]])
+
+		# Test layer graphic dependency testing when dependency is defined first
+		level_data = {
+			'title': 'test level',
+			'camera_target': 'player',
+			'layers': [
+				{
+					'title': 'stage',
+					'graphic': {
+						'type': 'tile map',
+						'tileset': '::testing_tileset::',
+						'value_map': '::testing_tilemap::',
+					},
+				},
+				{
+					'title': 'player',
+					'graphic': {
+						'type': 'player',
+						'stage': '::layer_graphic_property::stage.tiles',
+						'player_data': {
+							'x': 0,
+							'y': 0,
+						},
+					},
+				},
+			],
+		}
+
+		level = Level(level_data)
+
+		self.assertEqual(level.layer_dict['stage'].graphic.tiles, level.layer_dict['player'].graphic.stage,
+			"Level loader failed to give player layer the tiles from stage layer when stage layer was defined first.")
+
+		self.assertIs(level.layer_dict['stage'].graphic.tiles, level.layer_dict['player'].graphic.stage,
+			"Layer graphic property was cloned when giving player layer tiles from stage layer when stage layer was defined first.")
+
+		# Test layer graphic dependency testing when dependency is defined second
+		level_data = {
+			'title': 'test level',
+			'camera_target': 'player',
+			'layers': [
+				{
+					'title': 'player',
+					'graphic': {
+						'type': 'player',
+						'stage': '::layer_graphic_property::stage.tiles',
+						'player_data': {
+							'x': 0,
+							'y': 0,
+						},
+					},
+				},
+				{
+					'title': 'stage',
+					'graphic': {
+						'type': 'tile map',
+						'tileset': '::testing_tileset::',
+						'value_map': '::testing_tilemap::',
+					},
+				},
+			],
+		}
+
+		level = Level(level_data)
+		self.assertEqual(level.layer_dict['stage'].graphic.tiles, level.layer_dict['player'].graphic.stage,
+			"Level loader failed to give player layer the tiles from stage layer when stage layer was defined last.")
+
+		self.assertIs(level.layer_dict['stage'].graphic.tiles, level.layer_dict['player'].graphic.stage,
+			"Layer graphic property was cloned when giving player layer tiles from stage layer when stage layer was defined last.")
+
+		# TODO Test script loading
