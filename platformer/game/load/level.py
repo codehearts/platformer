@@ -33,7 +33,8 @@ class Level(object):
 
 		# TODO Implement ability to specify whether to load a script before the level is loaded or after
 		# Scripts must be loaded first because they provide dynamic values which may be used
-		self._load_scripts(translate_data_value(level_data['scripts']))
+		if 'scripts' in level_data:
+			self._load_scripts(translate_data_value(level_data['scripts']))
 
 		# Translate all level data values
 		# Don't recurse because we'll translate the layer data individually
