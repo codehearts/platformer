@@ -1,12 +1,14 @@
+import os
+import glob
+
 # Dictionary of tags and translation functions to apply to config data values
 installed_translators = {}
-# TODO Test that post-processing is working
 installed_translators_post = {} # For post-processing
 
 _data_value_tag_prefix = '::'
 _data_value_tag_suffix = '::'
 
-def install_level_config_translator(data_type, translator, post=False):
+def install_translator(data_type, translator, post=False):
 	"""Adds support for translating data strings to other data types when loading
 	a level config. All string values tagged with the given data type will be
 	run through the given translator.
@@ -27,7 +29,7 @@ def install_level_config_translator(data_type, translator, post=False):
 	else:
 		installed_translators[data_type] = translator
 
-def enable_level_config_post_processing():
+def enable_post_processing():
 	"""Enables post-processing translators."""
 	global installed_translators
 
@@ -37,14 +39,14 @@ def enable_level_config_post_processing():
 	installed_translators = dict(installed_translators.items() + installed_translators_post.items())
 	"""
 
-def disable_level_config_post_processing():
+def disable_post_processing():
 	"""Disables post-processing translators."""
 	global installed_translators
 
 	for translator in installed_translators_post.keys():
 		del installed_translators[translator]
 
-def translate_data_value(data_value, recurse=True):
+def translate(data_value, recurse=True):
 	"""Translates tagged data values to other data types as specified by the tag.
 	For example, '::property::a.b.c' will be translated into the `a.b.c` Python property.
 	Tags are parsed from right to left to allow chaining, which is useful in cases such as
@@ -86,15 +88,20 @@ def translate_data_value(data_value, recurse=True):
 	elif recurse:
 		if isinstance(data_value, list):
 			# Using [:] will update the contents of the list without creating a new list
-			data_value[:] = map(translate_data_value, data_value)
+			data_value[:] = map(translate, data_value)
 		elif 'iteritems' in dir(data_value):
 			# Using a for loop instead of map() to keep the object at the same place in memory
 			for k, v in data_value.iteritems():
-				translated_k = translate_data_value(k)
+				translated_k = translate(k)
 
-				data_value[translated_k] = translate_data_value(v)
+				data_value[translated_k] = translate(v)
 
 				if translated_k != k:
 					del data_value[k]
 
 	return data_value
+
+# Get all files not beginning with an underscore and import them
+modules = glob.glob(os.path.dirname(__file__)+"/*.py")
+__all__ = [os.path.basename(f)[:-3] for f in modules if not os.path.basename(f).startswith('_')]
+from . import *

@@ -1,7 +1,6 @@
 import pyglet
-from pyglet.window import key
 from pyglet.gl import glEnable, glBlendFunc, GL_BLEND, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-from game import load, viewport, stageevents
+from game import viewport, stageevents
 from game import layers
 from game.settings import general_settings
 from game.animation import tiled_animation
@@ -10,7 +9,7 @@ from game.easing import EaseOut
 from game.bounded_box import BoundedBox
 from game import tiles
 from game.settings.general_settings import TILE_SIZE
-from game.load import Level, install_level_config_translator
+from game.load import Level
 import game
 
 # Graphical output window
@@ -18,11 +17,7 @@ import game
 game_window = pyglet.window.Window(800, 600, caption='Platformer Demo')
 #game_window.set_icon(pyglet.resource.image('icon.png')) @TODO Load an icon
 
-# Handler for all keyboard events
-key_handler = key.KeyStateHandler()
-
 # TODO There should be a HUD class and loader which can handle commonly reused HUD objects
-# TODO Maybe this should just be done in Python (a better idea might be to write custom python code in a separate file from the level config)
 # TODO Need a way to group common layers like the transition and title layer (Could use an underscore for reserved layer names, such as a special "_group" layer containing sublayers)
 # TODO Allow the config files access to simple values like the window size so things like centering are possible and the level title can be reused instead of hardcoding it everywhere it's needed
 
@@ -32,10 +27,7 @@ key_handler = key.KeyStateHandler()
 
 #characters = load.Characters(stage_data.get_character_data(), stage.get_tiles())
 
-game_window.push_handlers(key_handler)
-
-# Add support for obtaining the key handler in level config files
-install_level_config_translator('key_handler', lambda x: key_handler)
+game_window.push_handlers(game.key_handler)
 
 # TODO The stage to load shouldn't be passed like this, there should be some sort of saved data handler that passes the level to load
 level = Level.load('demo')
@@ -51,7 +43,8 @@ events = {
         }
     ]
 }
-stage_events = stageevents.StageEvents(level.layer_dict['player'].graphic, level.camera, events)
+# TODO level.layers[2] is a temporary way of getting the player layer
+stage_events = stageevents.StageEvents(level.layers[2].graphic, level.camera, events)
 
 # TODO Make this work again
 #module_reloader = reloader.Reloader(stage, player, game_window, cam, background, stage_events, key_handler)

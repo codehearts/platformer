@@ -1,4 +1,3 @@
-from game.load.installed_level_config_translators import install_level_config_translator
 from game.load.level import Level
 
 # Dictionary of layers and their layer graphic dependencies
@@ -39,9 +38,3 @@ def _get_layer_graphic_property(property_name):
 	_layer_graphic_dependencies[Level.current_processing_layer].remove(layer_title)
 
 	return getattr(Level.current_processed_layers[layer_title].graphic, property_name[split + 1 : ])
-
-# Add support for registering layer graphic dependencies
-install_level_config_translator('layer_graphic_property', _register_layer_graphic_dependency)
-
-# Resolve layer graphic dependencies during post-processing
-install_level_config_translator('resolve_layer_graphic_dependency', _get_layer_graphic_property, post=True)

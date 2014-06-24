@@ -46,7 +46,7 @@
 				"delay": 0.5
 			},
 			"layer": {
-				"on_animation_end": "::property::game.scripts.custom.level_demo.transition_on_animation_end",
+				"on_animation_end": "::property::game.scripts.delete_animation_layer",
 				"fixed": true
 			}
 		},

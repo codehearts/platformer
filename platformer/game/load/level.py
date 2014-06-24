@@ -4,11 +4,8 @@ from game.graphics import create_graphics_object
 from game import viewport
 from json import load as json_load
 from ..settings.general_settings import TILE_SIZE, RESOURCE_PATH, LEVEL_DIRECTORY, LEVEL_FORMAT
-from game import layers
-from installed_level_config_translators import translate_data_value, enable_level_config_post_processing, disable_level_config_post_processing
 import game.scripts
 
-# TODO Level loader tests
 class Level(object):
 	# TODO Documentation
 
@@ -26,14 +23,14 @@ class Level(object):
 		# TODO Implement ability to specify whether to load a script before the level is loaded or after
 		# Scripts must be loaded first because they provide dynamic values which may be used
 		if 'scripts' in level_data:
-			game.scripts.load_custom_scripts(translate_data_value(level_data['scripts']))
+			game.scripts.load_custom_scripts(config_translators.translate(level_data['scripts']))
 
 		# Translate all level data values, without recursing because we'll translate the layer data individually
-		level_data = translate_data_value(level_data, recurse=False)
+		level_data = config_translators.translate(level_data, recurse=False)
 
 		# Check if the boundaries of the map were specified
 		if 'size' in level_data:
-			level_data['size'] = translate_data_value(level_data['size'])
+			level_data['size'] = config_translators.translate(level_data['size'])
 			rows = level_data['size']['rows']
 			cols = level_data['size']['cols']
 		else:
@@ -42,24 +39,24 @@ class Level(object):
 
 		# Loop through layers, keeping track of the current processing layer
 		for layer_index, layer_config in enumerate(level_data['layers']):
-			Level.current_processing_layer = translate_data_value(layer_config['title'])
-			level_data['layers'][layer_index] = translate_data_value(layer_config)
+			Level.current_processing_layer = config_translators.translate(layer_config['title'])
+			level_data['layers'][layer_index] = config_translators.translate(layer_config)
 
 		# Enable post processing of level config data
-		enable_level_config_post_processing()
+		config_translators.enable_post_processing()
 
 		# Post-process the level config and create the layers
 		self.layers = [] # TODO Temporarily exposed publicly until the layer manager allows layers to be accessed by name
 		while len(self.layers) != len(level_data['layers']):
 			for layer_index, layer_config in enumerate(level_data['layers']):
-				Level.current_processing_layer = translate_data_value(layer_config['title'])
+				Level.current_processing_layer = config_translators.translate(layer_config['title'])
 
 				# Skip layers that still have unmet dependencies or have already been processed
 				if not layer_dependencies_met(Level.current_processing_layer) or Level.current_processing_layer in Level.current_processed_layers:
 					continue
 
 				# Translate all layer data values
-				layer_config = translate_data_value(level_data['layers'][layer_index])
+				layer_config = config_translators.translate(level_data['layers'][layer_index])
 
 				graphic_type = layer_config['graphic']['type']
 				del layer_config['graphic']['type'] # Remove the graphic type from the graphic arguments
@@ -82,7 +79,7 @@ class Level(object):
 				Level.current_processed_layers[Level.current_processing_layer] = layer
 
 		# Disable post processing of level config data so more levels can be loaded
-		disable_level_config_post_processing()
+		config_translators.disable_post_processing()
 
 		# Initialize the camera
 		stage_boundary = BoundedBox(0, 0, cols*TILE_SIZE, rows*TILE_SIZE)
@@ -115,4 +112,6 @@ class Level(object):
 		return cls(level_data)
 
 # Import at bottom to resolve circular dependency
+from game import layers
 from game.layers.level_config_translators import layer_dependencies_met
+import config_translators
