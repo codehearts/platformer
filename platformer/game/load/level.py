@@ -3,13 +3,10 @@ from game.bounded_box import BoundedBox
 from game.graphics import create_graphics_object
 from game import viewport
 from json import load as json_load
-from ..settings.general_settings import TILE_SIZE, RESOURCE_PATH, LEVEL_DIRECTORY, LEVEL_FORMAT, SCRIPT_DIRECTORY, SCRIPT_FORMAT
+from ..settings.general_settings import TILE_SIZE, RESOURCE_PATH, LEVEL_DIRECTORY, LEVEL_FORMAT
 from game import layers
-from imp import load_source, new_module
 from installed_level_config_translators import translate_data_value, enable_level_config_post_processing, disable_level_config_post_processing
 import game.scripts
-"""Python 3
-import importlib.machinery"""
 
 # TODO Level loader tests
 class Level(object):
@@ -29,7 +26,7 @@ class Level(object):
 		# TODO Implement ability to specify whether to load a script before the level is loaded or after
 		# Scripts must be loaded first because they provide dynamic values which may be used
 		if 'scripts' in level_data:
-			self._load_scripts(translate_data_value(level_data['scripts']))
+			game.scripts.load_custom_scripts(translate_data_value(level_data['scripts']))
 
 		# Translate all level data values, without recursing because we'll translate the layer data individually
 		level_data = translate_data_value(level_data, recurse=False)
@@ -84,9 +81,6 @@ class Level(object):
 				self.layers.append(layer)
 				Level.current_processed_layers[Level.current_processing_layer] = layer
 
-				# Register this layer graphic is being initialized
-				self._initialized_layer_graphics.append(Level.current_processing_layer)
-
 		# Disable post processing of level config data so more levels can be loaded
 		disable_level_config_post_processing()
 
@@ -102,18 +96,6 @@ class Level(object):
 		# Clean ip the static properties once loading is finished
 		Level.current_processed_layers = {}
 		Level.current_processing_layer = None
-
-	def _load_scripts(self, scripts):
-		"""Dynamically loads the given scripts. The scripts are loaded from the scripts directory.
-
-		Args:
-			scripts (list): A list of the filenames of the scripts to load.
-		"""
-		for script in scripts:
-			load_source('game.scripts.custom.'+script, RESOURCE_PATH+SCRIPT_DIRECTORY+'/'+script+'.'+SCRIPT_FORMAT)
-			"""Python 3
-			loader = importlib.machinery.SourceFileLoader('games.scripts.custom.'+script, RESOURCE_PATH+SCRIPT_DIRECTORY+'/'+script+'.'+SCRIPT_FORMAT)
-			loader.load_module('game.scripts.custom.'+script)"""
 
 	@classmethod
 	def load(cls, level_title):
