@@ -70,8 +70,11 @@ class Level(object):
 				if level_data['camera_target'] == Level.current_processing_layer:
 					camera_target = layer_graphic
 
+				# Add the layer title as an argument for creating the layer
 				if not 'layer' in layer_config:
-					layer_config['layer'] = {}
+					layer_config['layer'] = {'title': self.current_processing_layer}
+				else:
+					layer_config['layer']['title'] = self.current_processing_layer
 
 				layer = layers.create_from(layer_graphic, **layer_config['layer'])
 
