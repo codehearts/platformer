@@ -52,7 +52,7 @@ class Level(object):
 				Level.current_processing_layer = config_translators.translate(layer_config['title'])
 
 				# Skip layers that still have unmet dependencies or have already been processed
-				if not layer_dependencies_met(Level.current_processing_layer) or Level.current_processing_layer in Level.current_processed_layers:
+				if not config_translators.ready_for_translation(Level.current_processing_layer) or Level.current_processing_layer in Level.current_processed_layers:
 					continue
 
 				# Translate all layer data values
@@ -113,5 +113,4 @@ class Level(object):
 
 # Import at bottom to resolve circular dependency
 from game import layers
-from game.layers.level_config_translators import layer_dependencies_met
 import config_translators
