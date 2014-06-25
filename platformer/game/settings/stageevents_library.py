@@ -1,10 +1,10 @@
 from pyglet import clock
-from game.settings import general_settings
+from game.easing import EaseOut
 
 # TODO Look into using pyglet's EventDispatcher
 def demo_stage_1(modules):
     modules['player'].disable()
-    modules['camera'].move_to_tile(45.5, 3, 1, general_settings.EASE_OUT)
+    modules['camera'].move_to_tile(45.5, 3, 1, easing=EaseOut)
 
     clock.schedule_once(demo_stage_1_end, 1.5, modules)
 

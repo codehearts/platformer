@@ -34,6 +34,23 @@ class Linear(object):
 		self._class_get_frame_durations = self.get_frame_durations
 		self.get_frame_durations = self._get_instance_frame_durations
 
+	def change_end(self, new_end):
+		"""Changes the ending value of the easing transition.
+
+		Args:
+			new_end (float): The new ending value for the easing transition.
+		"""
+		self.end = new_end
+		self._position_delta = new_end - self.start
+
+	def reset_duration(self, duration):
+		"""Resets the duration of the easing transition to the given duration.
+
+		Args:
+			duration (float): The duration to reset the easing transition to.
+		"""
+		self.duration += float(duration)
+
 	def get_value_after_duration(self, elapsed_time):
 		"""Calculates the value of the easing transition after
 		the specified amount of time.

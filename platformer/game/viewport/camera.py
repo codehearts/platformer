@@ -1,7 +1,7 @@
-from .. import old_easing
 from pyglet.gl import *
-from ..settings import general_settings
+from ..settings.general_settings import TILE_SIZE
 from viewport import Viewport
+from ..easing import EaseIn, EaseOut
 
 # TODO on_target_change event
 
@@ -24,20 +24,14 @@ class Camera(Viewport):
 
 		super(Camera, self).__init__(*args, **kwargs)
 
+		self.easing_x = None
+		self.easing_y = None
+
 		# Accuracy threshold for focusing on targets
 		self.accuracy_threshold = 2
 
 		self.focus_x = 0
 		self.focus_y = 0
-
-		self.takeoff_x = None
-		self.takeoff_y = None
-		self.destination_x = None
-		self.destination_y = None
-
-		self.old_easing_function = general_settings.EASE_IN
-		self.ease_time = 0
-		self.ease_time_progress = 0
 
 		self.seeking_target = False
 		self.fixed = False
@@ -45,35 +39,31 @@ class Camera(Viewport):
 		self.aspect = self.width / float(self.height)
 		self.scale = self.height / 2
 
-		self.left		= -(self.scale) * self.aspect
-		self.right		= self.scale * self.aspect
+		self.left   = -(self.scale) * self.aspect
+		self.right  = self.scale * self.aspect
 		self.bottom = -(self.scale)
-		self.top		= self.scale
+		self.top    = self.scale
 
 	# @TODO Camera should slowly follow player
 	# @TODO Camera should focus a few tiels ahead of the direction the target is facing
 
 	def update(self, dt):
-		if self.destination_x or self.destination_y:
-			self.ease_time_progress += dt
-
-			if self.destination_x:
-				if self.old_easing_function == general_settings.EASE_IN:
-					self.focus_x = int(old_easing.ease_in(self.takeoff_x, self.destination_x, self.ease_time, self.ease_time_progress))
-				else:
-					self.focus_x = int(old_easing.ease_out(self.takeoff_x, self.destination_x, self.ease_time, self.ease_time_progress))
-			if self.destination_y:
-				if self.old_easing_function == general_settings.EASE_IN:
-					self.focus_y = int(old_easing.ease_in(self.takeoff_y, self.destination_y, self.ease_time, self.ease_time_progress))
-				else:
-					self.focus_y = int(old_easing.ease_out(self.takeoff_y, self.destination_y, self.ease_time, self.ease_time_progress))
+		if self.easing_x or self.easing_y:
+			if self.easing_x:
+				self.easing_x.update(dt)
+				self.focus_x = int(self.easing_x.value)
+			if self.easing_y:
+				self.easing_y.update(dt)
+				self.focus_y = int(self.easing_y.value)
 
 			self.focus_on(self.focus_x, self.focus_y)
-			if self.ease_time_progress >= self.ease_time:
-				self.ease_time_progress = 0
-				self.destination_x = None
-				self.destination_y = None
 
+			if self.easing_x.value == self.easing_x.end:
+				self.easing_x = None
+			if self.easing_y.value == self.easing_y.end:
+				self.easing_y = None
+
+			if not self.easing_x and not self.easing_y:
 				if self.seeking_target:
 					self.seeking_target = False
 				else:
@@ -86,14 +76,6 @@ class Camera(Viewport):
 	def focus(self):
 		x = self.target.mid_x
 		y = self.target.mid_y
-
-		glMatrixMode(GL_PROJECTION)
-		glLoadIdentity()
-
-		gluOrtho2D(self.left, self.right, self.bottom, self.top)
-
-		glMatrixMode(GL_MODELVIEW)
-		glLoadIdentity()
 
 		# Keep the camera within the bounds of the stage
 		super(Camera, self).update(0, x - self._half_width, y - self._half_height)
@@ -112,7 +94,14 @@ class Camera(Viewport):
 		self.focus_x = x
 		self.focus_y = y
 
+		glMatrixMode(GL_PROJECTION)
+		glLoadIdentity()
+
+		gluOrtho2D(self.left, self.right, self.bottom, self.top)
 		gluLookAt(x, y, 1.0, x, y, -1.0, 0, 1, 0.0)
+
+		glMatrixMode(GL_MODELVIEW)
+		glLoadIdentity()
 
 		self._set_x(x - self._half_width)
 		self._set_y(y - self._half_height)
@@ -120,23 +109,32 @@ class Camera(Viewport):
 
 
 	def focus_on(self, x, y):
+		super(Camera, self).update(0, x - self._half_width, y - self._half_height)
+
 		glMatrixMode(GL_PROJECTION)
 		glLoadIdentity()
 
 		gluOrtho2D(self.left, self.right, self.bottom, self.top)
+		gluLookAt(x, y, 1.0, x, y, -1.0, 0, 1, 0.0)
 
 		glMatrixMode(GL_MODELVIEW)
 		glLoadIdentity()
-
-		super(Camera, self).update(0, x - self._half_width, y - self._half_height)
-
-		gluLookAt(x, y, 1.0, x, y, -1.0, 0, 1, 0.0)
 
 		if self.seeking_target:
 			# Update our target location in case it moved
 			self.focus_on_target()
 
-	def focus_on_target(self, time=0.4, old_easing=general_settings.EASE_IN):
+	def focus_on_target(self, time=0.4, easing=None, x_easing=None, y_easing=None):
+		# Initialize the easing function
+		if easing != None:
+			x_easing = easing
+			y_easing = easing
+		else:
+			if x_easing == None:
+				x_easing = EaseIn
+			if y_easing == None:
+				y_easing = EaseIn
+
 		x = self.target.mid_x
 		y = self.target.mid_y
 
@@ -150,24 +148,32 @@ class Camera(Viewport):
 			if y < self._y + self._half_height:
 				y = self._y + self._half_height
 
-			#self.takeoff_x = self.focus_x
-			#self.takeoff_y = self.focus_y
-			self.destination_x = x
-			self.destination_y = y
+			#self.easing_x = x_easing(self.focus_x, x, time)
+			#self.easing_y = y_easing(self.focus_y, y, time)
+			self.easing_x.change_end(x)
+			self.easing_x.reset_duration(time)
+			self.easing_y.change_end(y)
+			self.easing_y.reset_duration(time)
 
 			# Don't execute the rest of this function if we're already seeking the target
 			return
 
 		self.seeking_target = True
 		self.fixed = False
-		self.move_to(x, y, time, old_easing)
+		self.move_to(x, y, time, x_easing=x_easing, y_easing=y_easing)
 
 
 
-	def move_to(self, x, y, time=1, old_easing=general_settings.EASE_IN):
-		self.ease_time = time
-		self.old_easing_function = old_easing
-		self.ease_time_progress = 0
+	def move_to(self, x, y, time=1, easing=None, x_easing=None, y_easing=None):
+		# Initialize the easing function
+		if easing != None:
+			x_easing = easing
+			y_easing = easing
+		else:
+			if x_easing == None:
+				x_easing = EaseIn
+			if y_easing == None:
+				y_easing = EaseIn
 
 		# Keep the camera within the bounds of the stage
 
@@ -179,11 +185,8 @@ class Camera(Viewport):
 		if y < self._y + self._half_height:
 			y = self._y + self._half_height
 
-		self.takeoff_x = self.focus_x
-		self.takeoff_y = self.focus_y
+		self.easing_x = x_easing(self.focus_x, x - self._half_width, time)
+		self.easing_y = y_easing(self.focus_y, y - self._half_height, time)
 
-		self.destination_x = x - self._half_width
-		self.destination_y = y - self._half_height
-
-	def move_to_tile(self, tile_x, tile_y, *args):
-		self.move_to(tile_x*general_settings.TILE_SIZE, tile_y*general_settings.TILE_SIZE, *args)
+	def move_to_tile(self, tile_x, tile_y, *args, **kwargs):
+		self.move_to(tile_x*TILE_SIZE, tile_y*TILE_SIZE, *args, **kwargs)
