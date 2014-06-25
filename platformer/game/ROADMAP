@@ -1,4 +1,3 @@
-Add viewport layer and treat camera as a layer rather than having specific level code for it
 Layer manager refactoring
 Layer manager tests
 Testing framework for checking image equality

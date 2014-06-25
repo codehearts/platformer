@@ -1,10 +1,8 @@
 from pyglet.resource import file as open_resource_file
-from game.bounded_box import BoundedBox
 from game.graphics import create_graphics_object
-from game import viewport
 from game import layers
 from json import load as json_load
-from ..settings.general_settings import TILE_SIZE, RESOURCE_PATH, LEVEL_DIRECTORY, LEVEL_FORMAT
+from ..settings.general_settings import RESOURCE_PATH, LEVEL_DIRECTORY, LEVEL_FORMAT
 import game.scripts
 
 class Level(object):
@@ -57,6 +55,9 @@ class Level(object):
 			Level.current_processing_layer = config_translators.translate(layer_config['title'])
 			level_data['layers'][layer_index] = config_translators.translate(layer_config)
 
+		Level.current_processing_layer = None
+		level_data['viewport'] = config_translators.translate(level_data['viewport'])
+
 		# Enable post processing of level config data
 		config_translators.enable_post_processing()
 
@@ -82,9 +83,6 @@ class Level(object):
 				if Level.current_processing_layer == 'player':
 					layer_graphic = layer_graphic.character
 
-				if level_data['camera_target'] == Level.current_processing_layer:
-					camera_target = layer_graphic
-
 				# Add the layer title as an argument for creating the layer
 				if not 'layer' in layer_config:
 					layer_config['layer'] = {'title': self.current_processing_layer}
@@ -96,21 +94,24 @@ class Level(object):
 				initialized_layers.append(layer)
 				Level.current_processed_layers[Level.current_processing_layer] = layer
 
+		# Clean ip the static properties once loading is finished
+		Level.current_processing_layer = None
+
+		# Create the viewport
+		level_data['viewport'] = config_translators.translate(level_data['viewport'])
+		graphic_type = level_data['viewport']['type']
+		del level_data['viewport']['type'] # Remove the graphic type from the graphic arguments
+
+		viewport = create_graphics_object(graphic_type, **level_data['viewport'])
+
 		# Disable post processing of level config data so more levels can be loaded
 		config_translators.disable_post_processing()
 
-		# Initialize the camera
-		stage_boundary = BoundedBox(0, 0, cols*TILE_SIZE, rows*TILE_SIZE)
-		# TODO Don't hardcode window size, make it a global setting
-		self.camera = viewport.Camera(0, 0, 800, 600, bounds=stage_boundary, target=camera_target)
-		self.camera.focus() # TODO Should this be called on init?
-
 		# Initialize the layer manager
-		self.layer_manager = layers.LayerManager(self.camera, initialized_layers)
+		self.layer_manager = layers.LayerManager(viewport, initialized_layers)
 
 		# Clean ip the static properties once loading is finished
 		Level.current_processed_layers = {}
-		Level.current_processing_layer = None
 
 	@classmethod
 	def load(cls, level_title):

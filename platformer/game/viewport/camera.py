@@ -2,6 +2,7 @@ from pyglet.gl import *
 from ..settings.general_settings import TILE_SIZE
 from viewport import Viewport
 from ..easing import EaseIn, EaseOut
+from game.graphics import install_graphics_module
 
 # TODO on_target_change event
 
@@ -13,7 +14,6 @@ class Camera(Viewport):
 		target (): The object being followed by the camera.
 	"""
 
-	# TODO Does the target need to be a PhysicalObject or can it be a BoundedBox?
 	def __init__(self, *args, **kwargs):
 		"""Creates a new camera.
 
@@ -24,14 +24,14 @@ class Camera(Viewport):
 
 		super(Camera, self).__init__(*args, **kwargs)
 
-		self.easing_x = None
-		self.easing_y = None
-
 		# Accuracy threshold for focusing on targets
 		self.accuracy_threshold = 2
 
-		self.focus_x = 0
-		self.focus_y = 0
+		self.focus_x = self.target.mid_x
+		self.focus_y = self.target.mid_y
+
+		self.easing_x = EaseIn(self.focus_x, self.focus_x, 0.4)
+		self.easing_y = EaseIn(self.focus_x, self.focus_x, 0.4)
 
 		self.seeking_target = False
 		self.fixed = False
@@ -48,37 +48,58 @@ class Camera(Viewport):
 	# @TODO Camera should focus a few tiels ahead of the direction the target is facing
 
 	def update(self, dt):
-		if self.easing_x or self.easing_y:
-			if self.easing_x:
-				self.easing_x.update(dt)
-				self.focus_x = int(self.easing_x.value)
-			if self.easing_y:
-				self.easing_y.update(dt)
-				self.focus_y = int(self.easing_y.value)
+		self.easing_x.update(dt)
+		self.easing_y.update(dt)
 
-			self.focus_on(self.focus_x, self.focus_y)
+		self.focus_x = self.target.mid_x
+		self.focus_y = self.target.mid_y
 
-			if self.easing_x.value == self.easing_x.end:
-				self.easing_x = None
-			if self.easing_y.value == self.easing_y.end:
-				self.easing_y = None
+		super(Camera, self).update(0, self.focus_x - self.half_width, self.focus_y - self.half_height)
 
-			if not self.easing_x and not self.easing_y:
-				if self.seeking_target:
-					self.seeking_target = False
-				else:
-					self.fixed = True
-		elif not self.fixed:
-			self.focus()
+		self.easing_x.change_end(self.focus_x)
+		self.easing_y.change_end(self.focus_y)
+		self.easing_x.reset_duration(0.4)
+		self.easing_y.reset_duration(0.4)
+
+	def draw(self):
+		glMatrixMode(GL_PROJECTION)
+		glLoadIdentity()
+
+		gluOrtho2D(self.left, self.right, self.bottom, self.top)
+		gluLookAt(self.focus_x, self.focus_y, 1.0, self.focus_x, self.focus_y, -1.0, 0, 1, 0.0)
+
+		glMatrixMode(GL_MODELVIEW)
+		glLoadIdentity()
 
 
 
-	def focus(self):
+	def focus(self, easing=None, x_easing=None, y_easing=None):
+		print("FOCUS")
+		return
+		time = 0.4
+		# Initialize the easing function
+		if not easing is None:
+			x_easing = easing
+			y_easing = easing
+		else:
+			if x_easing is None:
+				x_easing = EaseIn(self.focus_x, 0, time)
+			if y_easing is None:
+				y_easing = EaseIn(self.focus_x, 0, time)
+
+		self.easing_x = x_easing
+		self.easing_y = y_easing
+
 		x = self.target.mid_x
 		y = self.target.mid_y
 
+		self.easing_x.change_end(x - self._half_width)
+		#self.easing_x.reset_duration(time)
+		self.easing_y.change_end(y - self._half_height)
+		#self.easing_y.reset_duration(time)
+
 		# Keep the camera within the bounds of the stage
-		super(Camera, self).update(0, x - self._half_width, y - self._half_height)
+		super(Camera, self).update(0, self.easing_x.value, self.easing_y.value)
 
 		#x -= self._half_width
 		#y -= self._half_height
@@ -109,6 +130,7 @@ class Camera(Viewport):
 
 
 	def focus_on(self, x, y):
+		print("FOCUS ON")
 		super(Camera, self).update(0, x - self._half_width, y - self._half_height)
 
 		glMatrixMode(GL_PROJECTION)
@@ -125,6 +147,7 @@ class Camera(Viewport):
 			self.focus_on_target()
 
 	def focus_on_target(self, time=0.4, easing=None, x_easing=None, y_easing=None):
+		print("TARGET FOCUS")
 		# Initialize the easing function
 		if easing != None:
 			x_easing = easing
@@ -165,6 +188,7 @@ class Camera(Viewport):
 
 
 	def move_to(self, x, y, time=1, easing=None, x_easing=None, y_easing=None):
+		print("MOVE TO")
 		# Initialize the easing function
 		if easing != None:
 			x_easing = easing
@@ -190,3 +214,14 @@ class Camera(Viewport):
 
 	def move_to_tile(self, tile_x, tile_y, *args, **kwargs):
 		self.move_to(tile_x*TILE_SIZE, tile_y*TILE_SIZE, *args, **kwargs)
+
+
+def recognizer(graphics_type):
+	"""Recognizes whether this graphics type is handled by :class:`game.tiles.tileset.Tileset`."""
+	return graphics_type == 'camera'
+
+def factory(*args, **kwargs):
+	"""Returns a :class:`game.tiles.tileset.Tileset` for the given arguments."""
+	return Camera(*args, **kwargs)
+
+install_graphics_module(__name__)

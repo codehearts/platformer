@@ -19,12 +19,18 @@ def _register_layer_graphic_dependency(property_name):
 	layer graphic during post-processing.
 	"""
 	split = property_name.find('.')
-	dependecy_layer_title = property_name[ : split]
 
-	if not Level.current_processing_layer in _layer_graphic_dependencies:
-		_layer_graphic_dependencies[Level.current_processing_layer] = [dependecy_layer_title]
+	# If there was no dot, the property_name is the layer title
+	if split < 0:
+		dependecy_layer_title = property_name
 	else:
-		_layer_graphic_dependencies[Level.current_processing_layer].append(dependecy_layer_title)
+		dependecy_layer_title = property_name[ : split]
+
+	if not Level.current_processing_layer is None:
+		if not Level.current_processing_layer in _layer_graphic_dependencies:
+			_layer_graphic_dependencies[Level.current_processing_layer] = [dependecy_layer_title]
+		else:
+			_layer_graphic_dependencies[Level.current_processing_layer].append(dependecy_layer_title)
 
 	# TODO There should be a way for this method to tell the translator to stop translating tags for this property after this one
 	return '::resolve_layer_graphic_dependency::' + property_name
@@ -32,6 +38,11 @@ def _register_layer_graphic_dependency(property_name):
 def _get_layer_graphic_property(property_name):
 	"""Returns the specified layer graphic property. This must be done during post-processing."""
 	split = property_name.find('.')
+
+	# If there's no dot, the property is the actual graphic object
+	if split < 0:
+		return Level.current_processed_layers[property_name].graphic
+
 	layer_title = property_name[ : split]
 
 	# Remove the layer from the list of layer dependencies
