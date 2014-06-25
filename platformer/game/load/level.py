@@ -8,7 +8,21 @@ from ..settings.general_settings import TILE_SIZE, RESOURCE_PATH, LEVEL_DIRECTOR
 import game.scripts
 
 class Level(object):
-	# TODO Documentation
+	"""Contains the layers, viewport, and scripts for a level.
+	The level can be loaded from a config file in the resources/levels directory by calling
+	`Level.load` with the level file's name. All layers, scripts, and the viewport will be
+	initialized and loaded.
+
+	Static Properties:
+		current_processing_layer (str): The title of the layer currently being processed, or None
+		                                if no processing is being performed. Useful for translators.
+		current_processed_layers (dict): Layers which have already been processed as layer_title: layer_object.
+		                                 The dict will be empty if processing is not currently ongoing.
+
+	Properties:
+		camera (:class:`viewport.Viewport`): The camera for the level.
+		layer_manager (:class:`layers.LayerManager`): The layer manager for the level's layers.
+	"""
 
 	# The title of the layer currently being processed
 	current_processing_layer = None
