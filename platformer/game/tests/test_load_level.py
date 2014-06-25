@@ -317,3 +317,4 @@ class TestLoadLevel(unittest.TestCase):
 			"Layer graphic property was cloned when giving player layer tiles from stage layer when stage layer was defined last.")
 
 		# TODO Test script loading
+		# TODO Test loading a level from a file
