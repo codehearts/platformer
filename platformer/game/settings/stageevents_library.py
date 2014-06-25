@@ -1,5 +1,5 @@
 from pyglet import clock
-from game.easing import EaseOut
+from game.easing import EaseIn, EaseOut
 
 # TODO Look into using pyglet's EventDispatcher
 def demo_stage_1(modules):
@@ -10,4 +10,4 @@ def demo_stage_1(modules):
 
 def demo_stage_1_end(delay_time, modules):
     modules['player'].enable()
-    modules['camera'].focus_on_target(0.4)
+    modules['camera'].focus_on_target(1, easing=EaseIn)

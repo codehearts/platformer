@@ -34,6 +34,10 @@ class Linear(object):
 		self._class_get_frame_durations = self.get_frame_durations
 		self.get_frame_durations = self._get_instance_frame_durations
 
+	def is_done(self):
+		"""Returns true if the easing curve is done."""
+		return self.elapsed_time >= self.duration
+
 	def change_end(self, end, ease_power=2):
 		"""Changes the end value of the easing transition.
 

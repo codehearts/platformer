@@ -43,7 +43,7 @@ events = {
         }
     ]
 }
-#stage_events = stageevents.StageEvents(level.layer_manager.layers['player'].graphic, level.camera, events)
+stage_events = stageevents.StageEvents(level.layer_manager.layers['player'].graphic, level.layer_manager.viewport, events)
 
 # TODO Make this work again
 #module_reloader = reloader.Reloader(stage, player, game_window, cam, background, stage_events, key_handler)
@@ -56,7 +56,7 @@ def on_draw():
 	level.layer_manager.draw()
 
 def update(dt):
-	#stage_events.update()
+	stage_events.update()
 
         # TODO The level object should have its own update method
 	level.layer_manager.update(dt)
