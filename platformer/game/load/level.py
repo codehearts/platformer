@@ -2,6 +2,7 @@ from pyglet.resource import file as open_resource_file
 from game.bounded_box import BoundedBox
 from game.graphics import create_graphics_object
 from game import viewport
+from game import layers
 from json import load as json_load
 from ..settings.general_settings import TILE_SIZE, RESOURCE_PATH, LEVEL_DIRECTORY, LEVEL_FORMAT
 import game.scripts
@@ -115,5 +116,4 @@ class Level(object):
 		return cls(level_data)
 
 # Import at bottom to resolve circular dependency
-from game import layers
 import config_translators
