@@ -3,7 +3,7 @@ from game.load.level import Level
 # Dictionary of layers and their layer graphic dependencies
 _layer_graphic_dependencies = {}
 
-def layer_dependencies_met(layer_title):
+def _layer_dependencies_met(layer_title):
 	"""Returns True if the given layer has had its dependencies met, or False otherwise.
 
 	Args:

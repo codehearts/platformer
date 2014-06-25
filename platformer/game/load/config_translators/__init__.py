@@ -43,7 +43,7 @@ def install_readiness_test(test_function):
 	"""
 	global installed_translation_readiness_tests
 
-	installed_translation_readiness_tests.append(translator)
+	installed_translation_readiness_tests.append(test_function)
 
 def enable_post_processing():
 	"""Enables post-processing translators."""
