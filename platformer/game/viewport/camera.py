@@ -1,7 +1,7 @@
 from pyglet.gl import *
 from ..settings.general_settings import TILE_SIZE
 from viewport import Viewport
-from ..easing import EaseIn, EaseOut
+from ..easing import EaseOut
 from game.graphics import install_graphics_module
 
 # TODO on_target_change event
@@ -30,8 +30,9 @@ class Camera(Viewport):
 		self.focus_x = self.target.mid_x
 		self.focus_y = self.target.mid_y
 
-		self.easing_x = EaseIn(self.focus_x, self.focus_x, 0.4)
-		self.easing_y = EaseIn(self.focus_x, self.focus_x, 0.4)
+		self.time = 0.4
+		self.easing_x = EaseOut(self.focus_x, self.focus_x, self.time)
+		self.easing_y = EaseOut(self.focus_y, self.focus_y, self.time)
 
 		self.seeking_target = False
 		self.fixed = False
@@ -51,22 +52,28 @@ class Camera(Viewport):
 		self.easing_x.update(dt)
 		self.easing_y.update(dt)
 
+		x = self.easing_x.value - self.half_width
+		y = self.easing_y.value - self.half_height
+
+		super(Camera, self).update(0, x, y)
+
 		self.focus_x = self.target.mid_x
 		self.focus_y = self.target.mid_y
 
-		super(Camera, self).update(0, self.focus_x - self.half_width, self.focus_y - self.half_height)
+		if self.focus_x != self.easing_x.end:
+			self.easing_x.change_end(self.focus_x)
 
-		self.easing_x.change_end(self.focus_x)
-		self.easing_y.change_end(self.focus_y)
-		self.easing_x.reset_duration(0.4)
-		self.easing_y.reset_duration(0.4)
+		if self.focus_y != self.easing_y.end:
+			self.easing_y.change_end(self.focus_y)
 
 	def draw(self):
 		glMatrixMode(GL_PROJECTION)
 		glLoadIdentity()
 
 		gluOrtho2D(self.left, self.right, self.bottom, self.top)
-		gluLookAt(self.focus_x, self.focus_y, 1.0, self.focus_x, self.focus_y, -1.0, 0, 1, 0.0)
+		x = int(self.easing_x.value)
+		y = int(self.easing_y.value)
+		gluLookAt(x, y, 1.0, x, y, -1.0, 0, 1, 0.0)
 
 		glMatrixMode(GL_MODELVIEW)
 		glLoadIdentity()
@@ -83,9 +90,9 @@ class Camera(Viewport):
 			y_easing = easing
 		else:
 			if x_easing is None:
-				x_easing = EaseIn(self.focus_x, 0, time)
+				x_easing = EaseOut(self.focus_x, 0, time)
 			if y_easing is None:
-				y_easing = EaseIn(self.focus_x, 0, time)
+				y_easing = EaseOut(self.focus_x, 0, time)
 
 		self.easing_x = x_easing
 		self.easing_y = y_easing
@@ -154,9 +161,9 @@ class Camera(Viewport):
 			y_easing = easing
 		else:
 			if x_easing == None:
-				x_easing = EaseIn
+				x_easing = EaseOut
 			if y_easing == None:
-				y_easing = EaseIn
+				y_easing = EaseOut
 
 		x = self.target.mid_x
 		y = self.target.mid_y
@@ -195,9 +202,9 @@ class Camera(Viewport):
 			y_easing = easing
 		else:
 			if x_easing == None:
-				x_easing = EaseIn
+				x_easing = EaseOut
 			if y_easing == None:
-				y_easing = EaseIn
+				y_easing = EaseOut
 
 		# Keep the camera within the bounds of the stage
 
