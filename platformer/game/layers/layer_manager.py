@@ -42,10 +42,9 @@ class LayerManager(object):
 				Args:
 						dt (float): The number of seconds since the last update.
 				"""
-				for item in self._update_queue:
-					item.update(dt)
+				self.viewport.target.update(dt)
 				self.viewport.update(dt)
-				#map(lambda item: item.update(dt), self._update_queue)
+				map(lambda item: item.update(dt), self._update_queue)
 
 
 		def draw(self):
@@ -66,8 +65,9 @@ class LayerManager(object):
 				self._append_to_drawing_queue(layer)
 				self._push_layer_event_handlers(layer)
 
-				# Add the layer to the update queue if it supports updating
-				if hasattr(layer, 'update'):
+				# Add the layer to the update queue if it supports updating and is not the viewport target
+				# (The viewport target must be updated first so that the viewport can update before other layers)
+				if hasattr(layer, 'update') and not layer.graphic is self.viewport.target:
 					self._update_queue.append(layer)
 
 
