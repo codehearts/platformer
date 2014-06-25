@@ -13,6 +13,7 @@ class LayerManager(object):
 		"""Manager for updating and drawing layers in a specified order.
 
 		Attributes:
+				layers (dict): A dictionary of layers in the form layer_title: layer_object.
 				viewport: The viewport that the layers will be viewed through.
 		"""
 
