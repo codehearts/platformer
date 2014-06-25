@@ -23,6 +23,7 @@ class LayerManager(object):
 						viwport: The viewport that the layers will be viewed through.
 						layers (list of :class:`game.layers.BaseLayer`): The layers to maintain, with the highest index being the top foreground layer and the first index being the bottom background layer.
 				"""
+				self.layers = {}
 				self.viewport = viewport
 
 				self._drawing_queue = []
@@ -62,6 +63,7 @@ class LayerManager(object):
 				Args:
 						layer (:class:`game.layers.BaseLayer`): The layer to begin managing.
 				"""
+				self.layers[layer.title] = layer
 				layer.viewport = self.viewport
 
 				self._append_to_drawing_queue(layer)
