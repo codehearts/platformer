@@ -46,8 +46,8 @@ class Level(object):
 		config_translators.enable_post_processing()
 
 		# Post-process the level config and create the layers
-		self.layers = [] # TODO Temporarily exposed publicly until the layer manager allows layers to be accessed by name
-		while len(self.layers) != len(level_data['layers']):
+		initialized_layers = []
+		while len(initialized_layers) != len(level_data['layers']):
 			for layer_index, layer_config in enumerate(level_data['layers']):
 				Level.current_processing_layer = config_translators.translate(layer_config['title'])
 
@@ -70,12 +70,15 @@ class Level(object):
 				if level_data['camera_target'] == Level.current_processing_layer:
 					camera_target = layer_graphic
 
+				# Add the layer title as an argument for creating the layer
 				if not 'layer' in layer_config:
-					layer_config['layer'] = {}
+					layer_config['layer'] = {'title': self.current_processing_layer}
+				else:
+					layer_config['layer']['title'] = self.current_processing_layer
 
 				layer = layers.create_from(layer_graphic, **layer_config['layer'])
 
-				self.layers.append(layer)
+				initialized_layers.append(layer)
 				Level.current_processed_layers[Level.current_processing_layer] = layer
 
 		# Disable post processing of level config data so more levels can be loaded
@@ -88,7 +91,7 @@ class Level(object):
 		self.camera.focus() # TODO Should this be called on init?
 
 		# Initialize the layer manager
-		self.layer_manager = layers.LayerManager(self.camera, self.layers)
+		self.layer_manager = layers.LayerManager(self.camera, initialized_layers)
 
 		# Clean ip the static properties once loading is finished
 		Level.current_processed_layers = {}

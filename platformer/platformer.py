@@ -43,8 +43,7 @@ events = {
         }
     ]
 }
-# TODO level.layers[2] is a temporary way of getting the player layer
-stage_events = stageevents.StageEvents(level.layers[2].graphic, level.camera, events)
+stage_events = stageevents.StageEvents(level.layer_manager.layers['player'].graphic, level.camera, events)
 
 # TODO Make this work again
 #module_reloader = reloader.Reloader(stage, player, game_window, cam, background, stage_events, key_handler)
