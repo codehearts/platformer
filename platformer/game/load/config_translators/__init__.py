@@ -2,12 +2,12 @@ import os
 import glob
 
 # Dictionary of tags and translation functions to apply to config data values
-installed_translators = {}
-installed_translators_post = {} # For post-processing
-enabled_translators = installed_translators # The translators that are currently enabled
+_installed_translators = {}
+_installed_translators_post = {} # For post-processing
+_enabled_translators = _installed_translators # The translators that are currently enabled
 
 # List of tests to confirm that a layer is ready for translation in post-processing
-installed_translation_readiness_tests = []
+_installed_translation_readiness_tests = []
 
 _data_value_tag_prefix = '::'
 _data_value_tag_suffix = '::'
@@ -26,12 +26,12 @@ def install_translator(data_type, translator, post=False):
 	Kwargs:
 		post (bool): Whether or not the translator is intended for post-processing.
 	"""
-	global installed_translators, installed_translators_post
+	global _installed_translators, _installed_translators_post
 
 	if post:
-		installed_translators_post[data_type] = translator
+		_installed_translators_post[data_type] = translator
 	else:
-		installed_translators[data_type] = translator
+		_installed_translators[data_type] = translator
 
 def install_readiness_test(test_function):
 	"""Adds the given test function to the list of tests to determine if a layer is ready
@@ -41,26 +41,26 @@ def install_readiness_test(test_function):
 		test_function (function): The test function. This should accept the title of the
 		                          layer as a string argument.
 	"""
-	global installed_translation_readiness_tests
+	global _installed_translation_readiness_tests
 
-	installed_translation_readiness_tests.append(test_function)
+	_installed_translation_readiness_tests.append(test_function)
 
 def enable_post_processing():
 	"""Enables post-processing translators."""
-	global installed_translators_post, enabled_translators
+	global _installed_translators_post, _enabled_translators
 
-	installed_translators_post = dict(installed_translators.items() + installed_translators_post.items())
-	enabled_translators = installed_translators_post
+	_installed_translators_post = dict(_installed_translators.items() + _installed_translators_post.items())
+	_enabled_translators = _installed_translators_post
 	"""
 	Python 3:
-	installed_translators = dict(installed_translators.items() + installed_translators_post.items())
+	_installed_translators = dict(_installed_translators.items() + _installed_translators_post.items())
 	"""
 
 def disable_post_processing():
 	"""Disables post-processing translators."""
-	global enabled_translators
+	global _enabled_translators
 
-	enabled_translators = installed_translators
+	_enabled_translators = _installed_translators
 
 def translate(data_value, recurse=True):
 	"""Translates tagged data values to other data types as specified by the tag.
@@ -87,8 +87,8 @@ def translate(data_value, recurse=True):
 		rightmost_tag_prefix = data_value.rfind(_data_value_tag_prefix, 0, rightmost_tag_suffix)
 		while rightmost_tag_suffix != -1 and rightmost_tag_prefix != -1:
 			tag = data_value[rightmost_tag_prefix+len(_data_value_tag_prefix) : rightmost_tag_suffix]
-			if tag in enabled_translators:
-				translated_data_value = enabled_translators[tag](data_value[rightmost_tag_suffix+len(_data_value_tag_suffix):])
+			if tag in _enabled_translators:
+				translated_data_value = _enabled_translators[tag](data_value[rightmost_tag_suffix+len(_data_value_tag_suffix):])
 
 				# The data value can't contain a tag anymore
 				if not isinstance(translated_data_value, basestring):
@@ -122,7 +122,7 @@ def ready_for_translation(layer_title):
 	This can only be done during post-processing.
 	"""
 	# Reduces the tests list to the result of `True and test1(layer_title) and test2(layer_title) and ...`
-	return reduce(lambda status,test: status and test(layer_title), installed_translation_readiness_tests, True)
+	return reduce(lambda status,test: status and test(layer_title), _installed_translation_readiness_tests, True)
 
 # Get all files not beginning with an underscore and import them
 modules = glob.glob(os.path.dirname(__file__)+"/*.py")

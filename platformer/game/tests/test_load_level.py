@@ -1,5 +1,5 @@
 import unittest
-from ..load.config_translators import installed_translators, install_translator, translate, enable_post_processing, disable_post_processing
+from ..load.config_translators import install_translator, translate, enable_post_processing, disable_post_processing
 from ..load.level import Level
 from util import custom_tile_types, resource
 from util.tileset import get_testing_tileset
@@ -14,11 +14,6 @@ class TestLoadLevel(unittest.TestCase):
 	@classmethod
 	def tearDownClass(cls):
 		resource.tearDown()
-
-	def setUp(self):
-		# Clear installed level config translators
-		global installed_translators
-		installed_translators = {}
 
 	def test_level_config_translators(self):
 		"""Tests translators for level config data to ensure that data strings are being translated to the correct values."""
