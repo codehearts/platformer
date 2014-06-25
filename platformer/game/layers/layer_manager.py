@@ -3,7 +3,7 @@ from pyglet.graphics import Batch, OrderedGroup
 # TODO Layer manager should support hiding layers (no drawing) and deactivating layers (no drawing or updating)
 # TODO Layer manager should support being disabled and re-enabled (like when you enter a sublevel and the current layer manager changes to the sub-level's)
 
-# TODO This should probably support the naming of layers so that layers can be added later relative to a pre-existing layer more easily.
+# TODO This should probably support adding layers relative to a pre-existing layer at any time.
 
 # TODO When the camera target changes, the target layer should be updated
 
