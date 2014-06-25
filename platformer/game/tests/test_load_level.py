@@ -272,13 +272,12 @@ class TestLoadLevel(unittest.TestCase):
 		}
 
 		level = Level(level_data)
+		layers = level.layer_manager.layers
 
-		# TODO Use the layer manager to access layers by name once that's implemented
-		self.assertEqual(level.layers[0].graphic.tiles, level.layers[1].graphic.stage,
+		self.assertEqual(layers['stage'].graphic.tiles, layers['player'].graphic.stage,
 			"Level loader failed to give player layer the tiles from stage layer when stage layer was defined first.")
 
-		# TODO Use the layer manager to access layers by name once that's implemented
-		self.assertIs(level.layers[0].graphic.tiles, level.layers[1].graphic.stage,
+		self.assertIs(layers['stage'].graphic.tiles, layers['player'].graphic.stage,
 			"Layer graphic property was cloned when giving player layer tiles from stage layer when stage layer was defined first.")
 
 		# Test layer graphic dependency testing when dependency is defined second
@@ -309,13 +308,12 @@ class TestLoadLevel(unittest.TestCase):
 		}
 
 		level = Level(level_data)
+		layers = level.layer_manager.layers
 
-		# TODO Use the layer manager to access layers by name once that's implemented
-		self.assertEqual(level.layers[0].graphic.tiles, level.layers[1].graphic.stage,
+		self.assertEqual(layers['stage'].graphic.tiles, layers['player'].graphic.stage,
 			"Level loader failed to give player layer the tiles from stage layer when stage layer was defined last.")
 
-		# TODO Use the layer manager to access layers by name once that's implemented
-		self.assertIs(level.layers[0].graphic.tiles, level.layers[1].graphic.stage,
+		self.assertIs(layers['stage'].graphic.tiles, layers['player'].graphic.stage,
 			"Layer graphic property was cloned when giving player layer tiles from stage layer when stage layer was defined last.")
 
 		# TODO Test script loading
