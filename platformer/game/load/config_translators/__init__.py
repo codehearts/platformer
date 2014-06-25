@@ -4,6 +4,7 @@ import glob
 # Dictionary of tags and translation functions to apply to config data values
 installed_translators = {}
 installed_translators_post = {} # For post-processing
+enabled_translators = installed_translators # The translators that are currently enabled
 
 _data_value_tag_prefix = '::'
 _data_value_tag_suffix = '::'
@@ -31,9 +32,10 @@ def install_translator(data_type, translator, post=False):
 
 def enable_post_processing():
 	"""Enables post-processing translators."""
-	global installed_translators
+	global installed_translators_post, enabled_translators
 
-	installed_translators = dict(installed_translators.items() + installed_translators_post.items())
+	installed_translators_post = dict(installed_translators.items() + installed_translators_post.items())
+	enabled_translators = installed_translators_post
 	"""
 	Python 3:
 	installed_translators = dict(installed_translators.items() + installed_translators_post.items())
@@ -41,10 +43,9 @@ def enable_post_processing():
 
 def disable_post_processing():
 	"""Disables post-processing translators."""
-	global installed_translators
+	global enabled_translators
 
-	for translator in installed_translators_post.keys():
-		del installed_translators[translator]
+	enabled_translators = installed_translators
 
 def translate(data_value, recurse=True):
 	"""Translates tagged data values to other data types as specified by the tag.
@@ -71,8 +72,8 @@ def translate(data_value, recurse=True):
 		rightmost_tag_prefix = data_value.rfind(_data_value_tag_prefix, 0, rightmost_tag_suffix)
 		while rightmost_tag_suffix != -1 and rightmost_tag_prefix != -1:
 			tag = data_value[rightmost_tag_prefix+len(_data_value_tag_prefix) : rightmost_tag_suffix]
-			if tag in installed_translators:
-				translated_data_value = installed_translators[tag](data_value[rightmost_tag_suffix+len(_data_value_tag_suffix):])
+			if tag in enabled_translators:
+				translated_data_value = enabled_translators[tag](data_value[rightmost_tag_suffix+len(_data_value_tag_suffix):])
 
 				# The data value can't contain a tag anymore
 				if not isinstance(translated_data_value, basestring):
