@@ -6,6 +6,9 @@ installed_translators = {}
 installed_translators_post = {} # For post-processing
 enabled_translators = installed_translators # The translators that are currently enabled
 
+# List of tests to confirm that a layer is ready for translation in post-processing
+installed_translation_readiness_tests = []
+
 _data_value_tag_prefix = '::'
 _data_value_tag_suffix = '::'
 
@@ -29,6 +32,18 @@ def install_translator(data_type, translator, post=False):
 		installed_translators_post[data_type] = translator
 	else:
 		installed_translators[data_type] = translator
+
+def install_readiness_test(test_function):
+	"""Adds the given test function to the list of tests to determine if a layer is ready
+	for translation. The test function should accept the title of the layer to test.
+
+	Args:
+		test_function (function): The test function. This should accept the title of the
+		                          layer as a string argument.
+	"""
+	global installed_translation_readiness_tests
+
+	installed_translation_readiness_tests.append(translator)
 
 def enable_post_processing():
 	"""Enables post-processing translators."""
@@ -101,6 +116,13 @@ def translate(data_value, recurse=True):
 					del data_value[k]
 
 	return data_value
+
+def ready_for_translation(layer_title):
+	"""Returns True if the given layer is ready for translation.
+	This can only be done during post-processing.
+	"""
+	# Reduces the tests list to the result of `True and test1(layer_title) and test2(layer_title) and ...`
+	return reduce(lambda status,test: status and test(layer_title), installed_translation_readiness_tests, True)
 
 # Get all files not beginning with an underscore and import them
 modules = glob.glob(os.path.dirname(__file__)+"/*.py")
