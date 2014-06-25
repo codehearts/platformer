@@ -20,7 +20,9 @@ class BaseLayer(EventDispatcher):
 		viewport (object): The viewport that this layer is drawn to.
 	"""
 
-	def __init__(self, graphic, viewport=None, duration=None):
+	untitled_count = 0
+
+	def __init__(self, graphic, title='untitled', viewport=None, duration=None):
 		"""Creates a new layer.
 
 		Args:
@@ -32,6 +34,12 @@ class BaseLayer(EventDispatcher):
 		"""
 		self.graphic = graphic
 		self.viewport = viewport
+		self.title = title
+
+		# Ensure untitled layers have unique names
+		if title == 'untitled':
+			BaseLayer.untitled_count += 1
+			self.title += '_' + str(BaseLayer.untitled_count)
 
 		if duration:
 			schedule_once(self._handle_duration_end, duration)
