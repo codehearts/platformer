@@ -123,6 +123,8 @@ class BoundedBox(object):
 		elif self._y2 > bounding_box.y2:
 			self._set_y(bounding_box.y2 - self._height)
 
+		return self
+
 
 
 	def _set_x(self, x):
