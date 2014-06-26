@@ -37,30 +37,32 @@ class TestCamera(unittest.TestCase):
 		self.assertEqual(viewport.x, 0, 'Focusing on target x when bounded by stage left failed')
 		self.assertEqual(viewport.y, 0, 'Focusing on target y when bounded by stage bottom failed')
 
+		# Test target focus when bounded by the bottom of the bounds
 
+		# Move the target horizontally so the camera is not bounded by the left bounds
+		target.x = 25 * TILE_SIZE
 
-		## Test target focus when bounded by the bottom of the stage
+		# Simulate 1 second of time
+		for i in xrange(int(FPS)):
+			viewport.update(FRAME_LENGTH) # Give the camera a full second to catch up
 
-		#character.reset_to_tile(25, 1)
-		#cam.update(general_settings.FRAME_LENGTH)
+		# The viewport should be focusing on the center of the target, but still be bounded by the bottom of the bounds
+		self.assertEqual(viewport.mid_x, target.mid_x, 'Focusing on target x when within horizontal bounds failed')
+		self.assertEqual(viewport.y, 0, 'Focusing on target y when bounded by boundary bottom failed')
 
-		## The camera should be focusing on the center of the test object, but still be bounded by the bottom of the stage
-		#self.assertEqual(cam.focus_x, character.get_x()+character.get_half_width(), 'Focusing on target x when unbounded failed')
-		#self.assertEqual(cam.focus_y, cam.half_height, 'Focusing on target y when bounded by stage bottom failed')
+		# Test target focus when fully within bounds
 
+		# Move the target so that the camera will be within bounds
+		target.x = 25 * TILE_SIZE
+		target.y = 25 * TILE_SIZE
 
+		# Simulate 1 second of time
+		for i in xrange(int(FPS)):
+			viewport.update(FRAME_LENGTH) # Give the camera a full second to catch up
 
-		## Test unbounded target focus
-
-		#character.reset_to_tile(25, 10)
-		#cam.update(general_settings.FRAME_LENGTH)
-
-		## The camera should be focusing on the center of the test object
-		#self.assertEqual(cam.focus_x, character.get_x()+character.get_half_width(), 'Focusing on target x when unbounded failed')
-		#self.assertEqual(cam.focus_y, character.get_y()+character.get_half_height(), 'Focusing on target y when unbounded failed')
-
-
-		#game_window.close()
+		# The viewport should be focusing on the center of the target
+		self.assertEqual(viewport.mid_x, target.mid_x, 'Focusing on target x when within horizontal bounds failed')
+		self.assertEqual(viewport.mid_y, target.mid_y, 'Focusing on target y when within vertical bounds failed')
 
 
 
