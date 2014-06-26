@@ -2,7 +2,6 @@ from pyglet.gl import *
 from ..settings.general_settings import TILE_SIZE
 from viewport import Viewport
 from ..easing import EaseOut
-from game.graphics import install_graphics_module
 
 # TODO on_target_change event
 
@@ -167,15 +166,3 @@ class Camera(Viewport):
 				y_easing = self._default_easing_function
 
 		return (x_easing, y_easing)
-
-
-
-def recognizer(graphics_type):
-	"""Recognizes whether this graphics type is handled by :class:`viewport.Camera`."""
-	return graphics_type == 'camera'
-
-def factory(*args, **kwargs):
-	"""Returns a :class:`viewport.Camera` for the given arguments."""
-	return Camera(*args, **kwargs)
-
-install_graphics_module(__name__)

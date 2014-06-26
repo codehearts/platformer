@@ -1,7 +1,6 @@
 from tileset_config import TilesetConfig
 from tileset_image import TilesetImage
 from tileset_loaders import get_tileset_config, get_tileset_image
-from game.graphics import install_graphics_module
 from .. import tile_factory
 
 class Tileset(object):
@@ -119,16 +118,3 @@ class Tileset(object):
 			)
 
 		return cls(tileset_name, cls._cached_tilesets[tileset_name]['image'], cls._cached_tilesets[tileset_name]['config'])
-
-
-
-# TODO This should be moved to an installed graphics module directory
-def recognizer(graphics_type):
-	"""Recognizes whether this graphics type is handled by :class:`game.tiles.tileset.Tileset`."""
-	return graphics_type == 'tileset'
-
-def factory(*args, **kwargs):
-	"""Returns a :class:`game.tiles.tileset.Tileset` for the given arguments."""
-	return Tileset.load(*args, **kwargs)
-
-install_graphics_module(__name__)
