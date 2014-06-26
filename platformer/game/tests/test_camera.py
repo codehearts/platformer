@@ -1,10 +1,8 @@
-import pyglet, unittest
-from game import load
-from game.viewport import Camera
-from game.physical_objects.physical_object import PhysicalObject
-from game.bounded_box import BoundedBox
 from game.settings.general_settings import TILE_SIZE, FPS, FRAME_LENGTH
-from game.easing import EaseIn
+from game.viewport import Camera
+from game.bounded_box import BoundedBox
+from game.easing import EaseIn, EaseOut
+import unittest
 
 class TestCamera(unittest.TestCase):
 	"""Tests the camera to ensure that it controls the viewport correctly and focuses on the correct coordinates."""
@@ -100,57 +98,48 @@ class TestCamera(unittest.TestCase):
 		self.assertEqual(viewport.mid_x / TILE_SIZE, 19, 'Camera did not arrive at horizontal destination with ease in function')
 		self.assertEqual(viewport.mid_y / TILE_SIZE, 19, 'Camera did not arrive at vertical destination with ease in function')
 
+		# Test moving focus to tile (40, 40) in 2 seconds with ease-out function
 
+		viewport.focus_on_tile(40, 40, duration=2, easing=EaseOut)
+		halfway_x = (40 * TILE_SIZE - viewport.mid_x) / 2.0 + viewport.mid_x
+		halfway_y = (40 * TILE_SIZE - viewport.mid_y) / 2.0 + viewport.mid_y
 
-		## Test moving focus to tile (40, 40) in 2 seconds with ease-out function
+		# Simulate 1 second of time
+		for i in xrange(int(FPS)):
+			viewport.update(FRAME_LENGTH)
 
-		#cam.move_to_tile(40, 40, 2, general_settings.EASE_OUT)
-		#halfway_x = ((40*tile_size) - cam.focus_x) / 2.0 + cam.focus_x
-		#halfway_y = ((40*tile_size) - cam.focus_y) / 2.0 + cam.focus_y
+		# Since half the duration is up and we're using an ease out function, we should be more than halfway there
+		self.assertTrue(viewport.mid_x > halfway_x, 'Camera is moving incorrectly with horizontal ease out after half of the duration')
+		self.assertTrue(viewport.mid_y > halfway_y, 'Camera is moving incorrectly with vertical ease out after half of the duration')
 
-		## Simulate 1 second of game time
-		#for i in xrange(int(general_settings.FPS)):
-			#cam.update(general_settings.FRAME_LENGTH)
+		# Simulate 1 second of time
+		for i in xrange(int(FPS)):
+			viewport.update(FRAME_LENGTH)
 
-		## Since half the duration is up and we're using an ease-out function, we should be more than halfway there
-		#self.assertTrue(cam.focus_x > halfway_x, 'Ease-out in x direction at half duration failed')
-		#self.assertTrue(cam.focus_y > halfway_y, 'Ease-out in y direction at half duration failed')
+		# Since the duration is up, we should be at our destination
+		self.assertEqual(viewport.mid_x / TILE_SIZE, 40, 'Camera did not arrive at horizontal destination with ease out function')
+		self.assertEqual(viewport.mid_y / TILE_SIZE, 40, 'Camera did not arrive at vertical destination with ease out function')
 
-		## Simulate 1 second of game time
-		#for i in xrange(int(general_settings.FPS)):
-			#cam.update(general_settings.FRAME_LENGTH)
+		# Test moving focus back to the target in 1 second with an ease out function
 
-		## Since the duration is up, we should be at our destination
-		#self.assertEqual(int(cam.focus_x/tile_size), 40, 'Ease-out did not arrive at x destination')
-		#self.assertEqual(int(cam.focus_y/tile_size), 40, 'Ease-out did not arrive at y destination')
+		viewport.focus_on_target(duration=1, easing=EaseOut)
 
+		# The target is at the bottom left of the stage, so the camera will be bounded by that
+		halfway_x = (viewport.mid_x - viewport.half_width) / 2.0
+		halfway_y = (viewport.mid_y - viewport.half_height) / 2.0
 
+		# Simulate half a second of time
+		for i in xrange(int(FPS * 0.5)):
+			viewport.update(FRAME_LENGTH)
 
-		## Test moving focus back to the target in 1 second with ease-out function
+		# Since half the duration is up and we're using an ease out function, we should be more than halfway there
+		self.assertTrue(viewport.mid_x < halfway_x, 'Camera is moving incorrectly back to target with horizontal ease out after half of the duration')
+		self.assertTrue(viewport.mid_y < halfway_y, 'Camera is moving incorrectly back to target with vertical ease out after half of the duration')
 
-		#cam.focus_on_target(1, general_settings.EASE_OUT)
+		# Simulate half a second of time
+		for i in xrange(int(FPS * 0.5)):
+			viewport.update(FRAME_LENGTH)
 
-		## The target is at the bottom left of the stage, so the camera will be bounded by that
-		#halfway_x = (cam.focus_x - cam.half_width) / 2.0
-		#halfway_y = (cam.focus_y - cam.half_height) / 2.0
-
-		## Simulate half a second of game time
-		#for i in xrange(int(general_settings.FPS * 0.5)):
-			#cam.update(general_settings.FRAME_LENGTH)
-
-		## Since half the duration is up and we're using an ease-out function, we should be more than halfway there
-
-		#self.assertTrue(cam.focus_x > halfway_x, 'Ease-out in x direction when refocusing on target at half duration failed')
-		#self.assertTrue(cam.focus_y > halfway_y, 'Ease-out in y direction when refocusing on target at half duration failed')
-
-		## Simulate half a second of game time
-		#for i in xrange(int(general_settings.FPS * 0.5)):
-			#cam.update(general_settings.FRAME_LENGTH)
-
-		## Since the duration is up, we should be at our destination (it actually falls short by a small fraction, which is acceptable)
-
-		#self.assertEqual(cam.focus_x, cam.half_width, 'Ease-out did not arrive at target')
-		#self.assertEqual(cam.focus_y, cam.half_height, 'Ease-out did not arrive at target')
-
-
-		#game_window.close()
+		# Since the duration is up, we should be at our destination
+		self.assertEqual(viewport.x, 0, 'Camera did not arrive at horizontal target coordinate with ease out function')
+		self.assertEqual(viewport.y, 0, 'Camera did not arrive at vertical target coordinate with ease out function')
