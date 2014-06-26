@@ -16,7 +16,7 @@ from test_layers import *
 from test_layer_manager import *
 from test_load_level import *
 #from test_loaders import *
-#from test_camera import *
+from test_camera import *
 #from test_layers import *
 #from test_simple_ai import *
 #from test_collisions import *

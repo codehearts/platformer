@@ -57,6 +57,9 @@ class Camera(Viewport):
 		self._bottom = -self._scale
 		self._top    =  self._scale
 
+		# Focus the camera on the target
+		self.update(0)
+
 	# @TODO Camera should focus a few tiles ahead of the direction the target is facing
 
 	def update(self, dt):
