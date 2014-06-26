@@ -1,6 +1,7 @@
 import unittest
 from util import dummy_graphics_module
-from ..graphics import install_graphics_module, create_graphics_object
+from ..graphics import create_graphics_object
+from ..graphics.installed_graphics import install_graphics_module
 
 class TestGraphicsFactory(unittest.TestCase):
 
