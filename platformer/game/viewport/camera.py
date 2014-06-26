@@ -150,7 +150,7 @@ class Camera(Viewport):
 		# Flag that the camera is returning to the target's coordinates
 		self._returning_to_target = True
 
-		self.focus_on_coordinates(self.target.mid_x + self._half_width, self.target.mid_y + self._half_height, *args, **kwargs)
+		self.focus_on_coordinates(self.target.mid_x, self.target.mid_y, *args, **kwargs)
 
 	def _get_easing_functions(self, easing, x_easing, y_easing):
 		"""Returns the appropriate x and y axis easing functions based on the arguments.
