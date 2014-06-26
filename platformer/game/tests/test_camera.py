@@ -63,10 +63,8 @@ class TestCamera(unittest.TestCase):
 		self.assertEqual(viewport.mid_x, target.mid_x, 'Focusing on target x when within horizontal bounds failed')
 		self.assertEqual(viewport.mid_y, target.mid_y, 'Focusing on target y when within vertical bounds failed')
 
-
-
-	def test_alternating_focus(self):
-		"""Tests focusing on and off of a target."""
+	def test_focusing_off_target(self):
+		"""Tests focusing away from the target and then back to it."""
 		# 100 by 100 bounds
 		bounds = BoundedBox(0, 0, 100*TILE_SIZE, 100*TILE_SIZE)
 
