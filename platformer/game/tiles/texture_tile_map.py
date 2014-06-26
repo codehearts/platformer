@@ -71,6 +71,7 @@ class TextureTileMap(object):
 		self.texture.blit(x, y)
 
 	# TODO Accept a BoundedBox as the argument
+	# TODO Profile this method to determine if it really is more efficient to constantly extract texture regions instead of drawing the whole texture
 	def get_region(self, x, y, width, height):
 		"""Returns a region of the tile map.
 
