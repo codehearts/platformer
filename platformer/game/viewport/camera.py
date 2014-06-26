@@ -118,7 +118,7 @@ class Camera(Viewport):
 		self._focusing_on_target = False
 		x_easing, y_easing = self._get_easing_functions(easing, x_easing, y_easing)
 
-		coordinates = BoundedBox(x - self._half_width, y - self._half_height, 0, 0).bound_within(self.bounds)
+		coordinates = BoundedBox(x, y, 0, 0).bound_within(self.bounds)
 
 		self._easing_x = x_easing(self._easing_x.value, coordinates.x, duration)
 		self._easing_y = y_easing(self._easing_y.value, coordinates.y, duration)

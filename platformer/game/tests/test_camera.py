@@ -4,6 +4,7 @@ from game.viewport import Camera
 from game.physical_objects.physical_object import PhysicalObject
 from game.bounded_box import BoundedBox
 from game.settings.general_settings import TILE_SIZE, FPS, FRAME_LENGTH
+from game.easing import EaseIn
 
 class TestCamera(unittest.TestCase):
 	"""Tests the camera to ensure that it controls the viewport correctly and focuses on the correct coordinates."""
@@ -66,42 +67,38 @@ class TestCamera(unittest.TestCase):
 
 
 
-	# Tests focusing on and off a target
-	#def test_alternating_focus(self):
-		## flat_map is 100 tiles of floor with 19 rows of empty space above
-		#flat_map = [[0]*100]*19 + [[1]*100]
-		#flat_level = load.Stage(demo_settings.TILE_DATA, flat_map)
-		#character = load.single_character('test_object_6', 0, 1, flat_level.get_tiles()) # test_object_6 is a SimpleAI object
-		#game_window = pyglet.window.Window(800, 600, visible=False)
-		#tile_size = general_settings.TILE_SIZE_FLOAT
+	def test_alternating_focus(self):
+		"""Tests focusing on and off of a target."""
+		# 100 by 100 bounds
+		bounds = BoundedBox(0, 0, 100*TILE_SIZE, 100*TILE_SIZE)
 
-		## Load the camera and focus on our test object
-		#cam = camera.Camera(character, game_window, flat_level.get_tiles())
-		#cam.focus()
+		# Target in the middle of bounds
+		target = BoundedBox(0, 0, TILE_SIZE, TILE_SIZE)
 
+		# 8 by 6 viewport
+		viewport = Camera(0, 0, 8*TILE_SIZE, 6*TILE_SIZE, bounds=bounds, target=target)
 
+		# Test moving focus to tile (20, 20) in 2 seconds with ease-in function
 
-		## Test moving focus to tile (20, 20) in 2 seconds with ease-in function
+		viewport.focus_on_tile(20, 20, duration=2, easing=EaseIn)
+		halfway_x = (20 * TILE_SIZE - viewport.mid_x) / 2.0 + viewport.mid_x
+		halfway_y = (20 * TILE_SIZE - viewport.mid_y) / 2.0 + viewport.mid_y
 
-		#cam.move_to_tile(20, 20, 2, general_settings.EASE_IN)
-		#halfway_x = ((20*tile_size) - cam.focus_x) / 2.0 + cam.focus_x
-		#halfway_y = ((20*tile_size) - cam.focus_y) / 2.0 + cam.focus_y
+		# Simulate 1 second of time
+		for i in xrange(int(FPS)):
+			viewport.update(FRAME_LENGTH)
 
-		## Simulate 1 second of game time
-		#for i in xrange(int(general_settings.FPS)):
-			#cam.update(general_settings.FRAME_LENGTH)
+		# Since half the duration is up and we're using an ease in function, we should be less than halfway there
+		self.assertTrue(viewport.mid_x < halfway_x, 'Camera is moving incorrectly with horizontal ease in after half of the duration')
+		self.assertTrue(viewport.mid_y < halfway_y, 'Camera is moving incorrectly with vertical ease in after half of the duration')
 
-		## Since half the duration is up and we're using an ease-in function, we should be less than halfway there
-		#self.assertTrue(cam.focus_x < halfway_x, 'Ease-in in x direction at half duration failed')
-		#self.assertTrue(cam.focus_y < halfway_y, 'Ease-in in y direction at half duration failed')
+		# Simulate 1 second of time
+		for i in xrange(int(FPS)*10):
+			viewport.update(FRAME_LENGTH)
 
-		## Simulate 1 second of game time
-		#for i in xrange(int(general_settings.FPS)):
-			#cam.update(general_settings.FRAME_LENGTH)
-
-		## Since the duration is up, we should be at our destination (it actually falls short by a small fraction, which is acceptable)
-		#self.assertEqual(int(cam.focus_x/tile_size), 19, 'Ease-in did not arrive at x destination')
-		#self.assertEqual(int(cam.focus_y/tile_size), 19, 'Ease-in did not arrive at y destination')
+		# Since the duration is up, we should be at our destination
+		self.assertEqual(viewport.mid_x / TILE_SIZE, 20, 'Camera did not arrive at horizontal destination with ease in function')
+		self.assertEqual(viewport.mid_y / TILE_SIZE, 20, 'Camera did not arrive at vertical destination with ease in function')
 
 
 
