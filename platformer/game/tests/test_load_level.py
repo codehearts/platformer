@@ -3,6 +3,7 @@ from ..load.config_translators import install_translator, translate, enable_post
 from ..load.level import Level
 from util import custom_tile_types, resource
 from util.tileset import get_testing_tileset
+from game.bounded_box import BoundedBox
 
 class TestLoadLevel(unittest.TestCase):
 	"""Tests loading a level from a config file."""
@@ -247,7 +248,15 @@ class TestLoadLevel(unittest.TestCase):
 		# Test layer graphic dependency testing when dependency is defined first
 		level_data = {
 			'title': 'test level',
-			'camera_target': 'player',
+			'viewport': {
+				'type': 'camera',
+				'bounds': BoundedBox(0, 0, 1000, 1000),
+				'target': '::layer_graphic_property::player',
+				'x': 0,
+				'y': 0,
+				'width': '::window_width::',
+				'height': '::window_height::',
+			},
 			'layers': [
 				{
 					'title': 'stage',
@@ -283,7 +292,15 @@ class TestLoadLevel(unittest.TestCase):
 		# Test layer graphic dependency testing when dependency is defined second
 		level_data = {
 			'title': 'test level',
-			'camera_target': 'player',
+			'viewport': {
+				'type': 'camera',
+				'bounds': BoundedBox(0, 0, 1000, 1000),
+				'target': '::layer_graphic_property::player',
+				'x': 0,
+				'y': 0,
+				'width': '::window_width::',
+				'height': '::window_height::',
+			},
 			'layers': [
 				{
 					'title': 'player',

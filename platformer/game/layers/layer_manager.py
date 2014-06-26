@@ -13,31 +13,27 @@ class LayerManager(object):
 		"""Manager for updating and drawing layers in a specified order.
 
 		Attributes:
-				layers (dict): A dictionary of layers in the form layer_title: layer_object.
-				viewport: The viewport that the layers will be viewed through.
+			viwport (:class:`viewport.Viewport`): The viewport that the layers will be viewed through.
+			layers (dict): A dictionary of layers in the form layer_title: layer_object.
 		"""
 
 		def __init__(self, viewport, layers):
 				"""Begins managing the given layers.
 
 				Args:
-						viwport: The viewport that the layers will be viewed through.
-						layers (list of :class:`game.layers.BaseLayer`): The layers to maintain, with the highest index being the top foreground layer and the first index being the bottom background layer.
+					viwport (:class:`viewport.Viewport`): The viewport that the layers will be viewed through.
+					layers (list of :class:`game.layers.BaseLayer`): The layers to maintain, with the highest index being the top foreground layer and the first index being the bottom background layer.
 				"""
-				self.layers = {}
 				self.viewport = viewport
+				self.layers = {}
 
 				self._drawing_queue = []
 
 				self._update_queue = []
-				self._update_first = None
 				self._depth = 0 # Used for setting draw order with OrderedGroups
 
 				# Begin managing the layers
 				map(self.manage_layer, layers)
-
-				if not self._update_first:
-						self._update_first = self._update_queue.pop(0)
 
 
 		def update(self, dt):
@@ -46,15 +42,14 @@ class LayerManager(object):
 				Args:
 						dt (float): The number of seconds since the last update.
 				"""
-				self._update_first.update(dt)
+				self.viewport.target.update(dt)
 				self.viewport.update(dt)
-				for item in self._update_queue:
-					item.update(dt)
-				#map(lambda item: item.update(dt), self._update_queue)
+				map(lambda item: item.update(dt), self._update_queue)
 
 
 		def draw(self):
 				"""Draws all managed layers in the specified order."""
+				self.viewport.focus()
 				map(lambda item: item.draw(), self._drawing_queue)
 
 
@@ -70,15 +65,10 @@ class LayerManager(object):
 				self._append_to_drawing_queue(layer)
 				self._push_layer_event_handlers(layer)
 
-				# Add the layer to the update queue if it supports updating
-				if hasattr(layer, 'update'):
-						# If the viewport is targeting this layer, update it first
-						if hasattr(self.viewport, 'target'):
-								if layer.graphic is self.viewport.target:
-										self._update_first = layer
-										return
-
-						self._update_queue.append(layer)
+				# Add the layer to the update queue if it supports updating and is not the viewport target
+				# (The viewport target must be updated first so that the viewport can update before other layers)
+				if hasattr(layer, 'update') and not layer.graphic is self.viewport.target:
+					self._update_queue.append(layer)
 
 
 		def _get_current_graphics_batch(self):
@@ -147,11 +137,11 @@ class LayerManager(object):
 						layer (:class:`game.layers.BaseLayer`): The layer which was deleted.
 				"""
 				if layer in self._update_queue:
-						self._update_queue.remove(layer)
+					self._update_queue.remove(layer)
 
 				# TODO If this was the last thing in its batch/group, delete the group
 				if layer in self._drawing_queue:
-						self._drawing_queue.remove(layer)
+					self._drawing_queue.remove(layer)
 
 				# TODO Coalesce batches if necessary
 				# TODO Whichever batch has less items in it should be merged into the batch with more

@@ -1,7 +1,8 @@
-from .. import old_easing
 from pyglet.gl import *
-from ..settings import general_settings
+from ..settings.general_settings import TILE_SIZE
 from viewport import Viewport
+from ..easing import EaseOut
+from game.graphics import install_graphics_module
 
 # TODO on_target_change event
 
@@ -10,180 +11,171 @@ class Camera(Viewport):
 	"""A camera which can be used to follow specific objects.
 
 	Attributes:
-		target (): The object being followed by the camera.
+		target (TODO): The object being followed by the camera.
 	"""
 
-	# TODO Does the target need to be a PhysicalObject or can it be a BoundedBox?
 	def __init__(self, *args, **kwargs):
 		"""Creates a new camera.
 
 		Kwargs:
+			bounds (BoundedBox): Limit the position of the viewport to within these bounds.
 			target (:class:`game.physical_objects.PhysicalObject`): A physical object to have the camera follow.
+			ease_timing (float): A time duration, in seconds, which determines how quickly the camera follows the target.
+			easing (:class:`easing.Linear`): An easing function to use for the x and y axis. Optional.
+			x_easing (:class:`easing.Linear`): An easing function to use for the x axis. Optional.
+			y_easing (:class:`easing.Linear`): An easing function to use for the y axis. Optional.
 		"""
 		self.target = kwargs.pop('target', None)
+		self.ease_timing = kwargs.pop('ease_timing', 0.25)
+
+		easing = kwargs.pop('easing', None)
+		x_easing = kwargs.pop('y_easing', None)
+		y_easing = kwargs.pop('x_easing', None)
 
 		super(Camera, self).__init__(*args, **kwargs)
 
-		# Accuracy threshold for focusing on targets
-		self.accuracy_threshold = 2
+		# Use ease out as the default easing function
+		self._default_easing_function = EaseOut
+		self._x_easing_function, self._y_easing_function = self._get_easing_functions(easing, x_easing, y_easing)
 
-		self.focus_x = 0
-		self.focus_y = 0
+		# Immediately focus on the target
+		self._easing_x = self._x_easing_function(self.target.mid_x, self.target.mid_x, self.ease_timing)
+		self._easing_y = self._y_easing_function(self.target.mid_y, self.target.mid_y, self.ease_timing)
 
-		self.takeoff_x = None
-		self.takeoff_y = None
-		self.destination_x = None
-		self.destination_y = None
+		# True if the camera is following the target
+		self._focusing_on_target = False
 
-		self.old_easing_function = general_settings.EASE_IN
-		self.ease_time = 0
-		self.ease_time_progress = 0
+		# True if the camera is returning to the target's coordinates
+		self._returning_to_target = False
 
-		self.seeking_target = False
-		self.fixed = False
+		# Needed for adjusting the viewport with OpenGL
 
-		self.aspect = self.width / float(self.height)
-		self.scale = self.height / 2
+		self._aspect = self.width / float(self.height)
+		self._scale = self.height / 2
 
-		self.left		= -(self.scale) * self.aspect
-		self.right		= self.scale * self.aspect
-		self.bottom = -(self.scale)
-		self.top		= self.scale
+		self._left   = -self._scale * self._aspect
+		self._right  =  self._scale * self._aspect
+		self._bottom = -self._scale
+		self._top    =  self._scale
 
-	# @TODO Camera should slowly follow player
-	# @TODO Camera should focus a few tiels ahead of the direction the target is facing
+	# @TODO Camera should focus a few tiles ahead of the direction the target is facing
 
 	def update(self, dt):
-		if self.destination_x or self.destination_y:
-			self.ease_time_progress += dt
+		"""Updates the position of the camera based on where its supposed to be focusing.
 
-			if self.destination_x:
-				if self.old_easing_function == general_settings.EASE_IN:
-					self.focus_x = int(old_easing.ease_in(self.takeoff_x, self.destination_x, self.ease_time, self.ease_time_progress))
-				else:
-					self.focus_x = int(old_easing.ease_out(self.takeoff_x, self.destination_x, self.ease_time, self.ease_time_progress))
-			if self.destination_y:
-				if self.old_easing_function == general_settings.EASE_IN:
-					self.focus_y = int(old_easing.ease_in(self.takeoff_y, self.destination_y, self.ease_time, self.ease_time_progress))
-				else:
-					self.focus_y = int(old_easing.ease_out(self.takeoff_y, self.destination_y, self.ease_time, self.ease_time_progress))
+		Args:
+			dt (float): The number of seconds between the current frame and the previous frame.
+		"""
+		self._easing_x.update(dt)
+		self._easing_y.update(dt)
 
-			self.focus_on(self.focus_x, self.focus_y)
-			if self.ease_time_progress >= self.ease_time:
-				self.ease_time_progress = 0
-				self.destination_x = None
-				self.destination_y = None
+		if self._focusing_on_target:
+			# If the camera is focusing on the target, adjust its destination to the target's coordinates
+			if self.target.mid_x != self._easing_x.end:
+				self._easing_x.change_end(self.target.mid_x)
+			if self.target.mid_y != self._easing_y.end:
+				self._easing_y.change_end(self.target.mid_y)
+		elif self._easing_x.is_done() and self._easing_y.is_done() and self._returning_to_target:
+			# If the camera is done returning to the target's coordinates, begin following the target
+			self._focusing_on_target = True
+			self._returning_to_target = False
+			self._easing_x = self._x_easing_function(self._easing_x.value, self.target.mid_x, self.ease_timing)
+			self._easing_y = self._y_easing_function(self._easing_y.value, self.target.mid_y, self.ease_timing)
 
-				if self.seeking_target:
-					self.seeking_target = False
-				else:
-					self.fixed = True
-		elif not self.fixed:
-			self.focus()
-
-
+		super(Camera, self).update(0, self._easing_x.value - self.half_width, self._easing_y.value - self.half_height)
 
 	def focus(self):
-		x = self.target.mid_x
-		y = self.target.mid_y
+		"""Focuses the camera, adjusting the viewport to be where it should be for the next frame."""
+		# Get the coordinates as integers to prevent rendering issues
+		x = int(self._easing_x.value)
+		y = int(self._easing_y.value)
 
 		glMatrixMode(GL_PROJECTION)
 		glLoadIdentity()
 
-		gluOrtho2D(self.left, self.right, self.bottom, self.top)
+		gluOrtho2D(self._left, self._right, self._bottom, self._top)
+		gluLookAt(x, y, 1.0, x, y, -1.0, 0, 1, 0.0)
 
 		glMatrixMode(GL_MODELVIEW)
 		glLoadIdentity()
 
-		# Keep the camera within the bounds of the stage
-		super(Camera, self).update(0, x - self._half_width, y - self._half_height)
+	def focus_on_coordinates(self, x, y, duration=1, easing=None, x_easing=None, y_easing=None):
+		"""Focuses the camera on the given coordinates.
 
-		#x -= self._half_width
-		#y -= self._half_height
+		Args:
+			x (int): The x coordinate.
+			y (int): The y coordinate.
 
-		if x < self.bounds.x + self._half_width:
-			x = self._x + self._half_width
-		elif x > self.bounds.x2 - self._half_width:
-			x = self._x2 - self._half_width
+		Kwargs:
+			duration (float): The amount of time, in seconds, that the camera should take to focus on the coordinates.
+			easing (:class:`easing.Linear`): An easing function to use for the x and y axis. Optional.
+			x_easing (:class:`easing.Linear`): An easing function to use for the x axis. Optional.
+			y_easing (:class:`easing.Linear`): An easing function to use for the y axis. Optional.
+		"""
+		x_easing, y_easing = self._get_easing_functions(easing, x_easing, y_easing)
 
-		if y < self._y + self._half_height:
-			y = self._y + self._half_height
+		self._easing_x = x_easing(self._easing_x.value, x - self._half_width, duration)
+		self._easing_y = y_easing(self._easing_y.value, y - self._half_height, duration)
 
-		self.focus_x = x
-		self.focus_y = y
+	def focus_on_tile(self, tile_x, tile_y, *args, **kwargs):
+		"""Focuses the camera on the given tile.
 
-		gluLookAt(x, y, 1.0, x, y, -1.0, 0, 1, 0.0)
+		Args:
+			tile_x (int): The tile's x position.
+			tile_y (int): The tile's y position.
 
-		self._set_x(x - self._half_width)
-		self._set_y(y - self._half_height)
+		Kwargs:
+			duration (float): The amount of time, in seconds, that the camera should take to focus on the tile.
+			easing (:class:`easing.Linear`): An easing function to use for the x and y axis. Optional.
+			x_easing (:class:`easing.Linear`): An easing function to use for the x axis. Optional.
+			y_easing (:class:`easing.Linear`): An easing function to use for the y axis. Optional.
+		"""
+		self.focus_on_coordinates(tile_x * TILE_SIZE, tile_y * TILE_SIZE, *args, **kwargs)
 
+	def focus_on_target(self, *args, **kwargs):
+		"""Focuses the camera back on the target.
 
+		Kwargs:
+			duration (float): The amount of time, in seconds, that the camera should take to focus on the target.
+			easing (:class:`easing.Linear`): An easing function to use for the x and y axis. Optional.
+			x_easing (:class:`easing.Linear`): An easing function to use for the x axis. Optional.
+			y_easing (:class:`easing.Linear`): An easing function to use for the y axis. Optional.
+		"""
+		# Flag that the camera is returning to the target's coordinates
+		self._returning_to_target = True
 
-	def focus_on(self, x, y):
-		glMatrixMode(GL_PROJECTION)
-		glLoadIdentity()
+		self.focus_on_coordinates(self.target.mid_x + self._half_width, self.target.mid_y + self._half_height, *args, **kwargs)
 
-		gluOrtho2D(self.left, self.right, self.bottom, self.top)
+	def _get_easing_functions(self, easing, x_easing, y_easing):
+		"""Returns the appropriate x and y axis easing functions based on the arguments.
 
-		glMatrixMode(GL_MODELVIEW)
-		glLoadIdentity()
+		Args:
+			easing (:class:`easing.Linear`): An easing function to use for the x and y axis.
+			x_easing (:class:`easing.Linear`): An easing function to use for the x axis.
+			y_easing (:class:`easing.Linear`): An easing function to use for the y axis.
 
-		super(Camera, self).update(0, x - self._half_width, y - self._half_height)
+		Returns:
+			The easing functions as a tuple as (x_easing_function, y_easing_function).
+		"""
+		if not easing is None:
+			x_easing = easing
+			y_easing = easing
+		else:
+			if x_easing is None:
+				x_easing = self._default_easing_function
+			if y_easing is None:
+				y_easing = self._default_easing_function
 
-		gluLookAt(x, y, 1.0, x, y, -1.0, 0, 1, 0.0)
-
-		if self.seeking_target:
-			# Update our target location in case it moved
-			self.focus_on_target()
-
-	def focus_on_target(self, time=0.4, old_easing=general_settings.EASE_IN):
-		x = self.target.mid_x
-		y = self.target.mid_y
-
-		# If we're already trying to focus on the target, just update our takeoff coordinates and desitination
-		if self.seeking_target:
-			if x < self._x + self._half_width:
-				x = self._x + self._half_width
-			elif x > self._x2 - self._half_width:
-				x = self._x2 - self._half_width
-
-			if y < self._y + self._half_height:
-				y = self._y + self._half_height
-
-			#self.takeoff_x = self.focus_x
-			#self.takeoff_y = self.focus_y
-			self.destination_x = x
-			self.destination_y = y
-
-			# Don't execute the rest of this function if we're already seeking the target
-			return
-
-		self.seeking_target = True
-		self.fixed = False
-		self.move_to(x, y, time, old_easing)
+		return (x_easing, y_easing)
 
 
 
-	def move_to(self, x, y, time=1, old_easing=general_settings.EASE_IN):
-		self.ease_time = time
-		self.old_easing_function = old_easing
-		self.ease_time_progress = 0
+def recognizer(graphics_type):
+	"""Recognizes whether this graphics type is handled by :class:`viewport.Camera`."""
+	return graphics_type == 'camera'
 
-		# Keep the camera within the bounds of the stage
+def factory(*args, **kwargs):
+	"""Returns a :class:`viewport.Camera` for the given arguments."""
+	return Camera(*args, **kwargs)
 
-		if x < self._x + self._half_width:
-			x = self._x + self._half_width
-		elif x > self._x2 - self._half_width:
-			x = self._x2 - self._half_width
-
-		if y < self._y + self._half_height:
-			y = self._y + self._half_height
-
-		self.takeoff_x = self.focus_x
-		self.takeoff_y = self.focus_y
-
-		self.destination_x = x - self._half_width
-		self.destination_y = y - self._half_height
-
-	def move_to_tile(self, tile_x, tile_y, *args):
-		self.move_to(tile_x*general_settings.TILE_SIZE, tile_y*general_settings.TILE_SIZE, *args)
+install_graphics_module(__name__)
