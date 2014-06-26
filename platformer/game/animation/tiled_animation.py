@@ -1,5 +1,4 @@
 from basic_animation import BasicAnimation
-from game.graphics import install_graphics_module
 from pyglet.image import TileableTexture
 
 class TiledAnimation(BasicAnimation):
@@ -31,15 +30,3 @@ class TiledAnimation(BasicAnimation):
 	@staticmethod
 	def _create_animation_frame_image(image):
 		return TileableTexture.create_for_image(image)
-
-
-
-def recognizer(graphics_type):
-	"""Recognizes whether this graphics type is handled by :class:`game.animation.TiledAnimation`."""
-	return graphics_type == 'tiled animation'
-
-def factory(*args, **kwargs):
-	"""Returns a :class:`game.animation.TiledAnimation` for the given arguments."""
-	return TiledAnimation.from_image(*args, **kwargs)
-
-install_graphics_module(__name__)

@@ -1,5 +1,5 @@
-import os
 import glob
+import os
 
 # Dictionary of tags and translation functions to apply to config data values
 _installed_translators = {}
@@ -125,6 +125,7 @@ def ready_for_translation(layer_title):
 	return reduce(lambda status,test: status and test(layer_title), _installed_translation_readiness_tests, True)
 
 # Get all files not beginning with an underscore and import them
-modules = glob.glob(os.path.dirname(__file__)+"/*.py")
-__all__ = [os.path.basename(f)[:-3] for f in modules if not os.path.basename(f).startswith('_')]
+_import_modules = glob.glob(os.path.dirname(__file__) + '/*.py')
+__all__ = [os.path.basename(f)[:-3] for f in _import_modules if not os.path.basename(f).startswith('_')]
+from . import *
 from . import *
