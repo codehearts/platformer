@@ -1,5 +1,6 @@
 from pyglet.gl import *
 from ..settings.general_settings import TILE_SIZE
+from ..bounded_box import BoundedBox
 from viewport import Viewport
 from ..easing import EaseOut
 
@@ -117,8 +118,10 @@ class Camera(Viewport):
 		self._focusing_on_target = False
 		x_easing, y_easing = self._get_easing_functions(easing, x_easing, y_easing)
 
-		self._easing_x = x_easing(self._easing_x.value, x - self._half_width, duration)
-		self._easing_y = y_easing(self._easing_y.value, y - self._half_height, duration)
+		coordinates = BoundedBox(x - self._half_width, y - self._half_height, 0, 0).bound_within(self.bounds)
+
+		self._easing_x = x_easing(self._easing_x.value, coordinates.x, duration)
+		self._easing_y = y_easing(self._easing_y.value, coordinates.y, duration)
 
 	def focus_on_tile(self, tile_x, tile_y, *args, **kwargs):
 		"""Focuses the camera on the given tile.
