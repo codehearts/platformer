@@ -37,5 +37,3 @@ class Viewport(BoundedBox):
 		self._set_x(x)
 		self._set_y(y)
 		self._bound_viewport()
-
-		# TODO GL translations

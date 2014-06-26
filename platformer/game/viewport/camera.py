@@ -42,7 +42,7 @@ class Camera(Viewport):
 		self._easing_y = self._y_easing_function(self.target.mid_y, self.target.mid_y, self.ease_timing)
 
 		# True if the camera is following the target
-		self._focusing_on_target = False
+		self._focusing_on_target = True
 
 		# True if the camera is returning to the target's coordinates
 		self._returning_to_target = False
@@ -89,8 +89,8 @@ class Camera(Viewport):
 	def focus(self):
 		"""Focuses the camera, adjusting the viewport to be where it should be for the next frame."""
 		# Get the coordinates as integers to prevent rendering issues
-		x = int(self._easing_x.value)
-		y = int(self._easing_y.value)
+		x = self.mid_x
+		y = self.mid_y
 
 		glMatrixMode(GL_PROJECTION)
 		glLoadIdentity()
@@ -114,6 +114,7 @@ class Camera(Viewport):
 			x_easing (:class:`easing.Linear`): An easing function to use for the x axis. Optional.
 			y_easing (:class:`easing.Linear`): An easing function to use for the y axis. Optional.
 		"""
+		self._focusing_on_target = False
 		x_easing, y_easing = self._get_easing_functions(easing, x_easing, y_easing)
 
 		self._easing_x = x_easing(self._easing_x.value, x - self._half_width, duration)

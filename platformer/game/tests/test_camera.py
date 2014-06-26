@@ -3,7 +3,7 @@ from game import load
 from game.viewport import Camera
 from game.physical_objects.physical_object import PhysicalObject
 from game.bounded_box import BoundedBox
-from game.settings.general_settings import TILE_SIZE
+from game.settings.general_settings import TILE_SIZE, FPS, FRAME_LENGTH
 
 class TestCamera(unittest.TestCase):
 	"""Tests the camera to ensure that it controls the viewport correctly and focuses on the correct coordinates."""
@@ -19,22 +19,21 @@ class TestCamera(unittest.TestCase):
 		# 8 by 6 viewport which is requested to be out of bounds
 		viewport = Camera(-8*TILE_SIZE, -6*TILE_SIZE, 8*TILE_SIZE, 6*TILE_SIZE, bounds=bounds, target=target)
 
-		self.assertEqual(viewport.x, target.mid_x - viewport.half_width, 'Camera did not focus on target x when initialized')
-		self.assertEqual(viewport.y, target.mid_y - viewport.half_height, 'Camera did not focus on target y when initialized')
-
-		# flat_map is 100 tiles of floor with 19 rows of empty space above
-		#flat_map = [[0]*100]*19 + [[1]*100]
-		#flat_level = load.Stage(demo_settings.TILE_DATA, flat_map)
-		#character = load.single_character('test_object_6', 0, 1, flat_level.get_tiles()) # test_object_6 is a SimpleAI object
-		#game_window = pyglet.window.Window(800, 600, visible=False)
-
-		# Load the camera and focus on our test object
-		#cam = camera.Camera(character, game_window, flat_level.get_tiles())
-		#cam.focus()
+		# Ensure that the camera focused on the target
+		self.assertEqual(viewport.mid_x, target.mid_x, 'Camera did not focus on target x when initialized')
+		self.assertEqual(viewport.mid_y, target.mid_y, 'Camera did not focus on target y when initialized')
 
 		# Test initial target focus when bounded by the top and left of the stage
 
-		# Because the character started out at the bottom left of the stage, the camera will not cross those boundaries
+		# Move the target to the bottom left corner
+		target.x = 0
+		target.y = 0
+
+		# Simulate 1 second of time
+		for i in xrange(int(FPS)):
+			viewport.update(FRAME_LENGTH) # Give the camera a full second to catch up
+
+		# Because the target is at the bottom left corner of the bounds, the viewport should not cross those boundaries
 		self.assertEqual(viewport.x, 0, 'Focusing on target x when bounded by stage left failed')
 		self.assertEqual(viewport.y, 0, 'Focusing on target y when bounded by stage bottom failed')
 
