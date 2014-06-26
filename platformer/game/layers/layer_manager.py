@@ -49,7 +49,7 @@ class LayerManager(object):
 
 		def draw(self):
 				"""Draws all managed layers in the specified order."""
-				self.viewport.draw()
+				self.viewport.focus()
 				map(lambda item: item.draw(), self._drawing_queue)
 
 

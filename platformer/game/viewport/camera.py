@@ -11,116 +11,171 @@ class Camera(Viewport):
 	"""A camera which can be used to follow specific objects.
 
 	Attributes:
-		target (): The object being followed by the camera.
+		target (TODO): The object being followed by the camera.
 	"""
 
 	def __init__(self, *args, **kwargs):
 		"""Creates a new camera.
 
 		Kwargs:
+			bounds (BoundedBox): Limit the position of the viewport to within these bounds.
 			target (:class:`game.physical_objects.PhysicalObject`): A physical object to have the camera follow.
+			ease_timing (float): A time duration, in seconds, which determines how quickly the camera follows the target.
+			easing (:class:`easing.Linear`): An easing function to use for the x and y axis. Optional.
+			x_easing (:class:`easing.Linear`): An easing function to use for the x axis. Optional.
+			y_easing (:class:`easing.Linear`): An easing function to use for the y axis. Optional.
 		"""
 		self.target = kwargs.pop('target', None)
-		self.ease_timing = kwargs.pop('ease_timing', 0.4)
+		self.ease_timing = kwargs.pop('ease_timing', 0.25)
+
+		easing = kwargs.pop('easing', None)
+		x_easing = kwargs.pop('y_easing', None)
+		y_easing = kwargs.pop('x_easing', None)
 
 		super(Camera, self).__init__(*args, **kwargs)
 
-		# Accuracy threshold for focusing on targets
-		self.accuracy_threshold = 2
+		# Use ease out as the default easing function
+		self._default_easing_function = EaseOut
+		self._x_easing_function, self._y_easing_function = self._get_easing_functions(easing, x_easing, y_easing)
 
-		self.easing_x = EaseOut(self.target.mid_x, self.target.mid_x, self.ease_timing)
-		self.easing_y = EaseOut(self.target.mid_y, self.target.mid_y, self.ease_timing)
+		# Immediately focus on the target
+		self._easing_x = self._x_easing_function(self.target.mid_x, self.target.mid_x, self.ease_timing)
+		self._easing_y = self._y_easing_function(self.target.mid_y, self.target.mid_y, self.ease_timing)
 
-		self.seeking_target = False
-		self.go_for_target = False
+		# True if the camera is following the target
+		self._focusing_on_target = False
 
-		self.aspect = self.width / float(self.height)
-		self.scale = self.height / 2
+		# True if the camera is returning to the target's coordinates
+		self._returning_to_target = False
 
-		self.left   = -(self.scale) * self.aspect
-		self.right  = self.scale * self.aspect
-		self.bottom = -(self.scale)
-		self.top    = self.scale
+		# Needed for adjusting the viewport with OpenGL
 
-	# @TODO Camera should slowly follow player
-	# @TODO Camera should focus a few tiels ahead of the direction the target is facing
+		self._aspect = self.width / float(self.height)
+		self._scale = self.height / 2
+
+		self._left   = -self._scale * self._aspect
+		self._right  =  self._scale * self._aspect
+		self._bottom = -self._scale
+		self._top    =  self._scale
+
+	# @TODO Camera should focus a few tiles ahead of the direction the target is facing
 
 	def update(self, dt):
-		self.easing_x.update(dt)
-		self.easing_y.update(dt)
+		"""Updates the position of the camera based on where its supposed to be focusing.
 
-		if self.seeking_target:
-			if self.target.mid_x != self.easing_x.end:
-				self.easing_x.change_end(self.target.mid_x)
+		Args:
+			dt (float): The number of seconds between the current frame and the previous frame.
+		"""
+		self._easing_x.update(dt)
+		self._easing_y.update(dt)
 
-			if self.target.mid_y != self.easing_y.end:
-				self.easing_y.change_end(self.target.mid_y)
-		elif self.easing_x.is_done() and self.easing_y.is_done() and self.go_for_target:
-			self.seeking_target = True
-			self.go_for_target = False
-			self.easing_x = EaseOut(self.easing_x.value, self.target.mid_x, self.ease_timing)
-			self.easing_y = EaseOut(self.easing_y.value, self.target.mid_y, self.ease_timing)
+		if self._focusing_on_target:
+			# If the camera is focusing on the target, adjust its destination to the target's coordinates
+			if self.target.mid_x != self._easing_x.end:
+				self._easing_x.change_end(self.target.mid_x)
+			if self.target.mid_y != self._easing_y.end:
+				self._easing_y.change_end(self.target.mid_y)
+		elif self._easing_x.is_done() and self._easing_y.is_done() and self._returning_to_target:
+			# If the camera is done returning to the target's coordinates, begin following the target
+			self._focusing_on_target = True
+			self._returning_to_target = False
+			self._easing_x = self._x_easing_function(self._easing_x.value, self.target.mid_x, self.ease_timing)
+			self._easing_y = self._y_easing_function(self._easing_y.value, self.target.mid_y, self.ease_timing)
 
-		x = self.easing_x.value - self.half_width
-		y = self.easing_y.value - self.half_height
+		super(Camera, self).update(0, self._easing_x.value - self.half_width, self._easing_y.value - self.half_height)
 
-		super(Camera, self).update(0, x, y)
+	def focus(self):
+		"""Focuses the camera, adjusting the viewport to be where it should be for the next frame."""
+		# Get the coordinates as integers to prevent rendering issues
+		x = int(self._easing_x.value)
+		y = int(self._easing_y.value)
 
-	def draw(self):
 		glMatrixMode(GL_PROJECTION)
 		glLoadIdentity()
 
-		gluOrtho2D(self.left, self.right, self.bottom, self.top)
-		x = int(self.easing_x.value)
-		y = int(self.easing_y.value)
+		gluOrtho2D(self._left, self._right, self._bottom, self._top)
 		gluLookAt(x, y, 1.0, x, y, -1.0, 0, 1, 0.0)
 
 		glMatrixMode(GL_MODELVIEW)
 		glLoadIdentity()
 
-	def focus_on_target(self, duration=1, easing=None, x_easing=None, y_easing=None):
-		print("TARGET FOCUS")
-		self.go_for_target = True
+	def focus_on_coordinates(self, x, y, duration=1, easing=None, x_easing=None, y_easing=None):
+		"""Focuses the camera on the given coordinates.
 
-		# Initialize the easing function
+		Args:
+			x (int): The x coordinate.
+			y (int): The y coordinate.
+
+		Kwargs:
+			duration (float): The amount of time, in seconds, that the camera should take to focus on the coordinates.
+			easing (:class:`easing.Linear`): An easing function to use for the x and y axis. Optional.
+			x_easing (:class:`easing.Linear`): An easing function to use for the x axis. Optional.
+			y_easing (:class:`easing.Linear`): An easing function to use for the y axis. Optional.
+		"""
+		x_easing, y_easing = self._get_easing_functions(easing, x_easing, y_easing)
+
+		self._easing_x = x_easing(self._easing_x.value, x - self._half_width, duration)
+		self._easing_y = y_easing(self._easing_y.value, y - self._half_height, duration)
+
+	def focus_on_tile(self, tile_x, tile_y, *args, **kwargs):
+		"""Focuses the camera on the given tile.
+
+		Args:
+			tile_x (int): The tile's x position.
+			tile_y (int): The tile's y position.
+
+		Kwargs:
+			duration (float): The amount of time, in seconds, that the camera should take to focus on the tile.
+			easing (:class:`easing.Linear`): An easing function to use for the x and y axis. Optional.
+			x_easing (:class:`easing.Linear`): An easing function to use for the x axis. Optional.
+			y_easing (:class:`easing.Linear`): An easing function to use for the y axis. Optional.
+		"""
+		self.focus_on_coordinates(tile_x * TILE_SIZE, tile_y * TILE_SIZE, *args, **kwargs)
+
+	def focus_on_target(self, *args, **kwargs):
+		"""Focuses the camera back on the target.
+
+		Kwargs:
+			duration (float): The amount of time, in seconds, that the camera should take to focus on the target.
+			easing (:class:`easing.Linear`): An easing function to use for the x and y axis. Optional.
+			x_easing (:class:`easing.Linear`): An easing function to use for the x axis. Optional.
+			y_easing (:class:`easing.Linear`): An easing function to use for the y axis. Optional.
+		"""
+		# Flag that the camera is returning to the target's coordinates
+		self._returning_to_target = True
+
+		self.focus_on_coordinates(self.target.mid_x + self._half_width, self.target.mid_y + self._half_height, *args, **kwargs)
+
+	def _get_easing_functions(self, easing, x_easing, y_easing):
+		"""Returns the appropriate x and y axis easing functions based on the arguments.
+
+		Args:
+			easing (:class:`easing.Linear`): An easing function to use for the x and y axis.
+			x_easing (:class:`easing.Linear`): An easing function to use for the x axis.
+			y_easing (:class:`easing.Linear`): An easing function to use for the y axis.
+
+		Returns:
+			The easing functions as a tuple as (x_easing_function, y_easing_function).
+		"""
 		if not easing is None:
 			x_easing = easing
 			y_easing = easing
 		else:
 			if x_easing is None:
-				x_easing = EaseOut
+				x_easing = self._default_easing_function
 			if y_easing is None:
-				y_easing = EaseOut
+				y_easing = self._default_easing_function
 
-		self.easing_x = x_easing(self.easing_x.value, self.target.mid_x, duration)
-		self.easing_y = y_easing(self.easing_y.value, self.target.mid_y, duration)
+		return (x_easing, y_easing)
 
-	def move_to(self, x, y, duration=1, easing=None, x_easing=None, y_easing=None):
-		print("MOVE TO")
-
-		# Initialize the easing function
-		if not easing is None:
-			x_easing = easing
-			y_easing = easing
-		else:
-			if x_easing is None:
-				x_easing = EaseOut
-			if y_easing is None:
-				y_easing = EaseOut
-
-		self.easing_x = x_easing(self.easing_x.value, x - self._half_width, duration)
-		self.easing_y = y_easing(self.easing_y.value, y - self._half_height, duration)
-
-	def move_to_tile(self, tile_x, tile_y, *args, **kwargs):
-		self.move_to(tile_x * TILE_SIZE, tile_y * TILE_SIZE, *args, **kwargs)
 
 
 def recognizer(graphics_type):
-	"""Recognizes whether this graphics type is handled by :class:`game.tiles.tileset.Tileset`."""
+	"""Recognizes whether this graphics type is handled by :class:`viewport.Camera`."""
 	return graphics_type == 'camera'
 
 def factory(*args, **kwargs):
-	"""Returns a :class:`game.tiles.tileset.Tileset` for the given arguments."""
+	"""Returns a :class:`viewport.Camera` for the given arguments."""
 	return Camera(*args, **kwargs)
 
 install_graphics_module(__name__)
