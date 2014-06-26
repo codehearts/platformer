@@ -1,15 +1,8 @@
-import pyglet
 from pyglet.gl import glEnable, glBlendFunc, GL_BLEND, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA
-from game import viewport, stageevents
-from game import layers
-from game.settings import general_settings
-from game.animation import tiled_animation
-from game.text import heading, live_text
-from game.easing import EaseOut
-from game.bounded_box import BoundedBox
-from game import tiles
-from game.settings.general_settings import TILE_SIZE
+from game.settings.general_settings import FRAME_LENGTH
 from game.load import Level
+from game import stageevents
+import pyglet
 import game
 
 # Graphical output window
@@ -67,5 +60,5 @@ if __name__ == '__main__':
 	glEnable(GL_BLEND)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-	pyglet.clock.schedule_interval(update, general_settings.FRAME_LENGTH)
+	pyglet.clock.schedule_interval(update, FRAME_LENGTH)
 	pyglet.app.run()
