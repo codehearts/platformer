@@ -14,7 +14,3 @@ MAP_DIRECTORY = 'maps'
 MAP_FORMAT = 'json'
 SCRIPT_DIRECTORY = 'scripts'
 SCRIPT_FORMAT = 'py'
-
-# TODO These should be removed once camera easing is updated to use classes
-EASE_IN  = 0
-EASE_OUT = 1
