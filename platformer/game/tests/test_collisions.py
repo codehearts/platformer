@@ -24,10 +24,26 @@ class TestCollisions(unittest.TestCase):
 		return True
 
 	def _expected_x_tile_range(self, start, step=1):
-		return range(start, int(self.obj.x + self.obj.acceleration_x)/TILE_SIZE - 1, step)
+		return range(int(start), int(self.obj.x + self.obj.acceleration_x)/TILE_SIZE - 1, step)
 
 	def _expected_y_tile_range(self, start, step=1):
-		return range(start, int(self.obj.y + self.obj.acceleration_y)/TILE_SIZE - 1, step)
+		return range(int(start), int(self.obj.y + self.obj.acceleration_y)/TILE_SIZE - 1, step)
+
+	def _reset_object(self, x, y):
+		old_x, old_y = (str(self.obj.x_tile), str(self.obj.y_tile))
+		self.obj.reset_to_tile(x, y)
+
+		return 'object was reset from '+old_x+', '+old_y+' to '+str(x)+', '+str(y)
+
+	def _move_object_relatively_to(self, x, y):
+		print(self.obj.x, self.obj.y)
+		x = self.obj.x_tile + x
+		y = self.obj.y_tile + y
+		old_x, old_y = (str(self.obj.x_tile), str(self.obj.y_tile))
+		print(x*TILE_SIZE, y*TILE_SIZE)
+		self.obj.move_to(x*TILE_SIZE, y*TILE_SIZE)
+
+		return 'object was reset from '+old_x+', '+old_y+' to '+str(x)+', '+str(y)
 
 	def test_trajectory_projection(self):
 		"""Tests code that determines which tiles are affected by an object's trajectory.
@@ -47,54 +63,6 @@ class TestCollisions(unittest.TestCase):
 
 		self.check_range_values(self._expected_x_tile_range(999, step=-1), self.obj.get_x_tile_span(), context)
 		self.check_range_values(self._expected_y_tile_range(999, step=-1), self.obj.get_y_tile_span(), context)
-
-		# Move down faster with no x-component
-		old_x, old_y = (str(self.obj.x), str(self.obj.y))
-		self.obj.reset_to_tile(500, 500)
-		context = 'object was reset from '+old_x+', '+old_y+' 999 to '+str(self.obj.x)+', '+str(self.obj.y)
-
-		self.check_range_values(self._expected_x_tile_range(500, step=-1), self.obj.get_x_tile_span(), context)
-		self.check_range_values(self._expected_y_tile_range(500, step=-1), self.obj.get_y_tile_span(), context)
-
-
-
-		# Move down and left
-		character.reset_to_tile(500.5, 500.5)
-		new_x = character.get_coordinates()[0] - general_settings.TILE_SIZE * 3.75
-		new_y = character.get_coordinates()[1] - general_settings.TILE_SIZE * 5.75
-
-		self.check_range_values([500, 499, 498, 497, 496], character.get_axis_range('x', new_x))
-		self.check_range_values([500, 499, 498, 497, 496, 495, 494], character.get_axis_range('y', new_y))
-
-
-
-		# Move down and right
-		character.reset_to_tile(500.5, 500.5)
-		new_x = character.get_coordinates()[0] + general_settings.TILE_SIZE * 3.75
-		new_y = character.get_coordinates()[1] - general_settings.TILE_SIZE * 5.75
-
-		self.check_range_values([501, 502, 503, 504, 505], character.get_axis_range('x', new_x))
-		self.check_range_values([500, 499, 498, 497, 496, 495, 494], character.get_axis_range('y', new_y))
-
-
-
-		# Move up and left
-		character.reset_to_tile(500.5, 500.5)
-		new_x = character.get_coordinates()[0] - general_settings.TILE_SIZE * 3.75
-		new_y = character.get_coordinates()[1] + general_settings.TILE_SIZE * 5.75
-
-		self.check_range_values([500, 499, 498, 497, 496], character.get_axis_range('x', new_x))
-		self.check_range_values([501, 502, 503, 504, 505, 506, 507], character.get_axis_range('y', new_y))
-
-
-
-		# Move up and right
-		character.reset_to_tile(500, 500)
-		new_x = character.get_coordinates()[0] + general_settings.TILE_SIZE * 3.25
-		new_y = character.get_coordinates()[1] + general_settings.TILE_SIZE * 5.25
-
-		self.check_range_values([501, 502, 503, 504], character.get_axis_range('x', new_x))
-		self.check_range_values([501, 502, 503, 504, 505, 506], character.get_axis_range('y', new_y))
 
 
 
