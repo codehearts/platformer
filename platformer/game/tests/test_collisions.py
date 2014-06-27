@@ -26,6 +26,7 @@ class TestCollisions(unittest.TestCase):
 		"""
 		# empty_map is 1000x1000 and completely empty
 		empty_map = [[0] * 1000 for i in xrange(1000)]
+		# TODO Determine why TextureTileMap segfaults for creating empty_map
 		empty_level = TileMap(empty_map, get_testing_tileset(2,2))
 
 		# test_object_4 constantly moves downwards at -general_settings.GRAVITY
