@@ -1,7 +1,7 @@
 import pyglet, math, unittest
 from game import load, util
 from game.settings import general_settings
-from game.tiles import TextureTileMap
+from game.tiles import TileMap
 from util.tileset import get_testing_tileset
 from game.physical_objects.physical_object import PhysicalObject
 
@@ -24,18 +24,16 @@ class TestCollisions(unittest.TestCase):
 
 		PLEASE NOTE: This test assumes a gravity of 9.8, an fps of 120, and a tile size of 32
 		"""
-
-
 		# empty_map is 1000x1000 and completely empty
 		empty_map = [[0] * 1000 for i in xrange(1000)]
-		empty_level = TextureTileMap(empty_map, get_testing_tileset(2,2))
+		empty_level = TileMap(empty_map, get_testing_tileset(2,2))
 
 		# test_object_4 constantly moves downwards at -general_settings.GRAVITY
 		character = PhysicalObject(x=999, y=999, mass=1, stage=empty_level)
 
 		# Move down with no x-component
-		new_x = character.get_coordinates()[0]
-		new_y = character.get_coordinates()[1] + character.get_acceleration()[1]
+		new_x = character.x
+		new_y = character.y + character.acceleration_y
 
 		self.check_range_values([999], character.get_axis_range('x', new_x))
 		self.check_range_values([999, 998], character.get_axis_range('y', new_y))
