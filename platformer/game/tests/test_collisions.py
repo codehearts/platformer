@@ -4,75 +4,35 @@ from game.tiles import TileMap
 from util.tileset import get_testing_tileset
 from util.image import dummy_image
 from game.physical_objects.physical_object import PhysicalObject
-from game.settings.general_settings import TILE_SIZE
+from game.settings.general_settings import TILE_SIZE, FRAME_LENGTH
 
 class TestCollisions(unittest.TestCase):
 	"""Tests that object collisions are resolved as expected."""
 
-	# Checks whether the epected list is equal to the actual xrange result
-	def check_range_values(self, expected, actual, context=""):
-		if len(actual) != len(expected):
-			return False
+	def _check_object_reaction(self, reset_to, expected_tiles, velocity):
+		"""Asserts that the object is resolved to the correct coordinates.
 
-		for i in xrange(len(actual)):
-			passed = self.assertEqual(expected[i], actual[i],
-				"Trajectory of object is incorrect, expected "+str(expected[i])+" but got "+str(actual[i])+" ("+context+")")
-
-			if not passed:
-				return False
-
-		return True
-
-	def _expected_x_tile_range(self, start, step=1):
-		return range(int(start), int(self.obj.x + self.obj.acceleration_x)/TILE_SIZE - 1, step)
-
-	def _expected_y_tile_range(self, start, step=1):
-		return range(int(start), int(self.obj.y + self.obj.acceleration_y)/TILE_SIZE - 1, step)
-
-	def _reset_object(self, x, y):
-		old_x, old_y = (str(self.obj.x_tile), str(self.obj.y_tile))
-		self.obj.reset_to_tile(x, y)
-
-		return 'object was reset from '+old_x+', '+old_y+' to '+str(x)+', '+str(y)
-
-	def _move_object_relatively_to(self, x, y):
-		print(self.obj.x, self.obj.y)
-		x = self.obj.x_tile + x
-		y = self.obj.y_tile + y
-		old_x, old_y = (str(self.obj.x_tile), str(self.obj.y_tile))
-		print(x*TILE_SIZE, y*TILE_SIZE)
-		self.obj.move_to(x*TILE_SIZE, y*TILE_SIZE)
-
-		return 'object was reset from '+old_x+', '+old_y+' to '+str(x)+', '+str(y)
-
-	def test_trajectory_projection(self):
-		"""Tests code that determines which tiles are affected by an object's trajectory.
-
-		PLEASE NOTE: This test assumes a gravity of 9.8, an fps of 120, and a tile size of 32
+		Args:
+			reset_to (tuple of float): The tiles to reset the object to.
+			expected_tiles (tuple of float): The exact tiles that the object should be resolved to.
+			velocity (tuple of float): The velocities the object should be reset to. This is used for determining
+			                           which direction the object came from during collision resolution.
 		"""
-		# empty_map is 1000x1000 and completely empty
-		empty_map = [[0] * 1000 for i in xrange(1000)]
-		# TODO Determine why TextureTileMap segfaults for creating empty_map
-		empty_level = TileMap(empty_map, get_testing_tileset(2,2))
-
-		# test_object_4 constantly moves downwards at -general_settings.GRAVITY
-		self.obj = PhysicalObject(empty_level.tiles, dummy_image(TILE_SIZE, TILE_SIZE), 999*TILE_SIZE, 999*TILE_SIZE, mass=1)
-
-		# Move down with no x-component
-		context = 'object initialized at '+str(self.obj.x)+', '+str(self.obj.y)
-
-		self.check_range_values(self._expected_x_tile_range(999, step=-1), self.obj.get_x_tile_span(), context)
-		self.check_range_values(self._expected_y_tile_range(999, step=-1), self.obj.get_y_tile_span(), context)
-
-
-
-	def check_object_reaction(self, character, initial_tile, expected_result_tile, dt=1):
 		# Move the object to our initial tile (move_to() will automatically resolve collisions)
-		new_coords = util.tile_to_coordinate(initial_tile[0], initial_tile[1])
-		character.move_to(new_coords[0], new_coords[1])
+		x, y = reset_to[0] * TILE_SIZE, reset_to[1] * TILE_SIZE
+		expected_x, expected_y = expected_tiles[0] * TILE_SIZE, expected_tiles[1] * TILE_SIZE
 
-		# Assert that it wound up where we expected it to
-		self.assertEqual(util.tile_to_coordinate(expected_result_tile[0], expected_result_tile[1]), character.get_coordinates())
+		self.obj.reset_to(x, y) # Reseting will reset the velocity
+		self.obj.target_speed, self.obj.velocity_y = velocity # The target speed is the horizontal velocity that the object is approaching
+		self.obj.update(FRAME_LENGTH)
+
+		self.assertEqual(expected_x, self.obj.x,
+			"Failed to resolve horizontal component of collision with x velocity "+str(self.obj.velocity_x)+
+			", expected "+str(expected_x)+" but got "+str(self.obj.x))
+
+		self.assertEqual(expected_y, self.obj.y,
+			"Failed to resolve vertical component of collision with y velocity "+str(self.obj.velocity_y)+
+			", expected "+str(expected_y)+" but got "+str(self.obj.y))
 
 	def test_object_collision_handling(self):
 		"""Tests a physical object's responses to colliding with the environment in different ways."""
@@ -88,8 +48,7 @@ class TestCollisions(unittest.TestCase):
 		offset = 4.0 / TILE_SIZE
 
 		# Partially embedded in the left wall, moving left and down
-		character.set_velocity(-1, -1)
-		self.check_object_reaction(character, (1 - offset, 1), (1, 1))
+		self._check_object_reaction(reset_to=(1 - offset, 1), expected_tiles=(1, 1), velocity=(-1, -1))
 
 		# Partially embedded in the right wall, moving right and down
 		character.reset_to_tile(1, 1)
