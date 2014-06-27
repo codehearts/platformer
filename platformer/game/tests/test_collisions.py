@@ -10,15 +10,24 @@ class TestCollisions(unittest.TestCase):
 	"""Tests that object collisions are resolved as expected."""
 
 	# Checks whether the epected list is equal to the actual xrange result
-	def check_range_values(self, expected, actual):
+	def check_range_values(self, expected, actual, context=""):
 		if len(actual) != len(expected):
 			return False
 
-		for index in xrange(len(actual)):
-			if not self.assertEqual(expected[index], actual[index]):
+		for i in xrange(len(actual)):
+			passed = self.assertEqual(expected[i], actual[i],
+				"Trajectory of object is incorrect, expected "+str(expected[i])+" but got "+str(actual[i])+" ("+context+")")
+
+			if not passed:
 				return False
 
 		return True
+
+	def _expected_x_tile_range(self, start, step=1):
+		return range(start, int(self.obj.x + self.obj.acceleration_x)/TILE_SIZE - 1, step)
+
+	def _expected_y_tile_range(self, start, step=1):
+		return range(start, int(self.obj.y + self.obj.acceleration_y)/TILE_SIZE - 1, step)
 
 	def test_trajectory_projection(self):
 		"""Tests code that determines which tiles are affected by an object's trajectory.
@@ -31,24 +40,21 @@ class TestCollisions(unittest.TestCase):
 		empty_level = TileMap(empty_map, get_testing_tileset(2,2))
 
 		# test_object_4 constantly moves downwards at -general_settings.GRAVITY
-		character = PhysicalObject(empty_level.tiles, dummy_image(TILE_SIZE, TILE_SIZE), 999, 999, mass=1)
+		self.obj = PhysicalObject(empty_level.tiles, dummy_image(TILE_SIZE, TILE_SIZE), 999*TILE_SIZE, 999*TILE_SIZE, mass=1)
 
 		# Move down with no x-component
-		new_x = character.x
-		new_y = character.y + character.acceleration_y
+		context = 'object initialized at '+str(self.obj.x)+', '+str(self.obj.y)
 
-		self.check_range_values([999], character.get_axis_range('x', new_x))
-		self.check_range_values([999, 998], character.get_axis_range('y', new_y))
-
-
+		self.check_range_values(self._expected_x_tile_range(999, step=-1), self.obj.get_x_tile_span(), context)
+		self.check_range_values(self._expected_y_tile_range(999, step=-1), self.obj.get_y_tile_span(), context)
 
 		# Move down faster with no x-component
-		character.reset_to_tile(500, 500)
-		new_x = character.get_coordinates()[0]
-		new_y = character.get_coordinates()[1] - general_settings.TILE_SIZE * 5.5
+		old_x, old_y = (str(self.obj.x), str(self.obj.y))
+		self.obj.reset_to_tile(500, 500)
+		context = 'object was reset from '+old_x+', '+old_y+' 999 to '+str(self.obj.x)+', '+str(self.obj.y)
 
-		self.check_range_values([500], character.get_axis_range('x', new_x))
-		self.check_range_values([500, 499, 498, 497, 496, 495, 494], character.get_axis_range('y', new_y))
+		self.check_range_values(self._expected_x_tile_range(500, step=-1), self.obj.get_x_tile_span(), context)
+		self.check_range_values(self._expected_y_tile_range(500, step=-1), self.obj.get_y_tile_span(), context)
 
 
 
