@@ -1,9 +1,10 @@
 import pyglet, math, unittest
 from game import load, util
-from game.settings import general_settings
 from game.tiles import TileMap
 from util.tileset import get_testing_tileset
+from util.image import dummy_image
 from game.physical_objects.physical_object import PhysicalObject
+from game.settings.general_settings import TILE_SIZE
 
 class TestCollisions(unittest.TestCase):
 	"""Tests that object collisions are resolved as expected."""
@@ -30,7 +31,7 @@ class TestCollisions(unittest.TestCase):
 		empty_level = TileMap(empty_map, get_testing_tileset(2,2))
 
 		# test_object_4 constantly moves downwards at -general_settings.GRAVITY
-		character = PhysicalObject(x=999, y=999, mass=1, stage=empty_level)
+		character = PhysicalObject(empty_level.tiles, dummy_image(TILE_SIZE, TILE_SIZE), 999, 999, mass=1)
 
 		# Move down with no x-component
 		new_x = character.x
