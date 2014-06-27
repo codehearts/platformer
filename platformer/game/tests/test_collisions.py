@@ -66,74 +66,70 @@ class TestCollisions(unittest.TestCase):
 
 
 
-	#def check_object_reaction(self, character, initial_tile, expected_result_tile, dt=1):
-		## Move the object to our initial tile (move_to() will automatically resolve collisions)
-		#new_coords = util.tile_to_coordinate(initial_tile[0], initial_tile[1])
-		#character.move_to(new_coords[0], new_coords[1])
+	def check_object_reaction(self, character, initial_tile, expected_result_tile, dt=1):
+		# Move the object to our initial tile (move_to() will automatically resolve collisions)
+		new_coords = util.tile_to_coordinate(initial_tile[0], initial_tile[1])
+		character.move_to(new_coords[0], new_coords[1])
 
-		## Assert that it wound up where we expected it to
-		#self.assertEqual(util.tile_to_coordinate(expected_result_tile[0], expected_result_tile[1]), character.get_coordinates())
+		# Assert that it wound up where we expected it to
+		self.assertEqual(util.tile_to_coordinate(expected_result_tile[0], expected_result_tile[1]), character.get_coordinates())
 
-	## Tests a physical object's responses to colliding with the environment in different ways
-	#def test_object_collision_handling(self):
-		#collision_map = [
-			#[ 1, 1, 1, 1],
-			#[ 2,00,00, 3],
-			#[ 2,00,00, 3],
-			#[ 6, 1, 1, 7]
-		#]
-		#collision_level = load.Stage(demo_settings.TILE_DATA, collision_map)
+	def test_object_collision_handling(self):
+		"""Tests a physical object's responses to colliding with the environment in different ways."""
+		collision_map = [
+			[ 2, 2, 2, 2],
+			[ 2,00,00, 2],
+			[ 2,00,00, 2],
+			[ 2, 2, 2, 2]
+		]
+		collision_level = TileMap(collision_map, get_testing_tileset(2,2))
 
+		self.obj = PhysicalObject(collision_level.tiles, dummy_image(TILE_SIZE, TILE_SIZE), TILE_SIZE*2, TILE_SIZE, mass=0)
+		offset = 4.0 / TILE_SIZE
 
+		# Partially embedded in the left wall, moving left and down
+		character.set_velocity(-1, -1)
+		self.check_object_reaction(character, (1 - offset, 1), (1, 1))
 
-		## Test basic object collision
+		# Partially embedded in the right wall, moving right and down
+		character.reset_to_tile(1, 1)
+		character.set_velocity(1, -1)
+		self.check_object_reaction(character, (2 + offset, 1), (2, 1))
 
-		#character = load.single_character('test_object_2', 2, 1, collision_level.get_tiles())
-		#offset = 4 / general_settings.TILE_SIZE
+		# Partially embedded in the floor, colliding with 1 tile, moving down
+		character.reset_to_tile(1, 2)
+		character.set_velocity(0, -1)
+		self.check_object_reaction(character, (1, 1 - offset), (1, 1))
 
-		## Partially embedded in the left wall, moving left and down
-		#character.set_velocity(-1, -1)
-		#self.check_object_reaction(character, (1 - offset, 1), (1, 1))
+		# Partially embedded in the floor, colliding with 2 tiles, moving down
+		character.reset_to_tile(1.5, 2)
+		character.set_velocity(0, -1)
+		self.check_object_reaction(character, (1.5, 1 - offset), (1.5, 1))
 
-		## Partially embedded in the right wall, moving right and down
-		#character.reset_to_tile(1, 1)
-		#character.set_velocity(1, -1)
-		#self.check_object_reaction(character, (2 + offset, 1), (2, 1))
+		# Partially embedded in the left wall and floor, moving left and down
+		character.reset_to_tile(2, 2)
+		character.set_velocity(-1, -1)
+		self.check_object_reaction(character, (1 - offset, 1 - offset), (1, 1))
 
-		## Partially embedded in the floor, colliding with 1 tile, moving down
-		#character.reset_to_tile(1, 2)
-		#character.set_velocity(0, -1)
-		#self.check_object_reaction(character, (1, 1 - offset), (1, 1))
+		# Partially embedded in the right wall and floor, moving right and down
+		character.reset_to_tile(1, 2)
+		character.set_velocity(1, -1)
+		self.check_object_reaction(character, (2 + offset, 1 - offset), (2, 1))
 
-		## Partially embedded in the floor, colliding with 2 tiles, moving down
-		#character.reset_to_tile(1.5, 2)
-		#character.set_velocity(0, -1)
-		#self.check_object_reaction(character, (1.5, 1 - offset), (1.5, 1))
+		# Partially embedded in the ceiling, moving up
+		character.reset_to_tile(1, 1)
+		character.set_velocity(0, 1)
+		self.check_object_reaction(character, (1, 2 + offset), (1, 2))
 
-		## Partially embedded in the left wall and floor, moving left and down
-		#character.reset_to_tile(2, 2)
-		#character.set_velocity(-1, -1)
-		#self.check_object_reaction(character, (1 - offset, 1 - offset), (1, 1))
+		# Partially embedded in the left wall and ceiling, moving left and uo
+		character.reset_to_tile(2, 1)
+		character.set_velocity(-1, 1)
+		self.check_object_reaction(character, (1 - offset, 2 + offset), (1, 2))
 
-		## Partially embedded in the right wall and floor, moving right and down
-		#character.reset_to_tile(1, 2)
-		#character.set_velocity(1, -1)
-		#self.check_object_reaction(character, (2 + offset, 1 - offset), (2, 1))
-
-		## Partially embedded in the ceiling, moving up
-		#character.reset_to_tile(1, 1)
-		#character.set_velocity(0, 1)
-		#self.check_object_reaction(character, (1, 2 + offset), (1, 2))
-
-		## Partially embedded in the left wall and ceiling, moving left and uo
-		#character.reset_to_tile(2, 1)
-		#character.set_velocity(-1, 1)
-		#self.check_object_reaction(character, (1 - offset, 2 + offset), (1, 2))
-
-		## Partially embedded in the right wall and ceiling, moving right and up
-		#character.reset_to_tile(1, 1)
-		#character.set_velocity(1, 1)
-		#self.check_object_reaction(character, (2 + offset, 2 + offset), (2, 2))
+		# Partially embedded in the right wall and ceiling, moving right and up
+		character.reset_to_tile(1, 1)
+		character.set_velocity(1, 1)
+		self.check_object_reaction(character, (2 + offset, 2 + offset), (2, 2))
 
 
 
