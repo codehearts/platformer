@@ -66,28 +66,6 @@ class TestCollisions(unittest.TestCase):
 
 
 
-	# Tests basic axis aligned rectangular overlap detection
-	#def test_collisions(self):
-		#box_1 = util.Box(0, 0, 10, 10)
-		#box_2 = util.Box(0, 10, 10, 10)
-		#box_3 = util.Box(11, 11, 10, 10)
-		#box_4 = util.Box(2, 5, 4, 6)
-
-		## 1 and 2 should just barely overlap
-		#self.assertTrue(util.collision_detected(box_1, box_2))
-
-		## 3 should not overlap with anything
-		#self.assertFalse(util.collision_detected(box_3, box_1))
-		#self.assertFalse(util.collision_detected(box_3, box_2))
-		#self.assertFalse(util.collision_detected(box_3, box_4))
-
-		## 4 should overlap with 1 and 2, but not 3
-		#self.assertTrue(util.collision_detected(box_4, box_1))
-		#self.assertTrue(util.collision_detected(box_4, box_2))
-		#self.assertFalse(util.collision_detected(box_4, box_3))
-
-
-
 	#def check_object_reaction(self, character, initial_tile, expected_result_tile, dt=1):
 		## Move the object to our initial tile (move_to() will automatically resolve collisions)
 		#new_coords = util.tile_to_coordinate(initial_tile[0], initial_tile[1])
