@@ -118,7 +118,7 @@ class PhysicalObject(ExtendedSprite):
 		self.x = new_x
 		self.y = new_y
 
-		self.set_velocity(0, 0)
+		self.velocity_x, self.velocity_y = (0, 0)
 		self.in_air = True
 
 	def reset_to_tile(self, tile_x, tile_y):
