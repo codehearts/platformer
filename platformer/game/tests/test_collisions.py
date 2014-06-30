@@ -1,6 +1,7 @@
-from game.settings.general_settings import TILE_SIZE, FRAME_LENGTH
+from game.settings.general_settings import TILE_SIZE, FRAME_LENGTH, FPS
 from game.physical_objects.physical_object import PhysicalObject
-from game.tiles import TileMap
+from game.tiles import TileMap, Tileset
+from game.tiles.tileset import TilesetImage, TilesetConfig
 from util.tileset import get_testing_tileset
 from util.image import dummy_image
 import unittest
@@ -75,48 +76,78 @@ class TestCollisions(unittest.TestCase):
 
 
 
+	def _simulate_time(self, seconds, update_object):
+		"""Simulates time by calling the given update function every frame for the given amount of time."""
+		map(lambda x: update_object.update(FRAME_LENGTH), xrange(int(FPS * seconds)))
+
 	def test_slope_collision_handling(self):
 		"""Tests the resolution of collisions with slopes tiles.
+		TODO: Remove the assumption about the tile size
 		PLEASE NOTE: This test assumes a tile size of 32
 		"""
-
-
 		slope_map = [
-			[00,00,00,00,00,00, 9,00,10,00,00,00,00, 1,13,14,15,16, 1,00,00,00], # 7
-			[00,00,00,00,00, 9,00, 1,00,10,00,00,00,00,00,00,00,00,00,00,00,00], # 6
-			[15,16,10,15,16,00,00,00,00,00,13,14, 9,13,14,00,00, 9, 9,10,10,00], # 5
-			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00], # 4
-			[00,00,00,00,00,00, 9,00,10,00,00,00,00,00,00,00,00,00,00,00,00,00], # 3
-			[00,00,00,00,13,14,00,00,00,15,16,00,00,00,00, 9,00,10,00,00,00,00], # 2
-			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00], # 1
-			[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  # 0
+			[00,00,00,00,00,00, 2,00, 3,00,00,00,00, 1, 4, 5, 6, 7, 1,00,00,00], # 0
+			[00,00,00,00,00, 2,00, 1,00,10,00,00,00,00,00,00,00,00,00,00,00,00], # 1
+			[ 6, 7, 3, 6, 7,00,00,00,00,00, 4, 5, 2, 4, 5,00,00, 2, 2, 3, 3,00], # 2
+			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00], # 3
+			[00,00,00,00,00,00, 2,00, 3,00,00,00,00,00,00,00,00,00,00,00,00,00], # 4
+			[00,00,00,00, 4, 5,00,00,00, 6, 7,00,00,00,00, 2,00, 3,00,00,00,00], # 5
+			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00], # 6
+			[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  # 7
 			# 0	 1	2  3  4	 5	6  7  8	 9 10 11 12 13 14 15 16 17 18 19 20 21
 		]
 
-		slope_level = load.Stage(demo_settings.TILE_DATA, slope_map)
+		tileset_image = TilesetImage(dummy_image(6 * TILE_SIZE, 8 * TILE_SIZE))
+		tileset_config = TilesetConfig('{\
+			"2": {\
+				"type": "slope",\
+				"left_height": 0,\
+				"right_height": 32\
+			},\
+			"3": {\
+				"type": "slope",\
+				"left_height": 32,\
+				"right_height": 0\
+			},\
+			"4": {\
+				"type": "slope",\
+				"left_height": 0,\
+				"right_height": 16\
+			},\
+			"5": {\
+				"type": "slope",\
+				"left_height": 17,\
+				"right_height": 32\
+			},\
+			"6": {\
+				"type": "slope",\
+				"left_height": 32,\
+				"right_height": 17\
+			},\
+			"7": {\
+				"type": "slope",\
+				"left_height": 16,\
+				"right_height": 0\
+			}\
+		}')
 
-		# Load the reasonable-mass test object
-		tile_size = general_settings.TILE_SIZE_FLOAT
-		tiles = slope_level.get_tiles()
-		character = load.single_character('test_object_6', 6, 5, tiles)
+		slope_level = TileMap(slope_map, Tileset('slope-test', tileset_image, tileset_config))
 
-		# We have to patch over this method because these tests simulate time, thus the frame rate is 0
-		pyglet.clock.get_fps = lambda : general_settings.FPS
+		self.obj = PhysicalObject(slope_level.tiles, dummy_image(TILE_SIZE, TILE_SIZE), TILE_SIZE*6, TILE_SIZE*5, mass=100)
+
+		# Lefttward slope tests
 
 
 
-		# Rightward slope tests
+		# Test falling onto a 1-tile leftward slope, perfectly aligned
 
-
-
-		# Test falling onto a 1-tile rightward slope, perfectly aligned
-
-		# Simulate 1 second of game time
-		for i in xrange(int(general_settings.FPS)):
-			character.update(general_settings.FRAME_LENGTH)
+		self._simulate_time(20, self.obj)
 
 		# The object should have landed centered on the tile
-		self.assertEqual((6*tile_size, 3.5*tile_size), character.get_coordinates())
+		self.assertEqual(6*TILE_SIZE, self.obj.x,
+			"Object's x position is not flush with tile after falling straight down onto leftward slope.")
+		self.assertEqual(4.5*TILE_SIZE, self.obj.y,
+			"Object's y position is not centered on tile after falling straight down onto leftward slope.")
 
 
 
