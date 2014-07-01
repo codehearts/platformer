@@ -85,15 +85,16 @@ class TestCollisions(unittest.TestCase):
 		TODO: Remove the assumption about the tile size
 		PLEASE NOTE: This test assumes a tile size of 32
 		"""
+		# The map is upside down
 		slope_map = [
-			[00,00,00,00,00,00, 2,00, 3,00,00,00,00, 1, 4, 5, 6, 7, 1,00,00,00], # 0
-			[00,00,00,00,00, 2,00, 1,00,10,00,00,00,00,00,00,00,00,00,00,00,00], # 1
-			[ 6, 7, 3, 6, 7,00,00,00,00,00, 4, 5, 2, 4, 5,00,00, 2, 2, 3, 3,00], # 2
-			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00], # 3
-			[00,00,00,00,00,00, 2,00, 3,00,00,00,00,00,00,00,00,00,00,00,00,00], # 4
-			[00,00,00,00, 4, 5,00,00,00, 6, 7,00,00,00,00, 2,00, 3,00,00,00,00], # 5
-			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00], # 6
-			[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]  # 7
+			[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], # 0
+			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00], # 1
+			[00,00,00,00, 4, 5,00,00,00, 6, 7,00,00,00,00, 2,00, 3,00,00,00,00], # 2
+			[00,00,00,00,00,00, 2,00, 3,00,00,00,00,00,00,00,00,00,00,00,00,00], # 3
+			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00], # 4
+			[ 6, 7, 3, 6, 7,00,00,00,00,00, 4, 5, 2, 4, 5,00,00, 2, 2, 3, 3,00], # 5
+			[00,00,00,00,00, 2,00, 1,00,10,00,00,00,00,00,00,00,00,00,00,00,00], # 6
+			[00,00,00,00,00,00, 2,00, 3,00,00,00,00, 1, 4, 5, 6, 7, 1,00,00,00], # 7
 			# 0	 1	2  3  4	 5	6  7  8	 9 10 11 12 13 14 15 16 17 18 19 20 21
 		]
 
@@ -139,41 +140,41 @@ class TestCollisions(unittest.TestCase):
 
 
 
-		# Test falling onto a 1-tile leftward slope, perfectly aligned
+		# Test falling onto a 1-tile positive slope, perfectly aligned
 
 		self._simulate_time(1, self.obj)
 
 		# The object should have landed centered on the tile
 		self.assertEqual(6*TILE_SIZE, self.obj.x,
-			"Object's x position is not flush with tile after falling straight down onto leftward slope.")
-		self.assertEqual(4.5*TILE_SIZE, self.obj.y,
-			"Object's y position is not centered on tile after falling straight down onto leftward slope.")
+			"Object's x position is not flush with tile after falling straight down onto positive slope.")
+		self.assertEqual(3.5*TILE_SIZE, self.obj.y,
+			"Object's y position is not centered on tile after falling straight down onto positive slope.")
 
 
 
-		# Test falling onto a 1-tile leftward slope, bottom-center on the peak
+		# Test falling onto a 1-tile positive slope, bottom-center on the peak
 
 		self.obj.reset_to_tile(7-(self.obj.half_width/TILE_SIZE_FLOAT), 5)
 		self._simulate_time(1, self.obj)
 
 		# The object should be at the same x-coordinate, and at the peak of the slope
 		self.assertEqual((7-(self.obj.half_width/TILE_SIZE_FLOAT))*TILE_SIZE, self.obj.x,
-			"Object's x position is not flush with tile after falling straight down onto leftward slope.")
-		self.assertEqual(5*TILE_SIZE, self.obj.y,
-			"Object's y position is not on peak of tile after falling straight down onto leftward slope.")
+			"Object's x position is not centered over right end of tile after falling straight down onto positive slope.")
+		self.assertEqual(4*TILE_SIZE, self.obj.y,
+			"Object's y position is not on peak of tile after falling straight down onto positive slope.")
 
 
 
-		# Test falling onto a 1-tile rightward slope, bottom-center on the lowest point
+		# Test falling onto a 1-tile positive slope, bottom-center on the lowest point
 
-		character.reset_to_tile(6-(character.get_half_width()/tile_size), 5)
-
-		# Simulate 1 second of game time
-		for i in xrange(int(general_settings.FPS)):
-			character.update(general_settings.FRAME_LENGTH)
+		self.obj.reset_to_tile(6-(self.obj.half_width/TILE_SIZE_FLOAT), 5)
+		self._simulate_time(1, self.obj)
 
 		# The object should be at the same x-coordinate, and at the bottom of the slope
-		self.assertEqual(util.tile_to_coordinate(6-(character.get_half_width()/tile_size), 3), character.get_coordinates())
+		self.assertEqual((6-(self.obj.half_width/TILE_SIZE_FLOAT))*TILE_SIZE, self.obj.x,
+			"Object's x position is not centered over left end of tile after falling straight down onto positive slope.")
+		self.assertEqual(3*TILE_SIZE, self.obj.y,
+			"Object's y position is not on bottom of tile after falling straight down onto positive slope.")
 
 
 
