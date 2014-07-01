@@ -11,3 +11,4 @@ Tile tests
 Collision resolution tests
 Retab all files to consistently use tabs or spaces, remove unnecessary spacing
 Move BoundedBox to a geometry module
+Rename rightward and leftward slopes to positive and negative slopes

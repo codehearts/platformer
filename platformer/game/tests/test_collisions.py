@@ -1,4 +1,4 @@
-from game.settings.general_settings import TILE_SIZE, FRAME_LENGTH, FPS
+from game.settings.general_settings import TILE_SIZE, TILE_SIZE_FLOAT, FRAME_LENGTH, FPS
 from game.physical_objects.physical_object import PhysicalObject
 from game.tiles import TileMap, Tileset
 from game.tiles.tileset import TilesetImage, TilesetConfig
@@ -141,7 +141,7 @@ class TestCollisions(unittest.TestCase):
 
 		# Test falling onto a 1-tile leftward slope, perfectly aligned
 
-		self._simulate_time(20, self.obj)
+		self._simulate_time(1, self.obj)
 
 		# The object should have landed centered on the tile
 		self.assertEqual(6*TILE_SIZE, self.obj.x,
@@ -151,16 +151,17 @@ class TestCollisions(unittest.TestCase):
 
 
 
-		# Test falling onto a 1-tile rightward slope, bottom-center on the peak
+		# Test falling onto a 1-tile leftward slope, bottom-center on the peak
 
-		character.reset_to_tile(7-(character.get_half_width()/tile_size), 5)
-
-		# Simulate 1 second of game time
-		for i in xrange(int(general_settings.FPS)):
-			character.update(general_settings.FRAME_LENGTH)
+		self.obj.reset_to_tile(7-(self.obj.half_width/TILE_SIZE_FLOAT), 5)
+		self._simulate_time(1, self.obj)
 
 		# The object should be at the same x-coordinate, and at the peak of the slope
 		self.assertEqual(util.tile_to_coordinate(7-(character.get_half_width()/tile_size), 4), character.get_coordinates())
+		self.assertEqual((7-(self.obj.half_width/TILE_SIZE_FLOAT))*TILE_SIZE, self.obj.x,
+			"Object's x position is not flush with tile after falling straight down onto leftward slope.")
+		self.assertEqual(4.5*TILE_SIZE, self.obj.y,
+			"Object's y position is not centered on tile after falling straight down onto leftward slope.")
 
 
 
