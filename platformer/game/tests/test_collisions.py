@@ -179,29 +179,29 @@ class TestCollisions(unittest.TestCase):
 
 
 
-		# Test falling onto a 2-tile rightward slope, perfectly aligned with first tile
+		# Test falling onto a 2-tile positive slope, perfectly aligned with lower tile
 
-		character.reset_to_tile(4, 4)
+		self.obj.reset_to_tile(4, 4)
+		self._simulate_time(1, self.obj)
 
-		# Simulate 1 second of game time
-		for i in xrange(int(general_settings.FPS)):
-			character.update(general_settings.FRAME_LENGTH)
-
-		# The height of the first tile in the middle is 8 pixels
-		self.assertEqual(util.tile_to_coordinate(4, 2+(8/tile_size)), character.get_coordinates())
-
+		# The height of the lower tile in the middle is 8 pixels
+		self.assertEqual(4*TILE_SIZE, self.obj.x,
+			"Object's x position is not flush with tile after falling straight down onto lower end of two-tile positive slope.")
+		self.assertEqual((2+(8.0/TILE_SIZE))*TILE_SIZE, self.obj.y,
+			"Object's y position is not on middle of lower tile after falling straight down onto lower end of two-tile positive slope.")
 
 
-		# Test falling onto a 2-tile rightward slope, bottom-center on the first tile's peak
 
-		character.reset_to_tile(5-(character.get_half_width()/tile_size), 4)
+		# Test falling onto a 2-tile positive slope, bottom-center on the lower tile's peak
 
-		# Simulate 1 second of game time
-		for i in xrange(int(general_settings.FPS)):
-			character.update(general_settings.FRAME_LENGTH)
+		self.obj.reset_to_tile(5-(self.obj.half_width/TILE_SIZE_FLOAT), 4)
+		self._simulate_time(1, self.obj)
 
-		# The first tile's peak is 16 pixels
-		self.assertEqual(util.tile_to_coordinate(5-(character.get_half_width()/tile_size), 2+(16/tile_size)), character.get_coordinates())
+		# The lower tile's peak is 16 pixels
+		self.assertEqual((5-(self.obj.half_width/TILE_SIZE_FLOAT))*TILE_SIZE, self.obj.x,
+			"Object's x position is not centered over left end of tile after falling straight down onto lower end of two-tile positive slope.")
+		self.assertEqual((2+(16.0/TILE_SIZE))*TILE_SIZE, self.obj.y,
+			"Object's y position is not on middle of lower tile after falling straight down onto lower end of two-tile positive slope.")
 
 
 
