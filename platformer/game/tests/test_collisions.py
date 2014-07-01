@@ -86,6 +86,7 @@ class TestCollisions(unittest.TestCase):
 		PLEASE NOTE: This test assumes a tile size of 32
 		"""
 		# The map is upside down
+		# TODO Write a method to take a tile map list and "load" it
 		slope_map = [
 			[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], # 0
 			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00], # 1
