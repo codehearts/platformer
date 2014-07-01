@@ -157,11 +157,10 @@ class TestCollisions(unittest.TestCase):
 		self._simulate_time(1, self.obj)
 
 		# The object should be at the same x-coordinate, and at the peak of the slope
-		self.assertEqual(util.tile_to_coordinate(7-(character.get_half_width()/tile_size), 4), character.get_coordinates())
 		self.assertEqual((7-(self.obj.half_width/TILE_SIZE_FLOAT))*TILE_SIZE, self.obj.x,
 			"Object's x position is not flush with tile after falling straight down onto leftward slope.")
-		self.assertEqual(4.5*TILE_SIZE, self.obj.y,
-			"Object's y position is not centered on tile after falling straight down onto leftward slope.")
+		self.assertEqual(5*TILE_SIZE, self.obj.y,
+			"Object's y position is not on peak of tile after falling straight down onto leftward slope.")
 
 
 
