@@ -80,6 +80,22 @@ class TestCollisions(unittest.TestCase):
 		"""Simulates time by calling the given update function every frame for the given amount of time."""
 		map(lambda x: update_object.update(FRAME_LENGTH), xrange(int(FPS * seconds)))
 
+	def _assert_slope_resolution(self, expected_tiles, locations, movement, onto):
+		"""Asserts that the object has resolved to the expected coordinates on the slope tile.
+
+		Args:
+			expected_tiles (tuple of float): The expected tile coordinates of the object after resolution.
+			locations (tuple of str): A description of the expected x and y locations on the slope.
+			movement (str): A description of the object's movement onto the slope.
+			onto (str): A description of the tile the object has moved onto.
+		"""
+		self.assertEqual(expected_tiles[0]*TILE_SIZE, self.obj.x,
+			"Object's x position is not {0} tile after moving {1} onto {2} slope. Expected {3} but got {4}.".format(
+			locations[0], movement, onto, expected_tiles[0]*TILE_SIZE, self.obj.x))
+		self.assertEqual(expected_tiles[1]*TILE_SIZE, self.obj.y,
+			"Object's y position is not {0} tile after moving {1} onto {2} slope. Expected {3} but got {4}.".format(
+			locations[1], movement, onto, expected_tiles[1]*TILE_SIZE, self.obj.y))
+
 	def test_slope_collision_handling(self):
 		"""Tests the resolution of collisions with slopes tiles.
 		TODO: Remove the assumption about the tile size
@@ -137,141 +153,86 @@ class TestCollisions(unittest.TestCase):
 
 		self.obj = PhysicalObject(slope_level.tiles, dummy_image(TILE_SIZE, TILE_SIZE), TILE_SIZE*6, TILE_SIZE*5, mass=100)
 		half_width= float(self.obj.half_width)
+		half_tile_width = half_width / TILE_SIZE
 
 		# Positive slope tests
 
-
-
 		# Test falling onto a 1-tile positive slope, perfectly aligned
+		movement = "straight down"
+		slope_type = "positive"
 
 		self._simulate_time(1, self.obj)
-
 		# The object should have landed centered on the tile
-		self.assertEqual(6*TILE_SIZE, self.obj.x,
-			"Object's x position is not flush with tile after falling straight down onto positive slope.")
-		self.assertEqual(3.5*TILE_SIZE, self.obj.y,
-			"Object's y position is not centered on tile after falling straight down onto positive slope.")
-
-
+		self._assert_slope_resolution((6, 3.5), ("flush with", "centered on"), movement, slope_type)
 
 		# Test falling onto a 1-tile positive slope, bottom-center on the peak
-
 		self.obj.reset_to_tile(7-(half_width/TILE_SIZE), 5)
 		self._simulate_time(1, self.obj)
-
 		# The object should be at the same x-coordinate, and at the peak of the slope
-		self.assertEqual((7-(half_width/TILE_SIZE))*TILE_SIZE, self.obj.x,
-			"Object's x position is not centered over right end of tile after falling straight down onto positive slope.")
-		self.assertEqual(4*TILE_SIZE, self.obj.y,
-			"Object's y position is not on peak of tile after falling straight down onto positive slope.")
-
-
+		self._assert_slope_resolution((7-half_tile_width, 4), ("centered over right end of", "on peak of"), movement, slope_type)
 
 		# Test falling onto a 1-tile positive slope, bottom-center on the lowest point
-
 		self.obj.reset_to_tile(6-(half_width/TILE_SIZE), 5)
 		self._simulate_time(1, self.obj)
-
 		# The object should be at the same x-coordinate, and at the bottom of the slope
-		self.assertEqual((6-(half_width/TILE_SIZE))*TILE_SIZE, self.obj.x,
-			"Object's x position is not centered over left end of tile after falling straight down onto positive slope.")
-		self.assertEqual(3*TILE_SIZE, self.obj.y,
-			"Object's y position is not on bottom of tile after falling straight down onto positive slope.")
-
-
+		self._assert_slope_resolution((6-half_tile_width, 3), ("centered over left end of", "on bottom of"), movement, slope_type)
 
 		# Test falling onto a 2-tile positive slope, perfectly aligned with lower tile
+		movement = "straight down"
+		slope_type = "lower end of two-tile positive"
 
 		self.obj.reset_to_tile(4, 4)
 		self._simulate_time(1, self.obj)
-
 		# The height of the lower tile in the middle is 8 pixels
-		self.assertEqual(4*TILE_SIZE, self.obj.x,
-			"Object's x position is not flush with tile after falling straight down onto lower end of two-tile positive slope.")
-		self.assertEqual((2+(8.0/TILE_SIZE))*TILE_SIZE, self.obj.y,
-			"Object's y position is not on middle of lower tile after falling straight down onto lower end of two-tile positive slope.")
-
-
+		self._assert_slope_resolution((4, 2+(8.0/TILE_SIZE)), ("flush with", "on middle of lower"), movement, slope_type)
 
 		# Test falling onto a 2-tile positive slope, bottom-center on the lower tile's peak
-
 		self.obj.reset_to_tile(5-(half_width/TILE_SIZE), 4)
 		self._simulate_time(1, self.obj)
-
 		# The lower tile's peak is 16 pixels
-		self.assertEqual((5-(half_width/TILE_SIZE))*TILE_SIZE, self.obj.x,
-			"Object's x position is not centered over right end of tile after falling straight down onto lower end of two-tile positive slope.")
-		self.assertEqual((2+(16.0/TILE_SIZE))*TILE_SIZE, self.obj.y,
-			"Object's y position is not at peak of lower tile after falling straight down onto lower end of two-tile positive slope.")
-
-
+		self._assert_slope_resolution((5-half_tile_width, 2+(16.0/TILE_SIZE)), ("centered over right end of", "at peak of lower"), movement, slope_type)
 
 		# Test falling onto a 2-tile positive slope, bottom-center on the lower tile's lowest point
-
 		self.obj.reset_to_tile(4-(half_width/TILE_SIZE), 4)
 		self._simulate_time(1, self.obj)
-
 		# The lower tile's lowest point is 0
-		self.assertEqual((4-(half_width/TILE_SIZE))*TILE_SIZE, self.obj.x,
-			"Object's x position is not centered over left end of tile after falling straight down onto lower end of two-tile positive slope.")
-		self.assertEqual(2*TILE_SIZE, self.obj.y,
-			"Object's y position is not at bottom of lower tile after falling straight down onto lower end of two-tile positive slope.")
+		self._assert_slope_resolution((4-half_tile_width, 2), ("centered over left end of", "at bottom of lower"), movement, slope_type)
 
-
+		# Begin testing on the upper tile
+		slope_type = "upper end of two-tile positive"
 
 		# Test falling onto a 2-tile positive slope, perfectly aligned with upper tile
-
 		self.obj.reset_to_tile(5, 4)
 		self._simulate_time(1, self.obj)
-
 		# The height of the upper tile in the middle is 25 pixels
-		self.assertEqual(5*TILE_SIZE, self.obj.x,
-			"Object's x position is not flush with tile after falling straight down onto upper end of two-tile positive slope.")
-		self.assertEqual((2+(25.0/TILE_SIZE))*TILE_SIZE, self.obj.y,
-			"Object's y position is not on middle of upper tile after falling straight down onto upper end of two-tile positive slope.")
-
-
+		self._assert_slope_resolution((5, 2+(25.0/TILE_SIZE)), ("flush with", "on middle of upper"), movement, slope_type)
 
 		# Test falling onto a 2-tile positive slope, bottom-center on the upper tile's peak
-
 		self.obj.reset_to_tile(6-(half_width/TILE_SIZE), 4)
 		self._simulate_time(1, self.obj)
-
 		# The upper tile's peak is 32 pixels
-		self.assertEqual((6-(half_width/TILE_SIZE))*TILE_SIZE, self.obj.x,
-			"Object's x position is not centered over right end of tile after falling straight down onto upper end of two-tile positive slope.")
-		self.assertEqual(3*TILE_SIZE, self.obj.y,
-			"Object's y position is not at peak of upper tile after falling straight down onto upper end of two-tile positive slope.")
-
-
+		self._assert_slope_resolution((6-half_tile_width, 3), ("centered over right end of", "at peak of upper"), movement, slope_type)
 
 		# Test falling onto a 2-tile positive slope, bottom-center on the upper tile's lowest point
-
 		self.obj.reset_to_tile(5-(half_width/TILE_SIZE), 4)
 		self._simulate_time(1, self.obj)
-
 		# The second tile's lowest point is 17, but it is considered to be on top of the first tile, which ends at 16
-		self.assertEqual((5-(half_width/TILE_SIZE))*TILE_SIZE, self.obj.x,
-			"Object's x position is not centered over left end of tile after falling straight down onto upper end of two-tile positive slope.")
-		self.assertEqual((2+(16.0/TILE_SIZE))*TILE_SIZE, self.obj.y,
-			"Object's y position is not at bottom of upper tile after falling straight down onto upper end of two-tile positive slope.")
+		self._assert_slope_resolution((5-half_tile_width, 2+(16.0/TILE_SIZE)), ("centered over left end of", "at bottom of upper"), movement, slope_type)
 
 
 
 		# Negative slope tests
 
-
-
-		# Test falling onto a 1-tile leftward slope, perfectly aligned
+		# Test falling onto a 1-tile negative slope, perfectly aligned
 
 		self.obj.reset_to_tile(8, 4)
-
-		# Simulate 1 second of game time
-		for i in xrange(int(general_settings.FPS)):
-			self.obj.update(general_settings.FRAME_LENGTH)
+		self._simulate_time(1, self.obj)
 
 		# The object should have landed centered on the tile
-		self.assertEqual((8*TILE_SIZE, 3.5*TILE_SIZE), self.obj.get_coordinates())
+		self.assertEqual(8*TILE_SIZE, self.obj.x,
+			"Object's x position is not flush with tile after falling straight down onto negative slope.")
+		self.assertEqual(3.5*TILE_SIZE, self.obj.y,
+			"Object's y position is not centered on tile after falling straight down onto negative slope.")
 
 
 
