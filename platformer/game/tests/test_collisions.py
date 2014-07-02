@@ -222,45 +222,27 @@ class TestCollisions(unittest.TestCase):
 
 
 		# Negative slope tests
+		movement = "straight down"
+		slope_type = "negative"
 
 		# Test falling onto a 1-tile negative slope, perfectly aligned
-
 		self.obj.reset_to_tile(8, 4)
 		self._simulate_time(1, self.obj)
-
 		# The object should have landed centered on the tile
-		self.assertEqual(8*TILE_SIZE, self.obj.x,
-			"Object's x position is not flush with tile after falling straight down onto negative slope.")
-		self.assertEqual(3.5*TILE_SIZE, self.obj.y,
-			"Object's y position is not centered on tile after falling straight down onto negative slope.")
-
-
+		self._assert_slope_resolution((8, 3.5), ("flush with", "centered on"), movement, slope_type)
 
 		# Test falling onto a 1-tile leftward slope, bottom-center on the peak
-
 		self.obj.reset_to_tile(8-(half_width/TILE_SIZE), 4)
-
-		# Simulate 1 second of game time
-		for i in xrange(int(general_settings.FPS)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should be at the same x-coordinate, and at the peak of the slope
-		self.assertEqual(util.tile_to_coordinate(8-(half_width/TILE_SIZE), 4), self.obj.get_coordinates())
-
-
+		self._simulate_time(1, self.obj)
+		self._assert_slope_resolution((8-half_tile_width, 4), ("centered over right left of", "on peak of"), movement, slope_type)
 
 		# Test falling onto a 1-tile leftward slope, bottom-center on the lowest point
-
 		self.obj.reset_to_tile(9-(half_width/TILE_SIZE), 4)
-
-		# Simulate 1 second of game time
-		for i in xrange(int(general_settings.FPS)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
+		self._simulate_time(1, self.obj)
 		# The object should be at the same x-coordinate, and at the bottom of the slope
-		self.assertEqual(util.tile_to_coordinate(9-(half_width/TILE_SIZE), 3), self.obj.get_coordinates())
+		self._assert_slope_resolution((9-half_tile_width, 3), ("centered over right end of", "on bottom of"), movement, slope_type)
 
-
+		# TODO Two tile negative slope tests
 
 		# Slope jump tests
 
