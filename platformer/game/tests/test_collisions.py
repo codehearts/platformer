@@ -80,21 +80,38 @@ class TestCollisions(unittest.TestCase):
 		"""Simulates time by calling the given update function every frame for the given amount of time."""
 		map(lambda x: update_object.update(FRAME_LENGTH), xrange(int(FPS * seconds)))
 
-	def _assert_slope_resolution(self, expected_tiles, locations, movement, onto):
+	def _assert_slope_resolution(self, expected_tiles, locations, movement, slope_type):
 		"""Asserts that the object has resolved to the expected coordinates on the slope tile.
 
 		Args:
 			expected_tiles (tuple of float): The expected tile coordinates of the object after resolution.
 			locations (tuple of str): A description of the expected x and y locations on the slope.
 			movement (str): A description of the object's movement onto the slope.
-			onto (str): A description of the tile the object has moved onto.
+			slope_type (str): A description of the tile the object has moved onto.
 		"""
 		self.assertEqual(expected_tiles[0]*TILE_SIZE, self.obj.x,
 			"Object's x position is not {0} tile after moving {1} onto {2} slope. Expected {3} but got {4}.".format(
-			locations[0], movement, onto, expected_tiles[0]*TILE_SIZE, self.obj.x))
+			locations[0], movement, slope_type, expected_tiles[0]*TILE_SIZE, self.obj.x))
 		self.assertEqual(expected_tiles[1]*TILE_SIZE, self.obj.y,
 			"Object's y position is not {0} tile after moving {1} onto {2} slope. Expected {3} but got {4}.".format(
-			locations[1], movement, onto, expected_tiles[1]*TILE_SIZE, self.obj.y))
+			locations[1], movement, slope_type, expected_tiles[1]*TILE_SIZE, self.obj.y))
+
+	def _assert_slope_jump_resolution(self, expected_y_tile, location, slope_type):
+		"""Asserts that the object has resolved above the expected coordinates when jumping from a slope tile.
+
+		Args:
+			expected_tile_y (float): The expected tile coordinate of the object after resolution.
+			location (str): A description of the object's location on the slope before jumping.
+			slope_type (str): A description of the type of slope being jumped from.
+		"""
+		self._simulate_time(0.5, self.obj) # Give the object time to settle
+		self.obj.jump()
+		self._simulate_time(0.25, self.obj) # Give the object time to jump up
+
+		# The object should be above where it would be if it were resting on the slope
+		self.assertTrue(self.obj.y > expected_y_tile * TILE_SIZE,
+			"Object is not above slope tile after jumping from {0} of {1} tile. Expected to be greater than {2} but got {3}.".format(
+			location, slope_type, expected_y_tile * TILE_SIZE, self.obj.y))
 
 	def test_slope_collision_handling(self):
 		"""Tests the resolution of collisions with slopes tiles.
@@ -166,13 +183,13 @@ class TestCollisions(unittest.TestCase):
 		self._assert_slope_resolution((6, 3.5), ("flush with", "centered on"), movement, slope_type)
 
 		# Test falling onto a 1-tile positive slope, bottom-center on the peak
-		self.obj.reset_to_tile(7-(half_width/TILE_SIZE), 5)
+		self.obj.reset_to_tile(7-half_tile_width, 5)
 		self._simulate_time(1, self.obj)
 		# The object should be at the same x-coordinate, and at the peak of the slope
 		self._assert_slope_resolution((7-half_tile_width, 4), ("centered over right end of", "on peak of"), movement, slope_type)
 
 		# Test falling onto a 1-tile positive slope, bottom-center on the lowest point
-		self.obj.reset_to_tile(6-(half_width/TILE_SIZE), 5)
+		self.obj.reset_to_tile(6-half_tile_width, 5)
 		self._simulate_time(1, self.obj)
 		# The object should be at the same x-coordinate, and at the bottom of the slope
 		self._assert_slope_resolution((6-half_tile_width, 3), ("centered over left end of", "on bottom of"), movement, slope_type)
@@ -187,13 +204,13 @@ class TestCollisions(unittest.TestCase):
 		self._assert_slope_resolution((4, 2+(8.0/TILE_SIZE)), ("flush with", "on middle of lower"), movement, slope_type)
 
 		# Test falling onto a 2-tile positive slope, bottom-center on the lower tile's peak
-		self.obj.reset_to_tile(5-(half_width/TILE_SIZE), 4)
+		self.obj.reset_to_tile(5-half_tile_width, 4)
 		self._simulate_time(1, self.obj)
 		# The lower tile's peak is 16 pixels
 		self._assert_slope_resolution((5-half_tile_width, 2+(16.0/TILE_SIZE)), ("centered over right end of", "at peak of lower"), movement, slope_type)
 
 		# Test falling onto a 2-tile positive slope, bottom-center on the lower tile's lowest point
-		self.obj.reset_to_tile(4-(half_width/TILE_SIZE), 4)
+		self.obj.reset_to_tile(4-half_tile_width, 4)
 		self._simulate_time(1, self.obj)
 		# The lower tile's lowest point is 0
 		self._assert_slope_resolution((4-half_tile_width, 2), ("centered over left end of", "at bottom of lower"), movement, slope_type)
@@ -208,13 +225,13 @@ class TestCollisions(unittest.TestCase):
 		self._assert_slope_resolution((5, 2+(25.0/TILE_SIZE)), ("flush with", "on middle of upper"), movement, slope_type)
 
 		# Test falling onto a 2-tile positive slope, bottom-center on the upper tile's peak
-		self.obj.reset_to_tile(6-(half_width/TILE_SIZE), 4)
+		self.obj.reset_to_tile(6-half_tile_width, 4)
 		self._simulate_time(1, self.obj)
 		# The upper tile's peak is 32 pixels
 		self._assert_slope_resolution((6-half_tile_width, 3), ("centered over right end of", "at peak of upper"), movement, slope_type)
 
 		# Test falling onto a 2-tile positive slope, bottom-center on the upper tile's lowest point
-		self.obj.reset_to_tile(5-(half_width/TILE_SIZE), 4)
+		self.obj.reset_to_tile(5-half_tile_width, 4)
 		self._simulate_time(1, self.obj)
 		# The second tile's lowest point is 17, but it is considered to be on top of the first tile, which ends at 16
 		self._assert_slope_resolution((5-half_tile_width, 2+(16.0/TILE_SIZE)), ("centered over left end of", "at bottom of upper"), movement, slope_type)
@@ -232,12 +249,12 @@ class TestCollisions(unittest.TestCase):
 		self._assert_slope_resolution((8, 3.5), ("flush with", "centered on"), movement, slope_type)
 
 		# Test falling onto a 1-tile leftward slope, bottom-center on the peak
-		self.obj.reset_to_tile(8-(half_width/TILE_SIZE), 4)
+		self.obj.reset_to_tile(8-half_tile_width, 4)
 		self._simulate_time(1, self.obj)
 		self._assert_slope_resolution((8-half_tile_width, 4), ("centered over right left of", "on peak of"), movement, slope_type)
 
 		# Test falling onto a 1-tile leftward slope, bottom-center on the lowest point
-		self.obj.reset_to_tile(9-(half_width/TILE_SIZE), 4)
+		self.obj.reset_to_tile(9-half_tile_width, 4)
 		self._simulate_time(1, self.obj)
 		# The object should be at the same x-coordinate, and at the bottom of the slope
 		self._assert_slope_resolution((9-half_tile_width, 3), ("centered over right end of", "on bottom of"), movement, slope_type)
@@ -246,237 +263,68 @@ class TestCollisions(unittest.TestCase):
 
 		# Slope jump tests
 
+		slope_type = 'positive'
 
-
-		# Test jumping from a 1-tile rightward slope when perfectly aligned
-
+		# Test jumping from a 1-tile positive slope when perfectly aligned
 		self.obj.reset_to_tile(6, 4)
+		self._assert_slope_jump_resolution(3.5, "center", slope_type)
 
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
+		# Test jumping from a 1-tile positive slope, bottom-center on peak
+		self.obj.reset_to_tile(7-half_tile_width, 5)
+		self._assert_slope_jump_resolution(4, "right end", slope_type)
 
-		self.obj.jump()
+		# Test jumping from a 1-tile positive slope, bottom-center on the lowest point
+		self.obj.reset_to_tile(6-half_tile_width, 5)
+		self._assert_slope_jump_resolution(3, "left end", slope_type)
 
-		# Simulate a quarter of a second of game time to let the object jump up
-		for i in xrange(int(general_settings.FPS * 0.25)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should be above where it would be if it were resting on the slope
-		self.assertTrue(3.5*TILE_SIZE < self.obj.get_coordinates()[1])
-
-
-
-		# Test jumping from a 1-tile rightward slope, bottom-center on peak
-
-		self.obj.reset_to_tile(7-(half_width/TILE_SIZE), 5)
-
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		self.obj.jump()
-
-		# Simulate a quarter of a second of game time to let the object jump up
-		for i in xrange(int(general_settings.FPS * 0.25)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should be above where it would be if it were resting on the slope
-		self.assertTrue(4*TILE_SIZE < self.obj.get_coordinates()[1])
-
-
-
-		# Test jumping from a 1-tile rightward slope, bottom-center on the lowest point
-
-		self.obj.reset_to_tile(6-(half_width/TILE_SIZE), 5)
-
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		self.obj.jump()
-
-		# Simulate a quarter of a second of game time to let the object jump up
-		for i in xrange(int(general_settings.FPS * 0.25)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should be above where it would be if it were resting on the slope
-		self.assertTrue(3*TILE_SIZE < self.obj.get_coordinates()[1])
-
-
-
-		# Test jumping from a 1-tile rightward slope, bottom-center 1 pixel left of the lowest point (we're actually on the 2-tile slope)
-		# This check ensures that we do not get stuck when jumping near the seam of two slopes
-
+		# Test jumping from a 1-tile positive slope, bottom-center 1 pixel left of the lowest point (we're actually on the 2-tile positive slope)
+		# This check ensures that objects do not get stuck when jumping near the seam of two positive slopes
 		self.obj.reset_to_tile(5 + (half_width * 0.125 / TILE_SIZE), 5)
+		self._assert_slope_jump_resolution(3, "1 pixel left of the bottom left (actually on top of upper 2-tile positive slope tile)", slope_type)
 
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
+		# Begin testing jumps from the lower tile of a 2-tile positive slope
+		slope_type = 'lower two-tile positive slope'
 
-		self.obj.jump()
-
-		# Simulate a quarter of a second of game time to let the object jump up
-		for i in xrange(int(general_settings.FPS * 0.25)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should be above where it would be if it were resting on the slope
-		self.assertTrue(3*TILE_SIZE < self.obj.get_coordinates()[1])
-
-
-
-		# Test jumping from a 2-tile rightward slope, perfectly aligned with first tile
-
+		# Test jumping from a 2-tile positive slope, perfectly aligned with lower tile
 		self.obj.reset_to_tile(4, 3)
+		self._assert_slope_jump_resolution(2+(8.0/TILE_SIZE), "center", slope_type)
 
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
+		# Test jumping from a 2-tile positive slope, bottom-center on the lower tile's peak
+		self.obj.reset_to_tile(5-half_tile_width, 3)
+		self._assert_slope_jump_resolution(2+(17.0/TILE_SIZE), "peak", slope_type)
 
-		self.obj.jump()
+		# Test jumping from a 2-tile positive slope, bottom-center on the lower tile's lowest point
+		self.obj.reset_to_tile(4-half_tile_width, 3)
+		self._assert_slope_jump_resolution(2, "bottom", slope_type)
 
-		# Simulate a quarter of a second of game time to let the object jump up
-		for i in xrange(int(general_settings.FPS * 0.25)):
-			self.obj.update(general_settings.FRAME_LENGTH)
+		# Begin testing jumps from the upper tile of a 2-tile positive slope
+		slope_type = 'upper two-tile positive slope'
 
-		# The object should be above where it would be if it were resting on the slope
-		self.assertTrue((2+(8/TILE_SIZE))*TILE_SIZE < self.obj.get_coordinates()[1])
-
-
-
-		# Test jumping from a 2-tile rightward slope, bottom-center on the first tile's peak
-
-		self.obj.reset_to_tile(5-(half_width/TILE_SIZE), 3)
-
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		self.obj.jump()
-
-		# Simulate a quarter of a second of game time to let the object jump up
-		for i in xrange(int(general_settings.FPS * 0.25)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should be above where it would be if it were resting on the slope
-		self.assertTrue((2+(17/TILE_SIZE))*TILE_SIZE < self.obj.get_coordinates()[1])
-
-
-
-		# Test jumping from a 2-tile rightward slope, bottom-center on the first tile's lowest point
-
-		self.obj.reset_to_tile(4-(half_width/TILE_SIZE), 3)
-
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		self.obj.jump()
-
-		# Simulate a quarter of a second of game time to let the object jump up
-		for i in xrange(int(general_settings.FPS * 0.25)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should be above where it would be if it were resting on the slope
-		self.assertTrue(2*TILE_SIZE < self.obj.get_coordinates()[1])
-
-
-
-		# Test jumping from a 2-tile rightward slope, perfectly aligned with second tile
-
+		# Test jumping from a 2-tile positive slope, perfectly aligned with upper tile
 		self.obj.reset_to_tile(5, 3)
+		self._assert_slope_jump_resolution(2+(25.0/TILE_SIZE), "center", slope_type)
 
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
+		# Test jumping from a 2-tile positive slope, bottom-center on the upper tile's peak
+		self.obj.reset_to_tile(6-half_tile_width, 3)
+		self._assert_slope_jump_resolution(3, "peak", slope_type)
 
-		self.obj.jump()
+		# Test jumping from a 2-tile positive slope, bottom-center on the upper tile's lowest point
+		self.obj.reset_to_tile(5-half_tile_width, 3)
+		self._assert_slope_jump_resolution(2+(17.0/TILE_SIZE), "bottom", slope_type)
 
-		# Simulate a quarter of a second of game time to let the object jump up
-		for i in xrange(int(general_settings.FPS * 0.25)):
-			self.obj.update(general_settings.FRAME_LENGTH)
+		slope_type = 'lower two-tile positive slope'
 
-		# The object should be above where it would be if it were resting on the slope
-		self.assertTrue((2+(25/TILE_SIZE))*TILE_SIZE < self.obj.get_coordinates()[1])
+		# Test jumping from a 2-tile positive slope, bottom-center 1 pixel left of the middle (we're actually on the 3-tile positive slope)
+		# This check ensures that objects do not get stuck when jumping near the seam of two positive slopes
+		self.obj.reset_to_tile((4.0-(half_width + 2) / TILE_SIZE), 3)
+		self._assert_slope_jump_resolution(2, "1 pixel left of the middle (left side is actually on top of upper 3-tile positive slope tile)", slope_type)
 
+		slope_type = 'upper two-tile positive slope'
 
-
-		# Test jumping from a 2-tile rightward slope, bottom-center on the second tile's peak
-
-		self.obj.reset_to_tile(6-(half_width/TILE_SIZE), 3)
-
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		self.obj.jump()
-
-		# Simulate a quarter of a second of game time to let the object jump up
-		for i in xrange(int(general_settings.FPS * 0.25)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should be above where it would be if it were resting on the slope
-		self.assertTrue(3*TILE_SIZE < self.obj.get_coordinates()[1])
-
-
-
-		# Test jumping from a 2-tile rightward slope, bottom-center on the second tile's lowest point
-
-		self.obj.reset_to_tile(5-(half_width/TILE_SIZE), 3)
-
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		self.obj.jump()
-
-		# Simulate a quarter of a second of game time to let the object jump up
-		for i in xrange(int(general_settings.FPS * 0.25)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should be above where it would be if it were resting on the slope
-		self.assertTrue((2+(17/TILE_SIZE))*TILE_SIZE < self.obj.get_coordinates()[1])
-
-
-
-		# Test jumping from a 2-tile rightward slope, bottom-center 1 pixel left of the middle (we're actually on the 3-tile slope)
-		# This check ensures that we do not get stuck when jumping near the seam of two slopes
-
-		self.obj.reset_to_tile((4-(half_width + 2) / TILE_SIZE), 3)
-
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		self.obj.jump()
-
-		# Simulate a quarter of a second of game time to let the object jump up
-		for i in xrange(int(general_settings.FPS * 0.25)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should be above where it would be if it were resting on the slope
-		self.assertTrue(2*TILE_SIZE < self.obj.get_coordinates()[1], 'Jumping at slope seams failed')
-
-
-
-		# Test jumping from a 2-tile rightward slope, bottom-center 1 pixel left of the middle (we're actually on the first tile)
-		# This check ensures that we do not get stuck when jumping near the seam of two slopes
-
-		self.obj.reset_to_tile(5 - (half_width + 2)/TILE_SIZE, 3)
-
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		self.obj.jump()
-
-		# Simulate a quarter of a second of game time to let the object jump up
-		for i in xrange(int(general_settings.FPS * 0.25)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should be above where it would be if it were resting on the slope
-		self.assertTrue((2+(17/TILE_SIZE))*TILE_SIZE < self.obj.get_coordinates()[1], 'Jumping at slope seams failed')
-
+		# Test jumping from a 2-tile positive slope, bottom-center 1 pixel left of the middle (we're actually on the lower tile)
+		# This check ensures that objects do not get stuck when jumping near the seam of two slopes
+		self.obj.reset_to_tile(5.0 - (half_width + 2)/TILE_SIZE, 3)
+		self._assert_slope_jump_resolution(2+(17.0/TILE_SIZE), "1 pixel left of the middle (left side is actually on top of lower 2-tile positive slope tile)", slope_type)
 
 
 		# Test walking up a 2-tile rightward slope until we're at the top of the first, but not on the second
