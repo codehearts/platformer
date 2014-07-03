@@ -64,6 +64,7 @@ class TestSlopeCollisions(unittest.TestCase):
 		self.half_width = float(self.obj.half_width)
 		self.half_tile_width = self.half_width / TILE_SIZE
 
+	# TODO Move this to the testing utilities
 	def _simulate_time(self, seconds, update_object):
 		"""Simulates time by calling the given update function every frame for the given amount of time."""
 		map(lambda x: update_object.update(FRAME_LENGTH), xrange(int(FPS * seconds)))
