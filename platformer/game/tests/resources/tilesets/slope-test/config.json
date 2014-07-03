@@ -1,0 +1,38 @@
+{
+	"2": {
+		"type": "slope",
+		"left_height": 0,
+		"right_height": 32
+	},
+	"3": {
+		"type": "slope",
+		"left_height": 32,
+		"right_height": 0
+	},
+	"4": {
+		"type": "slope",
+		"left_height": 0,
+		"right_height": 16
+	},
+	"5": {
+		"type": "slope",
+		"left_height": 17,
+		"right_height": 32
+	},
+	"6": {
+		"type": "slope",
+		"left_height": 32,
+		"right_height": 17
+	},
+	"7": {
+		"type": "slope",
+		"left_height": 16,
+		"right_height": 0
+	},
+	"8": {
+		"type": "slope",
+		"left_height": 0,
+		"right_height": 32,
+		"is_ceiling": true
+	}
+}

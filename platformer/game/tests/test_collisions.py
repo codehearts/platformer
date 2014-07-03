@@ -171,142 +171,8 @@ class TestCollisions(unittest.TestCase):
 		slope_level = TileMap(slope_map, Tileset('slope-test', tileset_image, tileset_config))
 
 		self.obj = PhysicalObject(slope_level.tiles, dummy_image(TILE_SIZE, TILE_SIZE), TILE_SIZE*6, TILE_SIZE*5, mass=100)
-		half_width= float(self.obj.half_width)
-		half_tile_width = half_width / TILE_SIZE
-
-		# Positive slope tests
-
-		movement = "straight down"
-		slope_type = "positive"
-
-		# Test falling onto a 1-tile positive slope, perfectly aligned (should be completely centered on tile)
-		self._assert_slope_resolution((6, 3.5), ("flush with", "centered on"), movement, slope_type)
-
-		# Test falling onto a 1-tile positive slope, bottom-center on the peak (should be at the same x and the peak of the slope)
-		self.obj.reset_to_tile(7-half_tile_width, 5)
-		self._assert_slope_resolution((7-half_tile_width, 4), ("centered over right end of", "on peak of"), movement, slope_type)
-
-		# Test falling onto a 1-tile positive slope, bottom-center on the lowest point (should be at the same x and the bottom of the slope)
-		self.obj.reset_to_tile(6-half_tile_width, 5)
-		self._assert_slope_resolution((6-half_tile_width, 3), ("centered over left end of", "on bottom of"), movement, slope_type)
-
-		movement = "straight down"
-		slope_type = "lower end of two-tile positive"
-
-		# Test falling onto a 2-tile positive slope, perfectly aligned with lower tile (lower tile is 8px tall in the middle)
-		self.obj.reset_to_tile(4, 4)
-		self._assert_slope_resolution((4, 2+(8.0/TILE_SIZE)), ("flush with", "on middle of lower"), movement, slope_type)
-
-		# Test falling onto a 2-tile positive slope, bottom-center on the lower tile's peak (lower tile is 16px tall at its peak)
-		self.obj.reset_to_tile(5-half_tile_width, 4)
-		self._assert_slope_resolution((5-half_tile_width, 2+(16.0/TILE_SIZE)), ("centered over right end of", "at peak of lower"), movement, slope_type)
-
-		# Test falling onto a 2-tile positive slope, bottom-center on the lower tile's lowest point (lower tile is 0px tall at bottom)
-		self.obj.reset_to_tile(4-half_tile_width, 4)
-		self._assert_slope_resolution((4-half_tile_width, 2), ("centered over left end of", "at bottom of lower"), movement, slope_type)
-
-		slope_type = "upper end of two-tile positive"
-
-		# Test falling onto a 2-tile positive slope, perfectly aligned with upper tile (upper tile is 25px tall in the middle)
-		self.obj.reset_to_tile(5, 4)
-		self._assert_slope_resolution((5, 2+(25.0/TILE_SIZE)), ("flush with", "on middle of upper"), movement, slope_type)
-
-		# Test falling onto a 2-tile positive slope, bottom-center on the upper tile's peak (upper tile is 32px tall at its peak)
-		self.obj.reset_to_tile(6-half_tile_width, 4)
-		self._assert_slope_resolution((6-half_tile_width, 3), ("centered over right end of", "at peak of upper"), movement, slope_type)
-
-		# Test falling onto a 2-tile positive slope, bottom-center on the upper tile's lowest point
-		# (upper tile is 17px at bottom, but it is considered to be on the lower tile, which has its peak at 16px)
-		self.obj.reset_to_tile(5-half_tile_width, 4)
-		self._assert_slope_resolution((5-half_tile_width, 2+(16.0/TILE_SIZE)), ("centered over left end of", "at bottom of upper"), movement, slope_type)
-
-
-
-		# Negative slope tests
-		movement = "straight down"
-		slope_type = "negative"
-
-		# Test falling onto a 1-tile negative slope, perfectly aligned (should be completely centered on tile)
-		self.obj.reset_to_tile(8, 4)
-		self._assert_slope_resolution((8, 3.5), ("flush with", "centered on"), movement, slope_type)
-
-		# Test falling onto a 1-tile negative slope, bottom-center on the peak
-		self.obj.reset_to_tile(8-half_tile_width, 4)
-		self._assert_slope_resolution((8-half_tile_width, 4), ("centered over right left of", "on peak of"), movement, slope_type)
-
-		# Test falling onto a 1-tile negative slope, bottom-center on the lowest point
-		self.obj.reset_to_tile(9-half_tile_width, 4)
-		self._assert_slope_resolution((9-half_tile_width, 3), ("centered over right end of", "on bottom of"), movement, slope_type)
-
-		# TODO 2-tile negative slope tests
-
-
-
-		# Slope jump tests
-
-		slope_type = 'positive'
-
-		# Test jumping from a 1-tile positive slope when perfectly aligned
-		self.obj.reset_to_tile(6, 4)
-		self._assert_slope_jump_resolution(3.5, "center", slope_type)
-
-		# Test jumping from a 1-tile positive slope, bottom-center on peak
-		self.obj.reset_to_tile(7-half_tile_width, 5)
-		self._assert_slope_jump_resolution(4, "right end", slope_type)
-
-		# Test jumping from a 1-tile positive slope, bottom-center on the lowest point
-		self.obj.reset_to_tile(6-half_tile_width, 5)
-		self._assert_slope_jump_resolution(3, "left end", slope_type)
-
-		# Test jumping from a 1-tile positive slope, bottom-center 1 pixel left of the lowest point (we're actually on the 2-tile positive slope)
-		# This check ensures that objects do not get stuck when jumping near the seam of two positive slopes
-		self.obj.reset_to_tile(5 + (half_width * 0.125 / TILE_SIZE), 5)
-		self._assert_slope_jump_resolution(3, "1 pixel left of the bottom left (actually on top of upper 2-tile positive slope tile)", slope_type)
-
-		# Begin testing jumps from the lower tile of a 2-tile positive slope
-		slope_type = 'lower two-tile positive slope'
-
-		# Test jumping from a 2-tile positive slope, perfectly aligned with lower tile
-		self.obj.reset_to_tile(4, 3)
-		self._assert_slope_jump_resolution(2+(8.0/TILE_SIZE), "center", slope_type)
-
-		# Test jumping from a 2-tile positive slope, bottom-center on the lower tile's peak
-		self.obj.reset_to_tile(5-half_tile_width, 3)
-		self._assert_slope_jump_resolution(2+(17.0/TILE_SIZE), "peak", slope_type)
-
-		# Test jumping from a 2-tile positive slope, bottom-center on the lower tile's lowest point
-		self.obj.reset_to_tile(4-half_tile_width, 3)
-		self._assert_slope_jump_resolution(2, "bottom", slope_type)
-
-		# Begin testing jumps from the upper tile of a 2-tile positive slope
-		slope_type = 'upper two-tile positive slope'
-
-		# Test jumping from a 2-tile positive slope, perfectly aligned with upper tile
-		self.obj.reset_to_tile(5, 3)
-		self._assert_slope_jump_resolution(2+(25.0/TILE_SIZE), "center", slope_type)
-
-		# Test jumping from a 2-tile positive slope, bottom-center on the upper tile's peak
-		self.obj.reset_to_tile(6-half_tile_width, 3)
-		self._assert_slope_jump_resolution(3, "peak", slope_type)
-
-		# Test jumping from a 2-tile positive slope, bottom-center on the upper tile's lowest point
-		self.obj.reset_to_tile(5-half_tile_width, 3)
-		self._assert_slope_jump_resolution(2+(17.0/TILE_SIZE), "bottom", slope_type)
-
-		slope_type = 'lower two-tile positive slope'
-
-		# Test jumping from a 2-tile positive slope, bottom-center 1 pixel left of the middle (we're actually on the 3-tile positive slope)
-		# This check ensures that objects do not get stuck when jumping near the seam of two positive slopes
-		self.obj.reset_to_tile((4.0-(half_width + 2) / TILE_SIZE), 3)
-		self._assert_slope_jump_resolution(2, "1 pixel left of the middle (left side is actually on top of upper 3-tile positive slope tile)", slope_type)
-
-		slope_type = 'upper two-tile positive slope'
-
-		# Test jumping from a 2-tile positive slope, bottom-center 1 pixel left of the middle (we're actually on the lower tile)
-		# This check ensures that objects do not get stuck when jumping near the seam of two slopes
-		self.obj.reset_to_tile(5.0 - (half_width + 2)/TILE_SIZE, 3)
-		self._assert_slope_jump_resolution(2+(17.0/TILE_SIZE), "1 pixel left of the middle (left side is actually on top of lower 2-tile positive slope tile)", slope_type)
-
+		self.half_width= float(self.obj.half_width)
+		self.half_tile_width = self.half_width / TILE_SIZE
 
 		# Test walking up a 2-tile rightward slope until we're at the top of the first, but not on the second
 		# This check ensures that we ascend rightward slopes smoothly
@@ -708,7 +574,7 @@ class TestCollisions(unittest.TestCase):
 			self.obj.update(general_settings.FRAME_LENGTH)
 
 		# Move our bottom-center hitbox off the leftward slope's tall end and over the next slope
-		self.obj.go_to_x(2*TILE_SIZE - half_width - 1)
+		self.obj.go_to_x(2*TILE_SIZE - self.half_width - 1)
 
 		# Simulate half a second of game time to let the object move
 		for i in xrange(int(general_settings.FPS * 0.5)):

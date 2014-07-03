@@ -20,3 +20,4 @@ from test_camera import *
 #from test_layers import *
 #from test_simple_ai import *
 from test_collisions import *
+from test_slope_collisions import *
