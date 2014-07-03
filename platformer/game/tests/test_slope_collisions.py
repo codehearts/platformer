@@ -4,6 +4,7 @@ from game.tiles import TileMap, Tileset
 from game.tiles.tileset import TilesetImage, TilesetConfig
 from util.tileset import get_testing_tileset
 from util.image import dummy_image
+from util import simulate_time
 import unittest
 
 class TestSlopeCollisions(unittest.TestCase):
@@ -64,11 +65,6 @@ class TestSlopeCollisions(unittest.TestCase):
 		self.half_width = float(self.obj.half_width)
 		self.half_tile_width = self.half_width / TILE_SIZE
 
-	# TODO Move this to the testing utilities
-	def _simulate_time(self, seconds, update_object):
-		"""Simulates time by calling the given update function every frame for the given amount of time."""
-		map(lambda x: update_object.update(FRAME_LENGTH), xrange(int(FPS * seconds)))
-
 	def _assert_slope_resolution(self, expected_tiles, locations, movement, slope_type):
 		"""Asserts that the object has resolved to the expected coordinates on the slope tile.
 
@@ -78,7 +74,7 @@ class TestSlopeCollisions(unittest.TestCase):
 			movement (str): A description of the object's movement onto the slope.
 			slope_type (str): A description of the tile the object has moved onto.
 		"""
-		self._simulate_time(1, self.obj)
+		simulate_time(1, self.obj)
 
 		self.assertEqual(expected_tiles[0]*TILE_SIZE, self.obj.x,
 			"Object's x position is not {0} tile after moving {1} onto {2} slope. Expected {3} but got {4}.".format(
@@ -95,9 +91,9 @@ class TestSlopeCollisions(unittest.TestCase):
 			location (str): A description of the object's location on the slope before jumping.
 			slope_type (str): A description of the type of slope being jumped from.
 		"""
-		self._simulate_time(0.5, self.obj) # Give the object time to settle
+		simulate_time(0.5, self.obj) # Give the object time to settle
 		self.obj.jump()
-		self._simulate_time(0.25, self.obj) # Give the object time to jump up
+		simulate_time(0.25, self.obj) # Give the object time to jump up
 
 		# The object should be above where it would be if it were resting on the slope
 		self.assertTrue(self.obj.y > expected_y_tile * TILE_SIZE,
