@@ -115,10 +115,11 @@ class TileMap(object):
 		tiles_in_region = []
 		for y in xrange(region.y_tile, region.y2_tile+1):
 			for x in xrange(region.x_tile, region.x2_tile+1):
-				tile = self.tiles[y][x]
-				if tile:
-					tile.visible = True
-					tiles_in_region.append(tile)
+				if y < self.rows and x < self.cols:
+					tile = self.tiles[y][x]
+					if tile:
+						tile.visible = True
+						tiles_in_region.append(tile)
 
 		# Determine which tiles need to be made invisible
 		make_invisible = self._visible_tiles.difference(tiles_in_region)
