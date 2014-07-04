@@ -132,8 +132,8 @@ class TestSlopeCollisions(unittest.TestCase):
 		self._assert_slope_resolution((4, 2+(8.0/TILE_SIZE)), ("flush with", "on middle of lower"), movement, slope_type)
 
 		# Test falling onto a 2-tile positive slope, bottom-center on the lower tile's peak (lower tile is 16px tall at its peak)
-		self.obj.reset_to_tile(5-self.half_tile_width, 4)
-		self._assert_slope_resolution((5-self.half_tile_width, 2+(16.0/TILE_SIZE)), ("centered over right end of", "at peak of lower"), movement, slope_type)
+		self.obj.reset_to_tile(5-self.half_tile_width-(1.0/TILE_SIZE), 4)
+		self._assert_slope_resolution((5-self.half_tile_width-(1.0/TILE_SIZE), 2+(16.0/TILE_SIZE)), ("centered over right end of", "at peak of lower"), movement, slope_type)
 
 		# Test falling onto a 2-tile positive slope, bottom-center on the lower tile's lowest point (lower tile is 0px tall at bottom)
 		self.obj.reset_to_tile(4-self.half_tile_width, 4)
@@ -149,10 +149,9 @@ class TestSlopeCollisions(unittest.TestCase):
 		self.obj.reset_to_tile(6-self.half_tile_width, 4)
 		self._assert_slope_resolution((6-self.half_tile_width, 3), ("centered over right end of", "at peak of upper"), movement, slope_type)
 
-		# Test falling onto a 2-tile positive slope, bottom-center on the upper tile's lowest point
-		# (upper tile is 17px at bottom, but it is considered to be on the lower tile, which has its peak at 16px)
+		# Test falling onto a 2-tile positive slope, bottom-center on the upper tile's lowest point (upper tile is 17px at bottom)
 		self.obj.reset_to_tile(5-self.half_tile_width, 4)
-		self._assert_slope_resolution((5-self.half_tile_width, 2+(16.0/TILE_SIZE)), ("centered over left end of", "at bottom of upper"), movement, slope_type)
+		self._assert_slope_resolution((5-self.half_tile_width, 2+(17.0/TILE_SIZE)), ("centered over left end of", "at bottom of upper"), movement, slope_type)
 
 	def test_falling_onto_negative_slope(self):
 		"""Tests the resolution of collisions with 1-tile negative slopes after falling onto them.

@@ -300,8 +300,8 @@ def run_box_initialization_tests(self):
 		'y2': TILE_SIZE * 2,
 		'x_tile': 0,
 		'y_tile': 0,
-		'mid_x_tile': 0,
-		'mid_y_tile': 0,
+		'mid_x_tile': 1,
+		'mid_y_tile': 1,
 		'x2_tile': 1,
 		'y2_tile': 1,
 		'width': TILE_SIZE * 2,
@@ -617,7 +617,7 @@ def run_dimension_tests(self):
 
 	# Resize the box via tile_width_span and tile_height_span
 	self.expected_width = int(4 * TILE_SIZE_FLOAT)
-	self.expected_height = int(ceil(1.25) * TILE_SIZE_FLOAT)
+	self.expected_height = int(1.25 * TILE_SIZE_FLOAT)
 	self.test_box.tile_width = 4
 	self.test_box.tile_height = 1.25
 
