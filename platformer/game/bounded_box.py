@@ -143,9 +143,7 @@ class BoundedBox(object):
 			self._x_tile -= 1
 
 		self._mid_x_tile = int(self._x_tile_float + self._half_tile_width)
-		if (self._mid_x > 0 and self._mid_x % TILE_SIZE == 0):
-			self._mid_x_tile -= 1
-		elif (self._mid_x < 0 and self._mid_x % TILE_SIZE != 0):
+		if (self._mid_x < 0 and self._mid_x % TILE_SIZE != 0):
 			self._mid_x_tile -= 1
 
 		# If the rightmost pixel is divisible by the tile size, our x2_tile
@@ -175,9 +173,7 @@ class BoundedBox(object):
 			self._y_tile -= 1
 
 		self._mid_y_tile = int(self._y_tile_float + self._half_tile_height)
-		if (self._mid_y > 0 and self._mid_y % TILE_SIZE == 0):
-			self._mid_y_tile -= 1
-		elif (self._mid_y < 0 and self._mid_y % TILE_SIZE != 0):
+		if (self._mid_y < 0 and self._mid_y % TILE_SIZE != 0):
 			self._mid_y_tile -= 1
 
 		self._y2_tile = int(self._y2_tile_float)
@@ -252,13 +248,11 @@ class BoundedBox(object):
 		self._x2_tile_float = self._x_tile_float + self._tile_width_float
 
 		self._mid_x_tile = int(self._x_tile_float + self._half_tile_width)
-		if (self._mid_x > 0 and self._mid_x % TILE_SIZE == 0):
-			self._mid_x_tile -= 1
-		elif (self._mid_x < 0 and self._mid_x % TILE_SIZE != 0):
+		if (self._mid_x < 0 and self._mid_x % TILE_SIZE != 0):
 			self._mid_x_tile -= 1
 
 		self._x2_tile = int(self._x2_tile_float)
-		if ((self._x2 > 0 and self._x2 % TILE_SIZE == 0) or self._x2 < 0):
+		if (self._x2 < 0):
 			self._x2_tile -= 1
 
 	width = property(lambda self: self._width, _set_width)
@@ -282,24 +276,22 @@ class BoundedBox(object):
 		self._y2_tile_float = self._y_tile_float + self._tile_height_float
 
 		self._mid_y_tile = int(self._y_tile_float + self._half_tile_height)
-		if (self._mid_y > 0 and self._mid_y % TILE_SIZE == 0):
-			self._mid_y_tile -= 1
-		elif (self._mid_y < 0 and self._mid_y % TILE_SIZE != 0):
+		if (self._mid_y < 0 and self._mid_y % TILE_SIZE != 0):
 			self._mid_y_tile -= 1
 
 		self._y2_tile = int(self._y2_tile_float)
-		if ((self._y2 > 0 and self._y2 % TILE_SIZE == 0) or self._y2 < 0):
+		if (self._y2 < 0):
 			self._y2_tile -= 1
 
 	height = property(lambda self: self._height, _set_height)
 
 
 	def _set_tile_width(self, tile_width):
-		self._set_width(ceil(tile_width) * TILE_SIZE)
+		self._set_width(tile_width * TILE_SIZE)
 	tile_width = property(lambda self: self._tile_width, _set_tile_width)
 
 	def _set_tile_height(self, tile_height):
-		self.height = ceil(tile_height) * TILE_SIZE
+		self.height = tile_height * TILE_SIZE
 	tile_height = property(lambda self: self._tile_height, _set_tile_height)
 
 
