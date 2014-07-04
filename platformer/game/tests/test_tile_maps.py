@@ -188,8 +188,7 @@ class TestTileMap(unittest.TestCase):
 
 
 	def test_tile_map_visible_region(self):
-		"""Tests setting the visible region of a TileMap to ensure that
-		only the requested region is visible."""
+		"""Tests setting the visible region of a TileMap to ensure that only the requested region is visible."""
 		# Test with the TileMap class
 		self.tile_map_class = TileMap
 
@@ -282,8 +281,7 @@ class TestTileMap(unittest.TestCase):
 
 
 	def test_texture_tile_map_texture_region(self):
-		"""Tests TextureTileMap texture regions to ensure that an
-		appropriately sized region is returned.
+		"""Tests TextureTileMap texture regions to ensure that an appropriately sized region is returned.
 
 		This is important for assuring efficient drawing of
 		only the visible region of the texture.
