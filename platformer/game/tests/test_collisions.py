@@ -177,21 +177,6 @@ class TestCollisions(unittest.TestCase):
 		self.half_width= float(self.obj.half_width)
 		self.half_tile_width = self.half_width / TILE_SIZE
 
-		# Test placing the object on a 2-tile leftward slope so they overlap both tiles but their center is over the second one
-		# This check ensures that we move smoothly on 2-tile leftward slopes
-
-		self.obj.reset_to_tile(9.75, 3)
-
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should resolve to a position appropriate for its location on the slope
-		# 17 is the height of the lowest point on the first tile
-		self.assertTrue(2*TILE_SIZE + 17 != self.obj.get_coordinates()[1], 'Movement on 2-tile leftward slopes failed')
-
-
-
 		# Test behavoir at the bottom of rightward slopes suspended in mid air
 		# This check ensures that slopes have the same "standing area" as a full tile has
 
