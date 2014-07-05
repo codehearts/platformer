@@ -12,7 +12,6 @@ class TestSlopeCollisions(unittest.TestCase):
 	"""Tests that object collisions with slopes are resolved as expected."""
 
 	def setUp(self):
-		# The map is upside down
 		# TODO Write a method to take a tile map list and "load" it
 		slope_map = _arrange_tile_map([
 			[00,00,00,00,00,00, 2,00, 3,00,00,00,00, 1, 4, 5, 6, 7, 1,00,00,00], # 7
