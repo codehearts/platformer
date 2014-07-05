@@ -51,9 +51,9 @@ class _SlopeTile(Tile):
 
 			# TODO Determine whether the player is falling above the slope or just came from another connected slope, and set in_air accordingly
 			# TODO A constant value is not the right way to determine if we fell onto the slope or not
-			#if obj.y - 5 > slope_y:
-				## TODO Set is_falling somehow, not just in_air
-				#obj.in_air = True
+			if obj.y - 5 > slope_y:
+				# TODO Set is_falling somehow, not just in_air
+				obj.in_air = True
 
 			# If we're on the ground or we're colliding with the slope, register the collision
 			if not obj.in_air or obj.moving_to_y < slope_y or floats_equal(obj.moving_to_y, slope_y):
