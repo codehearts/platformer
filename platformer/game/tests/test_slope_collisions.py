@@ -1,7 +1,8 @@
 from game.settings.general_settings import TILE_SIZE, FRAME_LENGTH, FPS
-from game.physical_objects.physical_object import PhysicalObject
+from game.physical_objects.simpleai import SimpleAI
 from game.tiles import TileMap, Tileset
 from game.tiles.tileset import TilesetImage, TilesetConfig
+from game.load.tile_map import _arrange_tile_map
 from util.tileset import get_testing_tileset
 from util.image import dummy_image
 from util import simulate_time
@@ -13,17 +14,17 @@ class TestSlopeCollisions(unittest.TestCase):
 	def setUp(self):
 		# The map is upside down
 		# TODO Write a method to take a tile map list and "load" it
-		slope_map = [
-			[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], # 0
-			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00], # 1
-			[00,00,00,00, 4, 5,00,00,00, 6, 7,00,00,00,00, 2,00, 3,00,00,00,00], # 2
-			[00,00,00,00,00,00, 2,00, 3,00,00,00,00,00,00,00,00,00,00,00,00,00], # 3
-			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00], # 4
-			[ 6, 7, 3, 6, 7,00,00,00,00,00, 4, 5, 2, 4, 5,00,00, 2, 2, 3, 3,00], # 5
-			[00,00,00,00,00, 2,00, 1,00,10,00,00,00,00,00,00,00,00,00,00,00,00], # 6
+		slope_map = _arrange_tile_map([
 			[00,00,00,00,00,00, 2,00, 3,00,00,00,00, 1, 4, 5, 6, 7, 1,00,00,00], # 7
+			[00,00,00,00,00, 2,00, 1,00,10,00,00,00,00,00,00,00,00,00,00,00,00], # 6
+			[ 6, 7, 3, 6, 7,00,00,00,00,00, 4, 5, 2, 4, 5,00,00, 2, 2, 3, 3,00], # 5
+			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00], # 4
+			[00,00,00,00,00,00, 2,00, 3,00,00,00,00,00,00,00,00,00,00,00,00,00], # 3
+			[00,00,00,00, 4, 5,00,00,00, 6, 7,00,00,00,00, 2,00, 3,00,00,00,00], # 2
+			[ 1, 3,00,00,00,00,00,00,00,00,00,00, 2, 1,00,00,00,00,00,00,00,00], # 1
+			[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], # 0
 			# 0	 1	2  3  4	 5	6  7  8	 9 10 11 12 13 14 15 16 17 18 19 20 21
-		]
+		])
 
 		tileset_image = TilesetImage(dummy_image(6 * TILE_SIZE, 8 * TILE_SIZE))
 		tileset_config = TilesetConfig('{\
@@ -61,7 +62,7 @@ class TestSlopeCollisions(unittest.TestCase):
 
 		slope_level = TileMap(slope_map, Tileset('slope-test', tileset_image, tileset_config))
 
-		self.obj = PhysicalObject(slope_level.tiles, dummy_image(TILE_SIZE, TILE_SIZE), TILE_SIZE*6, TILE_SIZE*5, mass=100)
+		self.obj = SimpleAI(slope_level.tiles, dummy_image(TILE_SIZE, TILE_SIZE), TILE_SIZE*6, TILE_SIZE*5, mass=100)
 		self.half_width = float(self.obj.half_width)
 		self.half_tile_width = self.half_width / TILE_SIZE
 
@@ -99,6 +100,36 @@ class TestSlopeCollisions(unittest.TestCase):
 		self.assertTrue(self.obj.y > expected_y_tile * TILE_SIZE,
 			"Object is not above slope tile after jumping from {0} of {1} tile. Expected to be greater than {2} but got {3}.".format(
 			location, slope_type, expected_y_tile * TILE_SIZE, self.obj.y))
+
+	def _assert_horizontal_slope_movement(self, move_type, slope_type, initial_coord, move_to, expected, descriptions):
+		"""Asserts that the object resolves correctly when moving horizontally on slope tiles.
+
+		Args:
+			move_type (str): Either "ascending" or "descending."
+			slope_type (str): A description of the type of slope being tested.
+			initial_coord (tuple of int): The initial coordinates for the object.
+			move_to (list of int): A list of the x coordinates to move to, in tiles.
+			expected (list of int): A list of the expected y coordinate after each resolution, in tiles.
+			description (list of str): A description of each movement of the object.
+		"""
+		feedback = "{0} {1} slopes failed when {2}. Expected {3} but got {4}."
+
+		self.obj.reset_to_tile(*initial_coord)
+		simulate_time(0.25, self.obj) # Give the object time to settle
+		self.assertEqual(self.obj.y, expected[0]*TILE_SIZE,
+			feedback.format(
+			move_type.title(), slope_type, descriptions[0], expected[0]*TILE_SIZE, self.obj.y
+		))
+
+		for i in xrange(len(move_to)):
+			self.obj.go_to_x(move_to[i])
+			simulate_time(0.5, self.obj) # Give the object time to move
+			self.assertEqual(self.obj.y, expected[i+1]*TILE_SIZE,
+				feedback.format(
+				move_type.title(), slope_type, descriptions[i+1], expected[i+1]*TILE_SIZE, self.obj.y
+			))
+
+
 
 	def test_falling_onto_positive_slope(self):
 		"""Tests the resolution of collisions with 1-tile positive slopes after falling onto them.
@@ -242,3 +273,141 @@ class TestSlopeCollisions(unittest.TestCase):
 		# This check ensures that objects do not get stuck when jumping near the seam of two slopes
 		self.obj.reset_to_tile(5.0 - (self.half_width + 2)/TILE_SIZE, 3)
 		self._assert_slope_jump_resolution(2+(17.0/TILE_SIZE), "1 pixel left of the middle (left side is actually on top of lower 2-tile positive slope tile)", slope_type)
+
+	def test_ascending_1_tile_positive_slope(self):
+		"""Ensures that objects ascend 1-tile positive slopes smoothly.
+		TODO Remove the assumption about the tile size
+		PLEASE NOTE: This test assumes a tile size of 32
+		"""
+		move_to = [
+			11*TILE_SIZE + self.half_width,
+			12*TILE_SIZE + self.half_width,
+		]
+
+		expected = [
+			1,
+			1,
+			2,
+		]
+
+		descriptions = [
+			'landing with center next to bottom of slope tile',
+			'stopping with center over bottom of slope tile',
+			'stopping with center over peak of slope tile',
+		]
+
+		self._assert_horizontal_slope_movement('ascending', '1-tile positive', (11, 2), move_to, expected, descriptions)
+
+	def test_ascending_1_tile_negative_slope(self):
+		"""Ensures that objects ascend 1-tile negative slopes smoothly.
+		TODO Remove the assumption about the tile size
+		PLEASE NOTE: This test assumes a tile size of 32
+		"""
+		move_to = [
+			2*TILE_SIZE - self.half_width - 1,
+			1*TILE_SIZE - self.half_width,
+			1*TILE_SIZE - self.half_width - 1,
+		]
+
+		expected = [
+			1,
+			1 + (1.0/TILE_SIZE),
+			2,
+			2,
+		]
+
+		descriptions = [
+			'landing with center next to bottom of slope tile',
+			'stopping with center over bottom of slope tile',
+			'stopping with center over peak of slope tile',
+			'stopping with center next to peak of slope tile',
+		]
+
+		self._assert_horizontal_slope_movement('ascending', '1-tile negative', (2-self.half_tile_width, 2), move_to, expected, descriptions)
+
+	def test_ascending_2_tile_positive_slope(self):
+		"""Ensures that objects ascend 2-tile positive slopes smoothly.
+		TODO Remove the assumption about the tile size
+		PLEASE NOTE: This test assumes a tile size of 32
+		"""
+		move_to = [
+			5*TILE_SIZE-self.half_width-1,
+			5*TILE_SIZE-self.half_width,
+			5*TILE_SIZE+self.half_width,
+		]
+
+		expected = [
+			2,
+			2+(16.0/TILE_SIZE),
+			2+(17.0/TILE_SIZE),
+			3,
+		]
+
+		descriptions = [
+			'landing with center over bottom of lower tile',
+			'stopping with center over peak of lower tile',
+			'stopping with center over bottom of upper tile (crossed the seam)',
+			'stopping with center over peak of upper tile',
+		]
+
+		self._assert_horizontal_slope_movement('ascending', '2-tile positive', (4-self.half_tile_width, 3), move_to, expected, descriptions)
+
+	# TODO Ascending 2 tile negative slope test
+
+
+	def test_descending_1_tile_positive_slope(self):
+		"""Ensures that objects descend 1-tile positive slopes smoothly.
+		TODO Remove the assumption about the tile size
+		PLEASE NOTE: This test assumes a tile size of 32
+		"""
+		move_to = [
+			13*TILE_SIZE - self.half_width - 1,
+			12*TILE_SIZE - self.half_width,
+			12*TILE_SIZE - self.half_width - 1,
+		]
+
+		expected = [
+			2,
+			2 - (1.0/TILE_SIZE),
+			1,
+			1,
+		]
+
+		descriptions = [
+			'landing with center next to peak of slope tile',
+			'stopping with center over peak of slope tile',
+			'stopping with center over bottom of slope tile',
+			'stopping with center next to bottom of slope tile',
+		]
+
+		self._assert_horizontal_slope_movement('descending', '1-tile positive', (13-self.half_tile_width, 3), move_to, expected, descriptions)
+
+	def test_descending_1_tile_negative_slope(self):
+		"""Ensures that objects descend 1-tile negative slopes smoothly.
+		TODO Remove the assumption about the tile size
+		PLEASE NOTE: This test assumes a tile size of 32
+		"""
+		move_to = [
+			        0 + self.half_width + 1,
+			TILE_SIZE + self.half_width,
+			TILE_SIZE + self.half_width + 1,
+		]
+
+		expected = [
+			2,
+			2 - (1.0/TILE_SIZE),
+			1,
+			1,
+		]
+
+		descriptions = [
+			'landing with center next to peak of slope tile',
+			'stopping with center over peak of slope tile',
+			'stopping with center over bottom of slope tile',
+			'stopping with center next to bottom of slope tile',
+		]
+
+		self._assert_horizontal_slope_movement('descending', '1-tile negative', (0+self.half_tile_width, 3), move_to, expected, descriptions)
+
+	# TODO Test descending 2-tile positive slope
+	# TODO Test descending 2-tile negative slope
