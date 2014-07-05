@@ -1,9 +1,12 @@
 from game.settings.general_settings import TILE_SIZE, FRAME_LENGTH, FPS
 from game.physical_objects.physical_object import PhysicalObject
+from game.physical_objects.simpleai import SimpleAI
 from game.tiles import TileMap, Tileset
 from game.tiles.tileset import TilesetImage, TilesetConfig
+from game.load.tile_map import _arrange_tile_map
 from util.tileset import get_testing_tileset
 from util.image import dummy_image
+from util import simulate_time
 import unittest
 
 class TestCollisions(unittest.TestCase):
@@ -122,17 +125,17 @@ class TestCollisions(unittest.TestCase):
 		"""
 		# The map is upside down
 		# TODO Write a method to take a tile map list and "load" it
-		slope_map = [
-			[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], # 0
-			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00], # 1
-			[00,00,00,00, 4, 5,00,00,00, 6, 7,00,00,00,00, 2,00, 3,00,00,00,00], # 2
-			[00,00,00,00,00,00, 2,00, 3,00,00,00,00,00,00,00,00,00,00,00,00,00], # 3
-			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00], # 4
-			[ 6, 7, 3, 6, 7,00,00,00,00,00, 4, 5, 2, 4, 5,00,00, 2, 2, 3, 3,00], # 5
-			[00,00,00,00,00, 2,00, 1,00,10,00,00,00,00,00,00,00,00,00,00,00,00], # 6
+		slope_map = _arrange_tile_map([
 			[00,00,00,00,00,00, 2,00, 3,00,00,00,00, 1, 4, 5, 6, 7, 1,00,00,00], # 7
+			[00,00,00,00,00, 2,00, 1,00,10,00,00,00,00,00,00,00,00,00,00,00,00], # 6
+			[ 6, 7, 3, 6, 7,00,00,00,00,00, 4, 5, 2, 4, 5,00,00, 2, 2, 3, 3,00], # 5
+			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00], # 4
+			[00,00,00,00,00,00, 2,00, 3,00,00,00,00,00,00,00,00,00,00,00,00,00], # 3
+			[00,00,00,00, 4, 5,00,00,00, 6, 7,00,00,00,00, 2,00, 3,00,00,00,00], # 2
+			[ 1, 3,00,00,00,00,00,00,00,00,00,00, 2, 1,00,00,00,00,00,00,00,00], # 1
+			[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], # 0
 			# 0	 1	2  3  4	 5	6  7  8	 9 10 11 12 13 14 15 16 17 18 19 20 21
-		]
+		])
 
 		tileset_image = TilesetImage(dummy_image(6 * TILE_SIZE, 8 * TILE_SIZE))
 		tileset_config = TilesetConfig('{\
@@ -170,93 +173,9 @@ class TestCollisions(unittest.TestCase):
 
 		slope_level = TileMap(slope_map, Tileset('slope-test', tileset_image, tileset_config))
 
-		self.obj = PhysicalObject(slope_level.tiles, dummy_image(TILE_SIZE, TILE_SIZE), TILE_SIZE*6, TILE_SIZE*5, mass=100)
+		self.obj = SimpleAI(slope_level.tiles, dummy_image(TILE_SIZE, TILE_SIZE), TILE_SIZE*6, TILE_SIZE*5, mass=100)
 		self.half_width= float(self.obj.half_width)
 		self.half_tile_width = self.half_width / TILE_SIZE
-
-		# Test walking up a 2-tile rightward slope until we're at the top of the first, but not on the second
-		# This check ensures that we ascend rightward slopes smoothly
-
-		self.obj.reset_to_tile(4, 3)
-
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# Move right up the slope until our hitbox overlaps the second tile
-		self.obj.go_to_x(5*TILE_SIZE - 1)
-
-		# Simulate a second of game time to let the object move
-		for i in xrange(int(general_settings.FPS)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should resolve to a position appropriate for its location on the slope
-		self.assertTrue(2.5*TILE_SIZE != self.obj.get_coordinates()[1], 'Ascending 2-tile rightward slopes failed')
-
-
-
-		# Test walking off a floor down onto a 1-tile leftward slope until our center is over the slope
-		# This check ensures that we begin to descend leftward slopes smoothly
-
-		self.obj.reset_to_tile(7, 8)
-
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# Move right up the slope until our hitbox overlaps the second tile
-		self.obj.go_to_x(8*TILE_SIZE - 2)
-
-		# Simulate a second of game time to let the object move
-		for i in xrange(int(general_settings.FPS)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should resolve to a position appropriate for its location on the slope
-		self.assertTrue(8*TILE_SIZE != self.obj.get_coordinates()[1], 'Descending leftward slopes failed')
-
-
-
-		# Test walking down two 1-tile rightward slopes until we're almost centered over the first one
-		# This check ensures that we descend rightward slopes smoothly
-
-		self.obj.reset_to_tile(6, 8)
-
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# Move left down the slope until our hitbox overlaps the first tile
-		self.obj.go_to_x(5*TILE_SIZE + 2)
-
-		# Simulate a second of game time to let the object move
-		for i in xrange(int(general_settings.FPS)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should resolve to a position appropriate for its location on the slope
-		self.assertTrue(7*TILE_SIZE != self.obj.get_coordinates()[1], 'Descending rightward slopes failed')
-
-
-
-		# Test walking down two 1-tile rightward slopes until we're almost centered over the second one
-		# This check ensures that we descend leftward slopes smoothly
-
-		self.obj.reset_to_tile(8, 8)
-
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# Move right down the slope until our hitbox overlaps the second tile
-		self.obj.go_to_x(9*TILE_SIZE - 2)
-
-		# Simulate a second of game time to let the object move
-		for i in xrange(int(general_settings.FPS)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should resolve to a position appropriate for its location on the slope
-		self.assertTrue(7*TILE_SIZE != self.obj.get_coordinates()[1], 'Descending leftward slopes failed')
-
-
 
 		# Test placing the object on a 2-tile leftward slope so they overlap both tiles but their center is over the second one
 		# This check ensures that we move smoothly on 2-tile leftward slopes
