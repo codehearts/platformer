@@ -123,11 +123,10 @@ class TestCollisions(unittest.TestCase):
 		TODO: Remove the assumption about the tile size
 		PLEASE NOTE: This test assumes a tile size of 32
 		"""
-		# The map is upside down
 		# TODO Write a method to take a tile map list and "load" it
 		slope_map = _arrange_tile_map([
 			[00,00,00,00,00,00, 2,00, 3,00,00,00,00, 1, 4, 5, 6, 7, 1,00,00,00], # 7
-			[00,00,00,00,00, 2,00, 1,00,10,00,00,00,00,00,00,00,00,00,00,00,00], # 6
+			[00,00,00,00,00, 2,00, 1,00, 3,00,00,00,00,00,00,00,00,00,00,00,00], # 6
 			[ 6, 7, 3, 6, 7,00,00,00,00,00, 4, 5, 2, 4, 5,00,00, 2, 2, 3, 3,00], # 5
 			[00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00,00], # 4
 			[00,00,00,00,00,00, 2,00, 3,00,00,00,00,00,00,00,00,00,00,00,00,00], # 3
@@ -177,227 +176,85 @@ class TestCollisions(unittest.TestCase):
 		self.half_width= float(self.obj.half_width)
 		self.half_tile_width = self.half_width / TILE_SIZE
 
-		# Test behavoir at the bottom of rightward slopes suspended in mid air
-		# This check ensures that slopes have the same "standing area" as a full tile has
+		# Test behavoir at the bottom of positive slopes suspended in mid air
+		# This check ensures that slopes have the same "standing area" that a full tile has
 
-		self.obj.reset_to_tile(4 + (1/TILE_SIZE), 6)
+		self.obj.reset_to_tile(16 + (1.0/TILE_SIZE), 6)
+		simulate_time(0.25, self.obj) # Give the object time to settle
+		self.assertEqual(self.obj.y, 5*TILE_SIZE, "Standing at the bottom of suspended positive slopes failed.")
 
-		# Simulate a quarter of a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.25)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should be standing on the slope tile
-		self.assertTrue(6*TILE_SIZE == self.obj.get_coordinates()[1], 'Standing at the bottom of suspended rightward slopes failed')
-
-		self.obj.reset_to_tile(4, 6)
-
-		# Simulate a quarter of a second of game time to fall
-		for i in xrange(int(general_settings.FPS * 0.25)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should be below the slope tile, as it should be falling
-		self.assertTrue(6*TILE_SIZE > self.obj.get_coordinates()[1], 'Falling off the bottom of suspended rightward slopes failed')
+		self.obj.reset_to_tile(16, 6)
+		simulate_time(0.25, self.obj) # Give the object time to settle
+		self.assertTrue(self.obj.y < 5*TILE_SIZE, "Falling off the bottom of suspended positive slopes failed.")
 
 
 
-		# Test behavoir at the bottom of leftward slopes suspended in mid air
-		# This check ensures that slopes have the same "standing area" as a full tile has
+		# Test behavoir at the bottom of negative slopes suspended in mid air
+		# This check ensures that slopes have the same "standing area" that a full tile has
 
-		self.obj.reset_to_tile(10 - (1/TILE_SIZE), 6)
+		self.obj.reset_to_tile(21 - (1.0/TILE_SIZE), 6)
+		simulate_time(0.25, self.obj) # Give the object time to settle
+		self.assertEqual(self.obj.y, 5*TILE_SIZE, "Standing at the bottom of suspended negative slopes failed.")
 
-		# Simulate a quarter of a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.25)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should be standing on the slope tile
-		self.assertTrue(6*TILE_SIZE == self.obj.get_coordinates()[1], 'Standing at the bottom of suspended leftward slopes failed')
-
-		self.obj.reset_to_tile(10, 6)
-
-		# Simulate a quarter of a second of game time to fall
-		for i in xrange(int(general_settings.FPS * 0.25)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should be below the slope tile, as it should be falling
-		self.assertTrue(6*TILE_SIZE > self.obj.get_coordinates()[1], 'Falling off the bottom of suspended leftward slopes failed')
+		self.obj.reset_to_tile(21, 6)
+		simulate_time(0.25, self.obj) # Give the object time to settle
+		self.assertTrue(self.obj.y < 5*TILE_SIZE, "Falling off the bottom of suspended negative slopes failed.")
 
 
 
-		# Test falling off a rightward slope directly into the empty space of a leftward slope tile below it
-		# This check ensures that we are registered as being aerial and fall onto the slope instead of "snapping" onto it
+		# Test falling off a positive slope directly into the empty space of a negative slope tile below it
+		# This check ensures that the object is registered as being aerial and fall onto the slope instead of "snapping" onto it
 
-		self.obj.reset_to_tile(5, 7)
-
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# Move left down the slope until we fall off onto the leftward slope
-		self.obj.go_to_x(4*TILE_SIZE)
-
-		# Simulate a quarter of a second of game time to let the object move off the slope and begin falling
-		for i in xrange(int(general_settings.FPS * 0.25)):
-			self.obj.update(general_settings.FRAME_LENGTH)
+		self.obj.reset_to_tile(4+self.half_tile_width, 7)
+		simulate_time(0.25, self.obj) # Give the object time to settle
+		self.obj.go_to_x(4*TILE_SIZE) # Move until the object falls off the slope
+		simulate_time(0.1, self.obj) # Give the object time to move and fall
 
 		# The object should resolve to a position above the leftward slope, but below the rightward slope
-		y_pos = self.obj.get_coordinates()[1]
-		self.assertTrue(5.25*TILE_SIZE < y_pos and 6*TILE_SIZE > y_pos, 'Falling from rightward to lower leftward slope below failed')
+		self.assertTrue(5.25*TILE_SIZE < self.obj.y and self.obj.y < 6*TILE_SIZE,
+			"Falling from 1-tile positive slope to lower tile of 2-tile negative slope below it failed.")
 
 
 
-		# Test falling off a rightward slope directly into the empty space of a rightward slope tile at the same y-coordinate
-		# This check ensures that we are registered as being aerial and fall onto the slope instead of "snapping" onto it
+		# Test falling off a negative slope directly into the empty space of a negative slope tile at the same y-coordinate
+		# This check ensures that objects are registered as being aerial and fall onto the slope instead of "snapping" onto it
 
-		self.obj.reset_to_tile(3, 6)
-
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# Move left up the slope until we fall off onto the rightward slope
-		self.obj.go_to_x(2*TILE_SIZE)
-
-		# Simulate a fifteenth of a second of game time to let the object move off the slope and begin falling
-		for i in xrange(int(general_settings.FPS * 0.15)):
-			self.obj.update(general_settings.FRAME_LENGTH)
+		self.obj.reset_to_tile(2+self.half_tile_width, 6)
+		simulate_time(0.25, self.obj) # Give the object time to settle
+		self.obj.go_to_x(2*TILE_SIZE) # Move until the object falls off the slope
+		simulate_time(0.1, self.obj) # Give the object time to move and fall
 
 		# The object should resolve to a position above the second slope, but below the first slope
-		y_pos = self.obj.get_coordinates()[1]
-		self.assertTrue(5.5*TILE_SIZE < y_pos and 6*TILE_SIZE > y_pos, 'Falling from leftward to lower leftward slope (same y-pos) failed')
+		self.assertTrue(5.5*TILE_SIZE < self.obj.y and 6*TILE_SIZE > self.obj.y,
+			"Falling from 1-tile negative slope to lower tile of 2-tile negative slope (same y position) failed.")
 
 
 
 		# Test falling off a leftward slope directly into the empty space of a rightward slope tile below it
-		# This check ensures that we are registered as being aerial and fall onto the slope instead of "snapping" onto it
+		# This check ensures that objects are registered as being aerial and fall onto the slope instead of "snapping" onto it
 
-		self.obj.reset_to_tile(9, 7)
-
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# Move right down the slope until we fall off onto the rightward slope
-		self.obj.go_to_x(12*TILE_SIZE)
-
-		# Simulate half a second of game time to let the object move off the slope and begin falling
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
+		self.obj.reset_to_tile(9+self.half_tile_width-(1.0/TILE_SIZE), 7)
+		simulate_time(0.25, self.obj) # Give the object time to settle
+		self.obj.go_to_x(10*TILE_SIZE) # Move until the object falls off the slope
+		simulate_time(0.15, self.obj) # Give the object time to move and fall
 
 		# The object should resolve to a position above the rightward slope, but below the leftward slope
-		y_pos = self.obj.get_coordinates()[1]
-		self.assertTrue(5.25*TILE_SIZE < y_pos and 6*TILE_SIZE > y_pos, 'Falling from leftward to lower rightward slope below failed')
+		self.assertTrue(5.25*TILE_SIZE < self.obj.y and 6*TILE_SIZE > self.obj.y,
+			"Falling from 1-tile negative to lower tile of 2-tile positive slope below it failed.")
 
 
 
-		# Test falling off a lefward slope directly into the empty space of a leftward slope tile at the same y-coordinate
-		# This check ensures that we are registered as being aerial and fall onto the slope instead of "snapping" onto it
+		# Test falling off a positive slope directly into the empty space of a positive slope tile at the same y-coordinate
+		# This check ensures that objects are registered as being aerial and fall onto the slope instead of "snapping" onto it
 
-		self.obj.reset_to_tile(11, 6)
-
-		# Simulate half a second of game time to land on the tile
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# Move right up the slope until we fall off onto the leftward slope
-		self.obj.go_to_x(12*TILE_SIZE)
-
-		# Simulate around a third of a second of game time to let the object move off the slope and begin falling
-		for i in xrange(int(general_settings.FPS * 0.3)):
-			self.obj.update(general_settings.FRAME_LENGTH)
+		self.obj.reset_to_tile(12-self.half_tile_width, 6)
+		simulate_time(0.25, self.obj) # Give the object time to settle
+		self.obj.go_to_x(12*TILE_SIZE) # Move until the object falls off the slope
+		simulate_time(0.15, self.obj) # Give the object time to move and fall
 
 		# The object should resolve to a position above the second slope, but below the first slope
-		y_pos = self.obj.get_coordinates()[1]
-		self.assertTrue(5.5*TILE_SIZE < y_pos and 6*TILE_SIZE > y_pos, 'Falling from leftward to lower leftward slope (same y-pos) failed')
-
-
-
-		# Test jumping into the bottom of a rightward slope, horizontally centered with it
-
-		self.obj.reset_to_tile(15, 1)
-
-		self.obj.jump()
-
-		# Simulate half a second of game time to let the object jump up
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should not be above the slope tile
-		self.assertTrue(2*TILE_SIZE > self.obj.get_coordinates()[1], 'Centered collision with bottom of rightward slope failed')
-
-
-
-		# Test jumping into the bottom of a rightward slope, barely touching its left side
-
-		self.obj.reset_to_tile(14 + (1/TILE_SIZE), 1)
-
-		self.obj.jump()
-
-		# Simulate half a second of game time to let the object jump up
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should not be above the slope tile
-		self.assertTrue(2*TILE_SIZE > self.obj.get_coordinates()[1], 'Left-side collision with bottom of rightward slope failed')
-
-
-
-		# Test jumping into the bottom of a rightward slope, barely touching its right side
-
-		self.obj.reset_to_tile(16 - (1/TILE_SIZE), 1)
-
-		self.obj.jump()
-
-		# Simulate half a second of game time to let the object jump up
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should not be above the slope tile
-		self.assertTrue(2*TILE_SIZE > self.obj.get_coordinates()[1], 'Right-side collision with bottom of rightward slope failed')
-
-
-
-		# Test jumping into the bottom of a leftward slope, horizontally centered with it
-
-		self.obj.reset_to_tile(17, 1)
-
-		self.obj.jump()
-
-		# Simulate half a second of game time to let the object jump up
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should not be above the slope tile
-		self.assertTrue(2*TILE_SIZE > self.obj.get_coordinates()[1], 'Centered collision with bottom of leftward slope failed')
-
-
-
-		# Test jumping into the bottom of a leftward slope, barely touching its left side
-
-		self.obj.reset_to_tile(16 + (1/TILE_SIZE), 1)
-
-		self.obj.jump()
-
-		# Simulate half a second of game time to let the object jump up
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should not be above the slope tile
-		self.assertTrue(2*TILE_SIZE > self.obj.get_coordinates()[1], 'Left-side collision with bottom of leftward slope failed')
-
-
-
-		# Test jumping into the bottom of a leftward slope, barely touching its right side
-
-		self.obj.reset_to_tile(18 - (1/TILE_SIZE), 1)
-
-		self.obj.jump()
-
-		# Simulate half a second of game time to let the object jump up
-		for i in xrange(int(general_settings.FPS * 0.5)):
-			self.obj.update(general_settings.FRAME_LENGTH)
-
-		# The object should not be above the slope tile
-		self.assertTrue(2*TILE_SIZE > self.obj.get_coordinates()[1], 'Right-side collision with bottom of leftward slope failed')
+		self.assertTrue(5.5*TILE_SIZE < self.obj.y and 6*TILE_SIZE > self.obj.y,
+			"Falling from upper tile of 2-tile positive slope to 1-tile positive slope (same y position) failed.")
 
 
 
