@@ -117,16 +117,39 @@ class TestSlopeCollisions(unittest.TestCase):
 		simulate_time(0.25, self.obj) # Give the object time to settle
 		self.assertEqual(self.obj.y, expected[0]*TILE_SIZE,
 			feedback.format(
-			move_type.title(), slope_type, descriptions[0], expected[0]*TILE_SIZE, self.obj.y
-		))
+			move_type.title(), slope_type, descriptions[0], expected[0]*TILE_SIZE, self.obj.y))
 
 		for i in xrange(len(move_to)):
 			self.obj.go_to_x(move_to[i])
 			simulate_time(0.5, self.obj) # Give the object time to move
 			self.assertEqual(self.obj.y, expected[i+1]*TILE_SIZE,
 				feedback.format(
-				move_type.title(), slope_type, descriptions[i+1], expected[i+1]*TILE_SIZE, self.obj.y
-			))
+				move_type.title(), slope_type, descriptions[i+1], expected[i+1]*TILE_SIZE, self.obj.y))
+
+	def _assert_1_tile_slope_bottom_resolution(self, slope_type, x_tile, y_tile, slope_bottom_y_tile):
+		"""Asserts that objects can not move through the bottom of 1-tile slope tiles.
+
+		Args:
+			slope_type (str): A description of the type of slope being collided with.
+			x_tile (float): The x tile to initialize the object at. This should be flush with the collision tile.
+			y_tile (float): The y tile to initialize the object at.
+			slope_bottom_y_tile (float): The y tile coordinate of the bottom of the collision slope.
+		"""
+		tests = [
+			{ 'description': 'centered',   'x_tile': x_tile },
+			{ 'description': 'left-side',  'x_tile': x_tile-1 + (1.0/TILE_SIZE) },
+			{ 'description': 'right-side', 'x_tile': x_tile+1 - (1.0/TILE_SIZE) }
+		]
+
+		for test in tests:
+			self.obj.reset_to_tile(test['x_tile'], y_tile)
+			self.obj.jump()
+			simulate_time(0.15, self.obj) # Give the object time to move up
+
+			# The object should not be above the slope tile
+			self.assertTrue(slope_bottom_y_tile*TILE_SIZE > self.obj.y,
+				"{0} collision with bottom of 1-tile {1} slope failed.".format(
+				test['description'].title(), slope_type))
 
 
 
@@ -410,3 +433,11 @@ class TestSlopeCollisions(unittest.TestCase):
 
 	# TODO Test descending 2-tile positive slope
 	# TODO Test descending 2-tile negative slope
+
+	def test_1_tile_positive_slope_bottom_collision(self):
+		"""Ensures that objects do not move through 1-tile positive slopes from the bottom."""
+		self._assert_1_tile_slope_bottom_resolution('positive', 15, 1, 2)
+
+	def test_1_tile_negative_slope_bottom_collision(self):
+		"""Ensures that objects do not move through 1-tile negative slopes from the bottom."""
+		self._assert_1_tile_slope_bottom_resolution('negative', 17, 1, 2)
