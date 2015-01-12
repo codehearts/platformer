@@ -258,35 +258,27 @@ class TestCollisions(unittest.TestCase):
 
 
 
-		# Test walking into a rightward slope from its taller end
+		# Test walking into a positive slope from its taller end
 
 		self.obj.reset_to_tile(7, 7)
-
-		# Try to move into the slope's taller end
 		self.obj.go_to_x(6)
-
-		# Simulate a tenth of a second of game time to let the object collide with the slope's taller end
-		for i in xrange(int(general_settings.FPS * 0.1)):
-			self.obj.update(general_settings.FRAME_LENGTH)
+		print(7*TILE_SIZE, self.obj.x, self.obj.y)
+		simulate_time(0.15, self.obj) # Give the object time to move
 
 		# The object should not pass through the slope
-		self.assertTrue(7*TILE_SIZE == self.obj.get_coordinates()[0], 'Collision with rightward slope at tall end failed')
+		print(7*TILE_SIZE, self.obj.x, self.obj.y)
+		self.assertEqual(7*TILE_SIZE, self.obj.x,
+			"Collision with 1-tile positive slope's tall end failed.")
 
-
-
-		# Test walking into a leftward slope from its taller end
+		# Test walking into a negative slope from its taller end
 
 		self.obj.reset_to_tile(7, 7)
-
-		# Try to move into the slope's taller end
 		self.obj.go_to_x(8)
-
-		# Simulate a tenth of a second of game time to let the object collide with the slope's taller end
-		for i in xrange(int(general_settings.FPS * 0.1)):
-			self.obj.update(general_settings.FRAME_LENGTH)
+		simulate_time(0.15, self.obj) # Give the object time to move
 
 		# The object should not pass through the slope
-		self.assertTrue(7*TILE_SIZE == self.obj.get_coordinates()[0], 'Collision with leftward slope at tall end failed')
+		self.assertEqual(7*TILE_SIZE, self.obj.x,
+			"Collision with 1-tile negative slope's tall end failed.")
 
 
 
