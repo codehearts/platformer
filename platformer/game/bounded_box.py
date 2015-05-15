@@ -46,7 +46,7 @@ class BoundedBox(object):
 		self._half_tile_height_int = int(self._half_tile_height)
 		self._half_height_int      = int(self._half_height)
 
-		self._tile_height = int(ceil(self._tile_height_float))
+		self._tile_height = self._tile_height_float
 
 
 		self._width      = int(width)
@@ -58,7 +58,7 @@ class BoundedBox(object):
 		self._half_tile_width_int = int(self._half_tile_width)
 		self._half_width_int      = int(self._half_width)
 
-		self._tile_width = int(ceil(self._tile_width_float))
+		self._tile_width = self._tile_width_float
 
 
 		# Set the coordinates
@@ -241,7 +241,7 @@ class BoundedBox(object):
 		self._half_tile_width_int = int(self._half_tile_width)
 		self._half_width_int      = int(self._half_width)
 
-		self._tile_width = int(ceil(self._tile_width_float))
+		self._tile_width = self._tile_width_float
 
 		self._mid_x         = self._x + self._half_width_int
 		self._x2            = self._x + self._width
@@ -269,7 +269,7 @@ class BoundedBox(object):
 		self._half_tile_height_int = int(self._half_tile_height)
 		self._half_height_int      = int(self._half_height)
 
-		self._tile_height = int(ceil(self._tile_height_float))
+		self._tile_height = self._tile_height_float
 
 		self._mid_y         = self._y + self._half_height_int
 		self._y2            = self._y + self._height
