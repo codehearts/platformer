@@ -358,21 +358,21 @@ def run_box_initialization_tests(self):
 		'height': TILE_SIZE * 1.5,
 		'half_width': TILE_SIZE * 0.75,
 		'half_height': TILE_SIZE * 0.75,
-		'tile_width': 2,
-		'tile_height': 2,
+		'tile_width': 1.5,
+		'tile_height': 1.5,
 		'half_tile_width': 0.75,
 		'half_tile_height': 0.75,
 	}
 	assert_expected_values(self, '1.5x1.5-tile box at (0, 0)')
 
-	self.test_box = self.create_box(TILE_SIZE // 2, TILE_SIZE // 2, TILE_SIZE * 1.5, TILE_SIZE * 1.5)
+	self.test_box = self.create_box(TILE_SIZE / 2, TILE_SIZE / 2, TILE_SIZE * 1.5, TILE_SIZE * 1.5)
 	self.expected_values = {
-		'x': TILE_SIZE // 2,
-		'y': TILE_SIZE // 2,
-		'mid_x': TILE_SIZE * 0.75 + TILE_SIZE // 2,
-		'mid_y': TILE_SIZE * 0.75 + TILE_SIZE // 2,
-		'x2': TILE_SIZE * 1.5 + TILE_SIZE // 2,
-		'y2': TILE_SIZE * 1.5 + TILE_SIZE // 2,
+		'x': TILE_SIZE / 2,
+		'y': TILE_SIZE / 2,
+		'mid_x': TILE_SIZE * 0.75 + TILE_SIZE / 2,
+		'mid_y': TILE_SIZE * 0.75 + TILE_SIZE / 2,
+		'x2': TILE_SIZE * 1.5 + TILE_SIZE / 2,
+		'y2': TILE_SIZE * 1.5 + TILE_SIZE / 2,
 		'x_tile': 0,
 		'y_tile': 0,
 		'mid_x_tile': 1,
@@ -383,21 +383,21 @@ def run_box_initialization_tests(self):
 		'height': TILE_SIZE * 1.5,
 		'half_width': TILE_SIZE * 0.75,
 		'half_height': TILE_SIZE * 0.75,
-		'tile_width': 2,
-		'tile_height': 2,
+		'tile_width': 1.5,
+		'tile_height': 1.5,
 		'half_tile_width': 0.75,
 		'half_tile_height': 0.75,
 	}
 	assert_expected_values(self, '1.5x1.5-tile box at (TILE_SIZE/2, TILE_SIZE/2)')
 
-	self.test_box = self.create_box(TILE_SIZE // 2 + 1, TILE_SIZE // 2 + 1, TILE_SIZE * 1.5, TILE_SIZE * 1.5)
+	self.test_box = self.create_box(TILE_SIZE / 2 + 1, TILE_SIZE / 2 + 1, TILE_SIZE * 1.5, TILE_SIZE * 1.5)
 	self.expected_values = {
-		'x': TILE_SIZE // 2 + 1,
-		'y': TILE_SIZE // 2 + 1,
-		'mid_x': TILE_SIZE * 0.75 + TILE_SIZE // 2 + 1,
-		'mid_y': TILE_SIZE * 0.75 + TILE_SIZE // 2 + 1,
-		'x2': TILE_SIZE * 1.5 + TILE_SIZE // 2 + 1,
-		'y2': TILE_SIZE * 1.5 + TILE_SIZE // 2 + 1,
+		'x': TILE_SIZE / 2 + 1,
+		'y': TILE_SIZE / 2 + 1,
+		'mid_x': TILE_SIZE * 0.75 + TILE_SIZE / 2 + 1,
+		'mid_y': TILE_SIZE * 0.75 + TILE_SIZE / 2 + 1,
+		'x2': TILE_SIZE * 1.5 + TILE_SIZE / 2 + 1,
+		'y2': TILE_SIZE * 1.5 + TILE_SIZE / 2 + 1,
 		'x_tile': 0,
 		'y_tile': 0,
 		'mid_x_tile': 1,
@@ -408,8 +408,8 @@ def run_box_initialization_tests(self):
 		'height': TILE_SIZE * 1.5,
 		'half_width': TILE_SIZE * 0.75,
 		'half_height': TILE_SIZE * 0.75,
-		'tile_width': 2,
-		'tile_height': 2,
+		'tile_width': 1.5,
+		'tile_height': 1.5,
 		'half_tile_width': 0.75,
 		'half_tile_height': 0.75,
 	}
@@ -483,8 +483,8 @@ def run_box_initialization_tests(self):
 		'height': TILE_SIZE * 1.5,
 		'half_width': TILE_SIZE * 0.75,
 		'half_height': TILE_SIZE * 0.75,
-		'tile_width': 2,
-		'tile_height': 2,
+		'tile_width': 1.5,
+		'tile_height': 1.5,
 		'half_tile_width': 0.75,
 		'half_tile_height': 0.75,
 	}
@@ -508,8 +508,8 @@ def run_box_initialization_tests(self):
 		'height': TILE_SIZE * 1.5,
 		'half_width': TILE_SIZE * 0.75,
 		'half_height': TILE_SIZE * 0.75,
-		'tile_width': 2,
-		'tile_height': 2,
+		'tile_width': 1.5,
+		'tile_height': 1.5,
 		'half_tile_width': 0.75,
 		'half_tile_height': 0.75,
 	}
